@@ -11,7 +11,7 @@ import {
   ROUND_BREAK,
   STARTING_HP,
 } from '~/services/game/constants'
-import { NEUTRAL_COMMAND, type ArenaId, type FighterCommand } from '~/services/game/types'
+import { NEUTRAL_COMMAND, PLAYER_INDEX, type ArenaId, type FighterCommand } from '~/services/game/types'
 import type { InputSource } from '~/services/game/input/source'
 import { hazardCeiling } from '~/services/game/physics/obstacles'
 
@@ -26,7 +26,7 @@ function makeEngine(
   return createMatchEngine({
     config: {
       seed,
-      opponent: getOpponent(opponentId),
+      opponents: [getOpponent(opponentId)],
       player: {
         kiteId: 'pecut',
         paletteId: 'senja',
@@ -128,7 +128,7 @@ describe('lives', () => {
 
     expect(engine.snapshot.phase).toBe('roundOver')
     expect(engine.snapshot.player.hp).toBe(STARTING_HP - 1)
-    expect(engine.snapshot.lastRound?.loser).toBe('player')
+    expect(engine.snapshot.lastRound?.loserIsPlayer).toBe(true)
 
     // Ride out the break and stop just past it, so the assertions see the
     // relaunched state rather than a second of hauling on top of it.
@@ -165,7 +165,7 @@ describe('lives', () => {
     run(engine, FALL_TIMEOUT + 1)
 
     expect(engine.snapshot.phase).toBe('resolved')
-    expect(engine.snapshot.outcome).toEqual({ kind: 'cut', winner: 'rival' })
+    expect(engine.snapshot.outcome).toEqual({ kind: 'cut', winner: 1 })
     expect(engine.snapshot.stats.roundsLost).toBe(STARTING_HP)
   })
 
@@ -182,7 +182,7 @@ describe('lives', () => {
 
     engine.advance(FIXED_TIMESTEP)
 
-    expect(engine.snapshot.outcome).toEqual({ kind: 'timeout', winner: 'player' })
+    expect(engine.snapshot.outcome).toEqual({ kind: 'timeout', winner: PLAYER_INDEX })
   })
 
   it('does not run the match clock during a round break', () => {
@@ -287,7 +287,7 @@ describe('the falling phase', () => {
     run(engine, FALL_TIMEOUT + 1)
 
     expect(engine.snapshot.phase).toBe('resolved')
-    expect(engine.snapshot.outcome).toEqual({ kind: 'cut', winner: 'player' })
+    expect(engine.snapshot.outcome).toEqual({ kind: 'cut', winner: PLAYER_INDEX })
   })
 
   it('always resolves eventually, even if the wind carries the kite sideways', () => {

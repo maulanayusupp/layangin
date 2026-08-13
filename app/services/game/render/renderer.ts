@@ -10,6 +10,7 @@ import { createArenaLayer, type ArenaLayer } from './arena'
 import { createCamera, type Camera } from './camera'
 import { drawKite } from './kite'
 import { ARENA } from './palette'
+import { createChaserCrowd, type ChaserCrowd } from './chasers'
 import { createParticleSystem, particleAlpha, type ParticleSystem } from './particles'
 
 /**
@@ -74,8 +75,13 @@ export function createArenaRenderer({
   const camera = createCamera()
   const backdrop: ArenaLayer = createArenaLayer(arena)
   const particles: ParticleSystem = createParticleSystem(createRandom(seed ^ 0x2f9a))
+  const crowd: ChaserCrowd = createChaserCrowd()
+  // Seeded separately so the crowd cannot shift the trail particles' draws.
+  const crowdRandom = createRandom(seed ^ 0x7b1d)
 
   let time = 0
+  /** Which fighter the crowd is currently chasing, if any. */
+  let chasing: FighterState | null = null
 
   /** Line colour shifts toward red as integrity is worn away. */
   const lineColor = (fighter: FighterState): string => {
@@ -109,6 +115,19 @@ export function createArenaRenderer({
     ctx.stroke()
   }
 
+  /**
+   * Marker colour for an opponent, by fighter index.
+   *
+   * Opponent one keeps the arena's red so a duel looks exactly as it always did;
+   * later slots shift toward orange and violet. Chosen as fixed hex rather than a
+   * hue rotation of the token so the three stay distinguishable whatever the theme
+   * does to `rivalMarker`.
+   */
+  const RIVAL_MARKERS = [ARENA.rivalMarker, '#ffa63d', '#c489ff'] as const
+
+  const rivalMarker = (index: number): string =>
+    RIVAL_MARKERS[(index - 1) % RIVAL_MARKERS.length] as string
+
   /** The fighter on the ground: a small silhouette holding a spool. */
   const drawFighter = (fighter: FighterState): void => {
     const groundY = camera.y(0)
@@ -134,8 +153,15 @@ export function createArenaRenderer({
     ctx.lineTo(x + height * 0.14, groundY)
     ctx.stroke()
 
-    // Side marker so the player can always tell which fighter is theirs.
-    ctx.fillStyle = fighter.side === 'player' ? ARENA.playerMarker : ARENA.rivalMarker
+    /**
+     * Side marker so the player can always tell which fighter is theirs — and, in a
+     * free-for-all, which opponent is which. The player's is the arena's own teal;
+     * the opponents' red is rotated a little per slot so three of them are still
+     * distinguishable at a glance.
+     */
+    ctx.fillStyle = fighter.side === 'player'
+      ? ARENA.playerMarker
+      : rivalMarker(fighter.index)
     ctx.beginPath()
     const markerY = groundY - height * 1.22
     const markerSize = Math.max(3, height * 0.11)
@@ -248,9 +274,17 @@ export function createArenaRenderer({
 
       backdrop.draw(ctx, camera, time)
 
+      /**
+       * Draw order: back to front, and the player last of each pass.
+       *
+       * Reversing the fighter list puts the rightmost (furthest downwind) flyer at
+       * the back and the player, always index 0, on top — so in a crowded sky the
+       * kite you are flying is never hidden behind someone else's.
+       */
+      const back = [...snapshot.fighters].reverse()
+
       // Lines first so the kites sit on top of their own strings.
-      drawLine(snapshot.rival)
-      drawLine(snapshot.player)
+      for (const fighter of back) drawLine(fighter)
 
       if (!reducedEffects) {
         drawClashGlow(snapshot)
@@ -259,7 +293,7 @@ export function createArenaRenderer({
           particles.emitSparks(clash.position, clash.intensity, dt)
         }
 
-        for (const fighter of [snapshot.player, snapshot.rival]) {
+        for (const fighter of snapshot.fighters) {
           if (!fighter.alive) continue
           const effect = getTrailEffect(fighter.effectId)
           const palette = getPalette(fighter.paletteId)
@@ -278,15 +312,38 @@ export function createArenaRenderer({
         drawParticles()
       }
 
-      drawFighterKite(snapshot.rival)
-      drawFighterKite(snapshot.player)
+      for (const fighter of back) drawFighterKite(fighter)
+      for (const fighter of back) drawFighter(fighter)
 
-      drawFighter(snapshot.rival)
-      drawFighter(snapshot.player)
+      /**
+       * A cut kite draws a crowd. Released once, the moment a line parts, and kept
+       * pointed at the kite as the wind carries it — the chase is half of what makes
+       * a cut worth watching.
+       */
+      // The player's own loss is the one worth watching; otherwise whoever is down.
+      const cut = !snapshot.player.alive
+        ? snapshot.player
+        : (snapshot.fighters.find(fighter => !fighter.alive) ?? null)
+
+      if (cut && cut !== chasing) {
+        chasing = cut
+        crowd.release(cut.position.x, crowdRandom)
+      }
+      else if (!cut && chasing) {
+        chasing = null
+        crowd.clear()
+      }
+
+      if (chasing) {
+        crowd.update(chasing.position.x, dt)
+        crowd.draw(ctx, camera)
+      }
     },
 
     reset(): void {
       particles.clear()
+      crowd.clear()
+      chasing = null
       time = 0
     },
   }

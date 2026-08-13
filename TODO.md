@@ -69,6 +69,13 @@ What is left, in order:
 - [ ] Practice mode: no opponent, adjustable wind, free flight.
 - [ ] Configurable lives (1 for a quick duel, 5 for a long one). `STARTING_HP` is
       a constant today.
+- [x] **Free-for-all.** Done: two or three opponents in one match, chosen in the
+      wizard, drafted by tier proximity (`services/game/lineup.ts`). Every pair of
+      lines abrades, so opponents cut each other. `MAX_FIGHTERS` is 4 — beyond that
+      the sky stops being readable at the arena's zoom level, and the HUD runs out of
+      room for pip rows.
+- [ ] Team play: two-on-two, with a shared life pool. The engine already handles four
+      fighters; what is missing is a `team` field and clash filtering.
 - [ ] Slow-motion / extended-time accessibility mode. Listed as a known gap on
       `/compliance`; this is the fix.
 - [ ] Launch phase — walk the kite up rather than starting airborne.
@@ -118,6 +125,39 @@ left is win rate.
 
 Verified working: nobody sinks unprompted, the AI never flies into the ground, and
 crossings do happen (50–90%) for a player who is not hauling.
+
+### Free-for-all, measured
+
+Same harness, passive player, open field, 6 seeds — duel against three-way against
+four-way (win rate / mean length / share of steps in line contact):
+
+```
+                 1 opponent        2 opponents       3 opponents
+T1 bocah-sawah   0/6  21s  45%     0/6  28s  45%     1/6  36s  46%
+T2 anak-kampung  0/6  23s  48%     0/6  28s  45%     1/6  30s  54%
+T3 juara-lorong  4/6  45s  17%     0/6  30s  44%     0/6  37s  47%
+T4 bos-pasar     0/6  14s  51%     0/6  21s  44%     0/6  20s  50%
+T5 si-gelasan    0/6  12s  44%     0/6  28s  39%     1/6  28s  40%
+T6 sultan-angin  1/6  45s  20%     0/6  22s  41%     0/6  33s  39%
+T7 raja-sawangan 0/6  11s  46%     0/6  17s  40%     0/6  16s  46%
+T8 naga-senja    0/6  10s  45%     0/6  10s  44%     0/6  10s  55%
+```
+
+Notes on what those numbers cost to get:
+
+- **Nearest-target selection was broken.** The first implementation had each AI go
+  after whoever was closest. Contact collapsed to 8–31% and a player giving *no
+  input at all* won 6/6 four-way matches at tiers 5, 6 and 8 — the opponents cut each
+  other and left the human alone. `PLAYER_APPEAL` in `input/ai.ts` is the fix; the
+  table above is after it.
+- A three- or four-way now runs slightly *longer* than the duel at the same tier
+  (more lives in the air), which is the right direction, and only 0–2 of 6 reach the
+  time cap against 4–6 before.
+- [ ] Tiers 3 and 6 no longer cap in a free-for-all — a third line finds them even
+      when they are dodging the player. Worth investigating whether the same trick
+      (a second AI that will not let them reposition) can be applied to the duel.
+- [ ] The passive-player floor is still ~0/6. Same caveat as the duel table: the
+      harness never walks.
 
 ## 6. Progression
 

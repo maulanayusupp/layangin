@@ -57,6 +57,9 @@ usePageSeo(() => ({
           <p class="guide__body">
             {{ t('howto.goal.body') }}
           </p>
+          <p class="guide__body">
+            {{ t('howto.goal.freeForAll') }}
+          </p>
         </UiPanel>
 
         <!-- Controls -->

@@ -432,11 +432,26 @@ export const NEUTRAL_COMMAND: Readonly<FighterCommand> = Object.freeze({
   snap: false,
 })
 
+/**
+ * Display role. Identity is `FighterState.index` — `side` only says whether a
+ * fighter is the human, because that changes how it is drawn and what the HUD
+ * treats as "yours".
+ */
 export type FighterSide = 'player' | 'rival'
+
+/** Index into `MatchSnapshot.fighters`. Index 0 is always the human player. */
+export type FighterIndex = number
+
+/** The human's slot. Never anything else — a great deal of code relies on it. */
+export const PLAYER_INDEX: FighterIndex = 0
 
 /** Everything the simulation knows about one fighter. */
 export interface FighterState {
   side: FighterSide
+  /** Position in `MatchSnapshot.fighters`. Stable for the whole match. */
+  index: FighterIndex
+  /** Which opponent definition this fighter is flying, or null for the player. */
+  opponentId: OpponentId | null
   kiteId: KiteId
   paletteId: PaletteId
   patternId: PatternId
@@ -462,14 +477,25 @@ export interface FighterState {
   /** 0..1 remaining line health. Reaching 0 means the line is cut. */
   lineIntegrity: number
   /**
-   * Lives left. Losing a line costs one and relaunches the round; the match ends
-   * when a fighter reaches 0. See STARTING_HP.
+   * Lives left. Losing a line costs one and relaunches the round; a fighter that
+   * reaches 0 is out of the match. See STARTING_HP.
    */
   hp: number
+  /**
+   * True once this fighter's lives are gone. An eliminated fighter is not
+   * relaunched and takes no further part.
+   */
+  eliminated: boolean
   /** 0..1 arm strength; drained by hauling and snapping. */
   stamina: number
   /** Divides stamina drain. Comes from the stamina upgrade. */
   staminaEfficiency: number
+  /**
+   * How far this fighter may walk from the arena centre, metres. A property of the
+   * fighter rather than a constant because a crowded field is a wider field —
+   * see `walkBoundFor`.
+   */
+  walkBound: number
   /** Seconds until snap is available again. */
   snapCooldown: number
   /** Seconds remaining of an active snap. */
@@ -505,19 +531,25 @@ export type RoundEndReason = 'cut' | 'crash' | 'obstacle' | 'cable'
 
 export interface RoundResult {
   /** Which fighter lost the life. */
-  loser: FighterSide
+  loser: FighterIndex
+  /** True when the loser was the human, so the banner can say "you". */
+  loserIsPlayer: boolean
   reason: RoundEndReason
   /** 1-based round number that just finished. */
   round: number
 }
 
+/**
+ * `winner` is a fighter index, or 'draw'. The player is index 0, so
+ * `winner === 0` is a player win — use `isPlayerWin` rather than testing it inline.
+ */
 export type MatchOutcome
   = | { kind: 'pending' }
-    | { kind: 'cut', winner: FighterSide }
-    | { kind: 'crash', winner: FighterSide }
+    | { kind: 'cut', winner: FighterIndex | 'draw' }
+    | { kind: 'crash', winner: FighterIndex | 'draw' }
     /** Flew into an arena structure. */
-    | { kind: 'obstacle', winner: FighterSide }
-    | { kind: 'timeout', winner: FighterSide | 'draw' }
+    | { kind: 'obstacle', winner: FighterIndex | 'draw' }
+    | { kind: 'timeout', winner: FighterIndex | 'draw' }
 
 export interface ClashPoint {
   position: Vec2
@@ -525,16 +557,22 @@ export interface ClashPoint {
   angle: number
   /** Relative sliding speed of the two lines, m/s. */
   slip: number
-  /** 0..1 share of the abrasion currently going to the player's line. */
-  playerShare: number
   intensity: number
   /**
-   * `line` is the duel proper; `obstacle` is a cable in the arena, which abrades
-   * without abrading back. The renderer sparks both but tints them differently.
+   * `line` is a duel between two fighters; `obstacle` is a cable in the arena,
+   * which abrades without abrading back. The renderer sparks both but tints them
+   * differently.
    */
   kind: 'line' | 'obstacle'
-  /** For `obstacle` clashes, which fighter's line is being sawn. */
-  victim?: FighterSide
+  /** The two fighters involved. For `obstacle`, `b` is -1. */
+  a: FighterIndex
+  b: FighterIndex
+  /**
+   * 0..1 share of the abrasion flowing *from* A *to* B — A's tension share. High
+   * means A's line is the blade. For `obstacle` this is always 1: the cable cuts
+   * and takes nothing back.
+   */
+  aShare: number
 }
 
 export interface WindSample {
@@ -555,12 +593,35 @@ export interface MatchStats {
   /** Rounds won and lost, for the result screen. */
   roundsWon: number
   roundsLost: number
+  /** Opponents the player outlasted, for the reward. */
+  opponentsBeaten: number
+}
+
+/**
+ * Result helpers. Prefer these to comparing `winner` by hand: the player is index 0,
+ * and `outcome.winner === 0` reads like a bug even when it is correct.
+ */
+export function isPlayerWin(outcome: MatchOutcome): boolean {
+  return outcome.kind !== 'pending' && outcome.winner === PLAYER_INDEX
+}
+
+export function isDraw(outcome: MatchOutcome): boolean {
+  return outcome.kind !== 'pending' && outcome.winner === 'draw'
+}
+
+export function isPlayerLoss(outcome: MatchOutcome): boolean {
+  return outcome.kind !== 'pending' && !isDraw(outcome) && !isPlayerWin(outcome)
 }
 
 export interface MatchSnapshot {
   phase: MatchPhase
   outcome: MatchOutcome
   arena: ArenaDefinition
+  /**
+   * Everyone in the air, player first. Two for a duel, three or four for a
+   * free-for-all, where a cut can come from any direction.
+   */
+  fighters: FighterState[]
   /** Seconds elapsed in the flying phase. */
   elapsed: number
   timeLimit: number
@@ -572,7 +633,12 @@ export interface MatchSnapshot {
   lastRound: RoundResult | null
   /** Seconds left on the between-rounds pause; 0 outside `roundOver`. */
   roundBreak: number
+  /** Convenience alias for `fighters[0]`. */
   player: FighterState
+  /**
+   * The opponent the HUD treats as the main threat: the nearest fighter still in
+   * the match. In a duel this is simply the other one.
+   */
   rival: FighterState
   wind: WindSample
   /** Reference wind speed at 10 m, m/s — what the HUD gauge shows. */
@@ -591,7 +657,11 @@ export interface MatchLoadout {
 
 export interface MatchConfig {
   seed: number
-  opponent: OpponentDefinition
+  /**
+   * Everyone the player is up against. One for a duel, two or three for a
+   * free-for-all — they fight each other as readily as they fight the player.
+   */
+  opponents: readonly OpponentDefinition[]
   player: MatchLoadout
   arena: ArenaDefinition
   timeLimit: number

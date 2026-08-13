@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { computeReward, difficultyForClears, isPlayerWin } from '~/services/economy/rewards'
+import { computeReward, difficultyForClears } from '~/services/economy/rewards'
+import { isPlayerWin, PLAYER_INDEX } from '~/services/game/types'
 import { checkPurchase } from '~/services/economy/shop'
 import { resolveLoadout, rateLoadout } from '~/services/game/loadout'
 import { getOpponent, availableOpponents } from '~/data/opponents'
@@ -15,34 +16,37 @@ const stats: MatchStats = {
   peakTension: 120,
   snapsUsed: 3,
   peakAltitude: 70,
+  roundsWon: 1,
+  roundsLost: 0,
+  opponentsBeaten: 1,
 }
 
 describe('rewards', () => {
   const opponent = getOpponent('anak-kampung')
 
   it('pays the full base reward for a clean cut', () => {
-    const reward = computeReward({ kind: 'cut', winner: 'player' }, opponent, stats, 1, true)
+    const reward = computeReward({ kind: 'cut', winner: PLAYER_INDEX }, [opponent], stats, 1, [true])
     expect(reward.coins).toBe(opponent.reward)
   })
 
   it('pays less for a scrappier win', () => {
-    const cut = computeReward({ kind: 'cut', winner: 'player' }, opponent, stats, 1, true)
-    const crash = computeReward({ kind: 'crash', winner: 'player' }, opponent, stats, 1, true)
-    const timeout = computeReward({ kind: 'timeout', winner: 'player' }, opponent, stats, 1, true)
+    const cut = computeReward({ kind: 'cut', winner: PLAYER_INDEX }, [opponent], stats, 1, [true])
+    const crash = computeReward({ kind: 'crash', winner: PLAYER_INDEX }, [opponent], stats, 1, [true])
+    const timeout = computeReward({ kind: 'timeout', winner: PLAYER_INDEX }, [opponent], stats, 1, [true])
 
     expect(crash.coins).toBeLessThan(cut.coins)
     expect(timeout.coins).toBeLessThan(crash.coins)
   })
 
   it('still pays something on a loss, so progress never fully stalls', () => {
-    const reward = computeReward({ kind: 'cut', winner: 'rival' }, opponent, stats, 1, true)
+    const reward = computeReward({ kind: 'cut', winner: 1 }, [opponent], stats, 1, [true])
     expect(reward.coins).toBeGreaterThan(0)
     expect(reward.coins).toBeLessThan(opponent.reward)
   })
 
   it('adds a first-win bounty only the first time', () => {
-    const first = computeReward({ kind: 'cut', winner: 'player' }, opponent, stats, 1, false)
-    const repeat = computeReward({ kind: 'cut', winner: 'player' }, opponent, stats, 1, true)
+    const first = computeReward({ kind: 'cut', winner: PLAYER_INDEX }, [opponent], stats, 1, [false])
+    const repeat = computeReward({ kind: 'cut', winner: PLAYER_INDEX }, [opponent], stats, 1, [true])
 
     expect(first.isFirstWin).toBe(true)
     expect(repeat.isFirstWin).toBe(false)
@@ -51,29 +55,29 @@ describe('rewards', () => {
 
   it('pays a larger first-win bounty for a boss', () => {
     const boss = getOpponent('bos-pasar')
-    const normal = computeReward({ kind: 'cut', winner: 'player' }, opponent, stats, 1, false)
-    const bossReward = computeReward({ kind: 'cut', winner: 'player' }, boss, stats, 1, false)
+    const normal = computeReward({ kind: 'cut', winner: PLAYER_INDEX }, [opponent], stats, 1, [false])
+    const bossReward = computeReward({ kind: 'cut', winner: PLAYER_INDEX }, [boss], stats, 1, [false])
 
     // Relative to their own base reward, the boss bounty is the bigger share.
     expect(bossReward.bonusCoins / boss.reward).toBeGreaterThan(normal.bonusCoins / opponent.reward)
   })
 
   it('applies the reputation multiplier', () => {
-    const plain = computeReward({ kind: 'cut', winner: 'player' }, opponent, stats, 1, true)
-    const lucky = computeReward({ kind: 'cut', winner: 'player' }, opponent, stats, 1.5, true)
+    const plain = computeReward({ kind: 'cut', winner: PLAYER_INDEX }, [opponent], stats, 1, [true])
+    const lucky = computeReward({ kind: 'cut', winner: PLAYER_INDEX }, [opponent], stats, 1.5, [true])
 
     expect(lucky.coins).toBeGreaterThan(plain.coins)
   })
 
   it('pays nothing for an unfinished match', () => {
-    const reward = computeReward({ kind: 'pending' }, opponent, stats, 1, false)
+    const reward = computeReward({ kind: 'pending' }, [opponent], stats, 1, [false])
     expect(reward.coins).toBe(0)
     expect(reward.bonusCoins).toBe(0)
   })
 
   it('identifies a player win regardless of how it was won', () => {
-    expect(isPlayerWin({ kind: 'cut', winner: 'player' })).toBe(true)
-    expect(isPlayerWin({ kind: 'crash', winner: 'player' })).toBe(true)
+    expect(isPlayerWin({ kind: 'cut', winner: PLAYER_INDEX })).toBe(true)
+    expect(isPlayerWin({ kind: 'crash', winner: PLAYER_INDEX })).toBe(true)
     expect(isPlayerWin({ kind: 'timeout', winner: 'draw' })).toBe(false)
     expect(isPlayerWin({ kind: 'pending' })).toBe(false)
   })

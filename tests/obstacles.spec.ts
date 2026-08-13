@@ -227,7 +227,7 @@ describe('arena effect on a match', () => {
     return createMatchEngine({
       config: {
         seed: 31337,
-        opponent: getOpponent('bocah-sawah'),
+        opponents: [getOpponent('bocah-sawah')],
         player: {
           kiteId: 'pecut',
           paletteId: 'senja',

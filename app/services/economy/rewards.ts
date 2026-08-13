@@ -1,8 +1,10 @@
-import type {
-  MatchOutcome,
-  MatchReward,
-  MatchStats,
-  OpponentDefinition,
+import {
+  isDraw as outcomeIsDraw,
+  isPlayerWin,
+  type MatchOutcome,
+  type MatchReward,
+  type MatchStats,
+  type OpponentDefinition,
 } from '~/services/game/types'
 
 /**
@@ -12,6 +14,10 @@ import type {
  * less, and a loss still pays a little so a losing streak never leaves a player
  * unable to afford the upgrade that would break it. First wins pay a bounty so
  * working down the ladder feels like progress rather than grinding one opponent.
+ *
+ * A free-for-all pays the sum of every opponent's base reward, because outlasting
+ * two or three at once is that much harder — the reward follows the risk rather
+ * than being a flat bonus for picking a bigger fight.
  */
 
 /** Share of the base reward paid for each kind of win. */
@@ -31,40 +37,43 @@ const FIRST_BOSS_BONUS = 1
 
 export function computeReward(
   outcome: MatchOutcome,
-  opponent: OpponentDefinition,
+  /** Everyone the player was up against. One for a duel. */
+  opponents: readonly OpponentDefinition[],
   stats: MatchStats,
   rewardMultiplier: number,
-  alreadyDefeated: boolean,
+  /** Which of `opponents` had already been beaten before this match, in order. */
+  alreadyDefeated: readonly boolean[],
 ): MatchReward {
-  const base = opponent.reward
+  const base = opponents.reduce((total, opponent) => total + opponent.reward, 0)
 
   if (outcome.kind === 'pending') {
     return { coins: 0, bonusCoins: 0, isFirstWin: false, outcome }
   }
 
-  const playerWon
-    = (outcome.kind === 'cut' && outcome.winner === 'player')
-      || (outcome.kind === 'crash' && outcome.winner === 'player')
-      || (outcome.kind === 'timeout' && outcome.winner === 'player')
-
-  const isDraw = outcome.kind === 'timeout' && outcome.winner === 'draw'
+  const playerWon = isPlayerWin(outcome) && outcome.kind !== 'obstacle'
+  const isDraw = outcomeIsDraw(outcome)
 
   let coins: number
   if (isDraw) {
     coins = base * DRAW_SHARE
   }
   else if (playerWon) {
-    coins = base * WIN_MULTIPLIER[outcome.kind]
+    coins = base * WIN_MULTIPLIER[outcome.kind as 'cut' | 'crash' | 'timeout']
   }
   else {
     coins = base * LOSS_SHARE
   }
 
   let bonusCoins = 0
-  const isFirstWin = playerWon && !alreadyDefeated
+  // Any opponent beaten for the first time pays its own bounty, so a free-for-all
+  // against three new faces is worth three bounties.
+  const firstTimers = playerWon
+    ? opponents.filter((_, index) => alreadyDefeated[index] !== true)
+    : []
+  const isFirstWin = firstTimers.length > 0
 
-  if (isFirstWin) {
-    bonusCoins += base * (opponent.isBoss ? FIRST_BOSS_BONUS : FIRST_WIN_BONUS)
+  for (const opponent of firstTimers) {
+    bonusCoins += opponent.reward * (opponent.isBoss ? FIRST_BOSS_BONUS : FIRST_WIN_BONUS)
   }
 
   if (playerWon) {
@@ -81,11 +90,6 @@ export function computeReward(
     isFirstWin,
     outcome,
   }
-}
-
-/** Did the player win, whatever the manner? */
-export function isPlayerWin(outcome: MatchOutcome): boolean {
-  return outcome.kind !== 'pending' && 'winner' in outcome && outcome.winner === 'player'
 }
 
 /**

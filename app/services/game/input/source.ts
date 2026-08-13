@@ -14,8 +14,17 @@ import type { FighterCommand, FighterState, WindSample } from '../types'
 export interface InputContext {
   /** The fighter this source is driving. */
   self: FighterState
-  /** The other fighter, as visible on screen. AI gets nothing extra. */
+  /**
+   * The fighter treated as "them": the nearest one still in the match. In a duel
+   * that is simply the other one. AI gets nothing extra.
+   */
   opponent: FighterState
+  /**
+   * Everyone else in the air, nearest first, excluding this fighter. A duel has one
+   * entry; a free-for-all has two or three, which is what lets an AI pick which of
+   * them to go after rather than being told.
+   */
+  others: readonly FighterState[]
   wind: WindSample
   /**
    * True while the two flying lines are crossed. A fighter on the field can see

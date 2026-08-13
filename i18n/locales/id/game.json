@@ -167,7 +167,28 @@
         "kite": "Layangan Anda",
         "arena": "Lapangan",
         "opponent": "Lawan"
+      },
+      "format": {
+        "legend": "Format duel",
+        "hint": "Di adu rame-rame semua saling serang. Dua lawan yang sibuk satu sama lain berarti dua lawan yang tidak menggerus benang Anda — tapi siapa pun bisa mengejar Anda.",
+        "alsoFlying": "Ikut terbang: {names}",
+        "size": {
+          "1": "Satu lawan satu",
+          "2": "Tiga penerbang",
+          "3": "Empat penerbang"
+        },
+        "note": {
+          "1": "Satu lawan, satu benang yang harus dikalahkan.",
+          "2": "Dua lawan. Mereka juga saling menggerus.",
+          "3": "Tiga lawan di langit yang penuh."
+        }
       }
+    },
+    "leave": {
+      "title": "Tinggalkan duel?",
+      "body": "Duelnya masih berjalan. Keluar sekarang berarti melepas ronde ini beserta koin yang seharusnya didapat.",
+      "stay": "Lanjut terbang",
+      "go": "Tetap keluar"
     }
   },
   "opponents": {

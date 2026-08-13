@@ -1,17 +1,19 @@
 import {
+  anchorsFor,
   COUNTDOWN_SECONDS,
   CRASH_ALTITUDE,
   CRASH_GRACE,
   FALL_TIMEOUT,
   FIXED_TIMESTEP,
+  MAX_FIGHTERS,
   MAX_FRAME_TIME,
-  PLAYER_ANCHOR_X,
-  RIVAL_ANCHOR_X,
   ROUND_BREAK,
   START_LINE_LENGTH,
+  walkBoundFor,
 } from './constants'
 import { getKite } from '~/data/kites'
 import { createRandom } from './math/random'
+import * as V from './math/vector'
 import { resolveLoadout } from './loadout'
 import { applyAbrasion, detectClashes } from './physics/combat'
 import {
@@ -27,7 +29,7 @@ import {
   findCollision,
   hazardCeiling,
   windFactorAt,
-  type CableContact,
+  type CableContact as Contact,
 } from './physics/obstacles'
 import { createWindField } from './physics/wind'
 import { createAiInput, scaleAiProfile } from './input/ai'
@@ -35,11 +37,12 @@ import type { InputSource } from './input/source'
 import {
   NEUTRAL_COMMAND,
   type ClashPoint,
-  type FighterSide,
+  type FighterIndex,
   type FighterState,
   type MatchConfig,
   type MatchOutcome,
   type MatchSnapshot,
+  type OpponentDefinition,
   type RoundEndReason,
   type WindSample,
 } from './types'
@@ -56,6 +59,12 @@ import {
  * 2. **Determinism** — identical seed plus identical command stream gives an
  *    identical result on any machine, which is what makes replays and the
  *    planned lockstep netcode possible.
+ *
+ * ## Two fighters or four
+ * Everything is written against `snapshot.fighters`, with the human at index 0.
+ * A duel is simply the two-element case. In a free-for-all every pair of lines is
+ * tested against every other, so an opponent can cut another opponent — and the
+ * round ends when the player goes out or only one line is left intact.
  *
  * ## Snapshot
  * `snapshot` is a long-lived, mutated-in-place object. The renderer and the HUD
@@ -78,32 +87,47 @@ export interface MatchEngineOptions {
   config: MatchConfig
   /** Input for the human (or, in a replay, a recorded stream). */
   playerInput: InputSource
-  /** Defaults to an AI built from the opponent definition. */
-  rivalInput?: InputSource
+  /**
+   * Overrides for the opponents' inputs, in `config.opponents` order. Any slot left
+   * empty gets an AI built from that opponent's definition. Tests use this to drive
+   * an opponent deterministically.
+   */
+  rivalInputs?: readonly (InputSource | undefined)[]
 }
 
 export function createMatchEngine({
   config,
   playerInput,
-  rivalInput,
+  rivalInputs,
 }: MatchEngineOptions): MatchEngine {
-  const { opponent, arena } = config
+  const { arena } = config
+
+  // At least one opponent, at most a four-way sky.
+  const opponents = config.opponents.slice(0, MAX_FIGHTERS - 1)
+  if (opponents.length === 0) throw new Error('a match needs at least one opponent')
+
+  /** The one the player chose on the ladder. It sets the conditions. */
+  const primary = opponents[0] as OpponentDefinition
+  const count = opponents.length + 1
 
   // Two independent streams so the AI's decisions cannot be shifted by a change
   // in how many gust samples the wind field happens to draw.
   const windRandom = createRandom(config.seed)
-  const aiRandom = createRandom(config.seed ^ 0x5bf03635)
 
   // The arena shapes the air: a beach is windier and gustier than a rice field,
   // and an alley between buildings is slower but choppier.
   const wind = createWindField({
-    referenceSpeed: opponent.windSpeed * arena.windMultiplier,
-    gustiness: opponent.gustiness * arena.gustMultiplier,
+    referenceSpeed: primary.windSpeed * arena.windMultiplier,
+    gustiness: primary.gustiness * arena.gustMultiplier,
     seed: windRandom.int(0, 0xffffff),
   })
 
-  const playerLoadout = resolveLoadout(config.player.kiteId, config.player.upgrades)
-  const rivalLoadout = resolveLoadout(opponent.kiteId, opponent.upgrades)
+  /**
+   * Ground positions, player leftmost — that is, furthest upwind, since the wind
+   * blows along +x. A duel therefore still stands at −7/+7 exactly as before.
+   */
+  const anchors = anchorsFor(count)
+  const walkBound = walkBoundFor(count)
 
   /**
    * Launch altitude that clears every hazard between the anchor and where the
@@ -122,9 +146,12 @@ export function createMatchEngine({
     return ceiling === 0 ? 0 : ceiling + 10
   }
 
+  const playerLoadout = resolveLoadout(config.player.kiteId, config.player.upgrades)
+
   const player = createFighter({
     side: 'player',
-    anchorX: PLAYER_ANCHOR_X,
+    index: 0,
+    anchorX: anchors[0] as number,
     stats: playerLoadout.stats,
     reelSpeed: playerLoadout.reelSpeed,
     staminaEfficiency: playerLoadout.staminaEfficiency,
@@ -132,43 +159,93 @@ export function createMatchEngine({
     paletteId: config.player.paletteId,
     patternId: config.player.patternId,
     effectId: config.player.effectId,
-    minAltitude: safeLaunchAltitude(PLAYER_ANCHOR_X),
+    minAltitude: safeLaunchAltitude(anchors[0] as number),
+    walkBound,
   })
 
-  const rival = createFighter({
-    side: 'rival',
-    anchorX: RIVAL_ANCHOR_X,
-    stats: rivalLoadout.stats,
-    reelSpeed: rivalLoadout.reelSpeed,
-    staminaEfficiency: rivalLoadout.staminaEfficiency,
-    kiteId: opponent.kiteId,
-    paletteId: opponent.paletteId,
-    patternId: opponent.patternId,
-    effectId: opponent.effectId,
-    minAltitude: safeLaunchAltitude(RIVAL_ANCHOR_X),
-  })
+  const fighters: FighterState[] = [player]
+  const inputs: InputSource[] = [playerInput]
 
-  const rivalSource
-    = rivalInput
+  opponents.forEach((opponent, slot) => {
+    const anchorX = anchors[slot + 1] as number
+    const loadout = resolveLoadout(opponent.kiteId, opponent.upgrades)
+
+    fighters.push(createFighter({
+      side: 'rival',
+      index: slot + 1,
+      opponentId: opponent.id,
+      anchorX,
+      stats: loadout.stats,
+      reelSpeed: loadout.reelSpeed,
+      staminaEfficiency: loadout.staminaEfficiency,
+      kiteId: opponent.kiteId,
+      paletteId: opponent.paletteId,
+      patternId: opponent.patternId,
+      effectId: opponent.effectId,
+      minAltitude: safeLaunchAltitude(anchorX),
+      walkBound,
+    }))
+
+    inputs.push(
+      rivalInputs?.[slot]
       ?? createAiInput({
         profile: scaleAiProfile(opponent.ai, config.difficultyScale),
-        random: aiRandom,
+        // Derived per slot so each opponent draws its own decisions rather than
+        // marching in step with the others.
+        random: createRandom(config.seed ^ (0x5bf03635 + slot * 0x9e3779b9)),
         clearance: clearanceFor,
-      })
+        bounds: walkBound,
+      }),
+    )
+  })
 
-  /** Collision margin: roughly the kite's own half-span. */
-  const playerMargin = getKite(config.player.kiteId).size / 2
-  const rivalMargin = getKite(opponent.kiteId).size / 2
+  /** Collision margin per fighter: roughly the kite's own half-span. */
+  const margins = fighters.map(fighter => getKite(fighter.kiteId).size / 2)
 
   const clashes: ClashPoint[] = []
   const lineClashes: ClashPoint[] = []
-  const playerCables: CableContact[] = []
-  const rivalCables: CableContact[] = []
+  const cables: Contact[][] = fighters.map(() => [])
+  /** Whether each fighter's line is touching another's, from the previous step. */
+  const contact: boolean[] = fighters.map(() => false)
+  /** Who has already lost their line this round, so a life is deducted once. */
+  const roundOut: boolean[] = fighters.map(() => false)
+
+  /**
+   * The opponent the HUD calls "them": the nearest kite still in the match. In a
+   * duel that is simply the other fighter.
+   */
+  /** Scratch buffers, one per fighter, so the per-step sort allocates nothing. */
+  const rivalLists: FighterState[][] = fighters.map(() => [])
+
+  /**
+   * Everyone else, nearest first. A downed or eliminated kite is pushed to the back
+   * rather than dropped, so the list is never empty and callers always have someone
+   * to read.
+   */
+  const rivalsOf = (self: FighterState): FighterState[] => {
+    const list = rivalLists[self.index] as FighterState[]
+    list.length = 0
+
+    for (const other of fighters) {
+      if (other !== self) list.push(other)
+    }
+
+    const rank = (other: FighterState): number =>
+      V.distance(self.position, other.position)
+      + (other.alive ? 0 : 1e4)
+      + (other.eliminated ? 1e6 : 0)
+
+    return list.sort((a, b) => rank(a) - rank(b))
+  }
+
+  const nearestRival = (self: FighterState): FighterState =>
+    rivalsOf(self)[0] as FighterState
 
   const snapshot: MatchSnapshot = {
     phase: 'countdown',
     outcome: { kind: 'pending' },
     arena,
+    fighters,
     elapsed: 0,
     timeLimit: config.timeLimit,
     countdown: COUNTDOWN_SECONDS,
@@ -176,9 +253,9 @@ export function createMatchEngine({
     lastRound: null,
     roundBreak: 0,
     player,
-    rival,
+    rival: fighters[1] as FighterState,
     wind: wind.sample(player.position.y),
-    windSpeed: opponent.windSpeed * arena.windMultiplier,
+    windSpeed: primary.windSpeed * arena.windMultiplier,
     clashes,
     stats: {
       durationSeconds: 0,
@@ -188,6 +265,7 @@ export function createMatchEngine({
       peakAltitude: 0,
       roundsWon: 0,
       roundsLost: 0,
+      opponentsBeaten: 0,
     },
   }
 
@@ -200,6 +278,8 @@ export function createMatchEngine({
   /** Outcome held back while the deciding kite is still falling. */
   let pendingOutcome: MatchOutcome | null = null
   let fallTimer = 0
+  /** Why the most recent fighter went out, for the result kind. */
+  let lastReason: RoundEndReason = 'cut'
 
   const resolve = (outcome: MatchOutcome): void => {
     if (snapshot.phase === 'resolved') return
@@ -226,36 +306,41 @@ export function createMatchEngine({
     }
   }
 
+  /** Advance every kite in a non-playing phase: survivors fly, cut kites tumble. */
+  const coast = (dt: number, winds: readonly WindSample[]): void => {
+    for (const fighter of fighters) {
+      const fighterWind = winds[fighter.index] as WindSample
+      if (fighter.alive) stepFighter(fighter, NEUTRAL_COMMAND, fighterWind, windDirection, dt)
+      else driftCutKite(fighter, fighterWind, dt)
+    }
+  }
+
   const simulate = (dt: number): void => {
     wind.update(dt)
 
-    const playerWind = windFor(player)
-    const rivalWind = windFor(rival)
-    snapshot.wind = playerWind
+    const winds = fighters.map(windFor)
+    snapshot.wind = winds[0] as WindSample
     snapshot.windSpeed = wind.currentReferenceSpeed()
+    snapshot.rival = nearestRival(player)
 
     if (snapshot.phase === 'resolved') {
-      // Let the losing kite tumble away downwind so the result reads visually.
-      if (!player.alive) driftCutKite(player, playerWind, dt)
-      if (!rival.alive) driftCutKite(rival, rivalWind, dt)
+      // Let the losing kites tumble away downwind so the result reads visually.
+      for (const fighter of fighters) {
+        if (!fighter.alive) driftCutKite(fighter, winds[fighter.index] as WindSample, dt)
+      }
       return
     }
 
     if (snapshot.phase === 'falling') {
-      // Everything keeps moving: the cut kite tumbles down, the survivor flies on.
-      if (player.alive) stepFighter(player, NEUTRAL_COMMAND, playerWind, windDirection, dt)
-      else driftCutKite(player, playerWind, dt)
-
-      if (rival.alive) stepFighter(rival, NEUTRAL_COMMAND, rivalWind, windDirection, dt)
-      else driftCutKite(rival, rivalWind, dt)
-
+      // Everything keeps moving: the cut kites tumble down, survivors fly on.
+      coast(dt, winds)
       fallTimer -= dt
 
       // Resolve once every cut kite has reached the ground, or the wind has carried
       // one sideways for long enough that waiting stops being interesting.
-      const grounded
-        = (player.alive || player.position.y <= CRASH_ALTITUDE)
-          && (rival.alive || rival.position.y <= CRASH_ALTITUDE)
+      const grounded = fighters.every(
+        fighter => fighter.alive || fighter.position.y <= CRASH_ALTITUDE,
+      )
 
       if ((grounded || fallTimer <= 0) && pendingOutcome) {
         resolve(pendingOutcome)
@@ -265,13 +350,9 @@ export function createMatchEngine({
     }
 
     if (snapshot.phase === 'roundOver') {
-      // The cut kite tumbles away while the survivor keeps flying, so the pause
+      // The cut kite tumbles away while the survivors keep flying, so the pause
       // shows the consequence instead of freezing the arena.
-      if (player.alive) stepFighter(player, NEUTRAL_COMMAND, playerWind, windDirection, dt)
-      else driftCutKite(player, playerWind, dt)
-
-      if (rival.alive) stepFighter(rival, NEUTRAL_COMMAND, rivalWind, windDirection, dt)
-      else driftCutKite(rival, rivalWind, dt)
+      coast(dt, winds)
 
       // The match clock does not run during the break.
       snapshot.roundBreak = Math.max(0, snapshot.roundBreak - dt)
@@ -279,41 +360,59 @@ export function createMatchEngine({
       return
     }
 
-    // Contact from the previous step: this step's clashes are not known until the
-    // fighters have moved, and one step of latency is imperceptible.
-    const inContact = clashes.some(clash => clash.kind === 'line')
+    for (const fighter of fighters) {
+      const fighterWind = winds[fighter.index] as WindSample
 
-    const playerCommand = player.alive
-      ? playerInput.sample({
-          self: player, opponent: rival, wind: playerWind,
-          contact: inContact, elapsed: snapshot.elapsed, dt,
-        })
-      : NEUTRAL_COMMAND
+      /**
+       * A fighter cut earlier in this round keeps tumbling while the others fight on.
+       *
+       * In a duel this never came up — a cut ended the round immediately. With three
+       * or four in the air the round carries on without whoever went out, and their
+       * kite has to keep falling; left on `stepFighter` alone it would hang frozen
+       * in the sky for the rest of the round.
+       */
+      if (!fighter.alive) {
+        driftCutKite(fighter, fighterWind, dt)
+        continue
+      }
 
-    const rivalCommand = rival.alive
-      ? rivalSource.sample({
-          self: rival, opponent: player, wind: rivalWind,
-          contact: inContact, elapsed: snapshot.elapsed, dt,
-        })
-      : NEUTRAL_COMMAND
+      const rivals = rivalsOf(fighter)
 
-    stepFighter(player, playerCommand, playerWind, windDirection, dt)
-    stepFighter(rival, rivalCommand, rivalWind, windDirection, dt)
+      const command = (inputs[fighter.index] as InputSource).sample({
+        self: fighter,
+        opponent: rivals[0] as FighterState,
+        others: rivals,
+        wind: fighterWind,
+        // Contact from the previous step: this step's clashes are not known
+        // until the fighters have moved, and one step of latency is imperceptible.
+        contact: contact[fighter.index] as boolean,
+        elapsed: snapshot.elapsed,
+        dt,
+      })
+
+      stepFighter(fighter, command, fighterWind, windDirection, dt)
+    }
 
     // --- Contacts -----------------------------------------------------------
     clashes.length = 0
 
-    detectClashes(player, rival, lineClashes)
+    detectClashes(fighters, lineClashes)
     for (const clash of lineClashes) clashes.push(clash)
-    const abrasion = applyAbrasion(player, rival, lineClashes, dt)
+    const abrasion = applyAbrasion(fighters, lineClashes, dt)
+
+    for (let i = 0; i < contact.length; i += 1) contact[i] = false
+    for (const clash of lineClashes) {
+      contact[clash.a] = true
+      contact[clash.b] = true
+    }
 
     // Arena cables cut without being cut back.
-    playerCables.length = 0
-    rivalCables.length = 0
-    findCableContacts(arena, player, playerCables)
-    findCableContacts(arena, rival, rivalCables)
-    applyCableWear(player, playerCables, dt, clashes)
-    applyCableWear(rival, rivalCables, dt, clashes)
+    for (const fighter of fighters) {
+      const own = cables[fighter.index] as Contact[]
+      own.length = 0
+      findCableContacts(arena, fighter, own)
+      applyCableWear(fighter, own, dt, clashes)
+    }
 
     snapshot.elapsed += dt
     roundAge += dt
@@ -328,90 +427,131 @@ export function createMatchEngine({
     playerSnapWasActive = player.snapActive > 0
 
     // --- Round conditions ---------------------------------------------------
-    // Losing a line costs one life, not the match. Both going at once costs
-    // both a life, which is the fair reading of a simultaneous cut.
-    if (!player.alive || !rival.alive) {
-      const cableCut
-        = (!player.alive && playerCables.length > 0)
-          || (!rival.alive && rivalCables.length > 0)
-      endRound(!player.alive, !rival.alive, cableCut ? 'cable' : 'cut')
-      return
+    // Losing a line costs one life, not the match. Everyone who goes out on the
+    // same step pays, which is the fair reading of a simultaneous cut.
+    for (const fighter of fighters) {
+      if (fighter.alive || roundOut[fighter.index]) continue
+      markOut(fighter, (cables[fighter.index] as Contact[]).length > 0 ? 'cable' : 'cut')
     }
 
     // Hitting a structure or the ground also costs a life, but only after the
     // grace period so a round is never lost to the launch attitude.
     if (roundAge > CRASH_GRACE) {
-      const playerHitStructure = findCollision(arena, player.position, playerMargin) !== null
-      const rivalHitStructure = findCollision(arena, rival.position, rivalMargin) !== null
+      for (const fighter of fighters) {
+        if (roundOut[fighter.index]) continue
 
-      if (playerHitStructure || rivalHitStructure) {
-        endRound(playerHitStructure, rivalHitStructure, 'obstacle')
-        return
-      }
-
-      const playerDown = hasCrashed(player)
-      const rivalDown = hasCrashed(rival)
-      if (playerDown || rivalDown) {
-        endRound(playerDown, rivalDown, 'crash')
-        return
+        if (findCollision(arena, fighter.position, margins[fighter.index] as number) !== null) {
+          fighter.alive = false
+          markOut(fighter, 'obstacle')
+        }
+        else if (hasCrashed(fighter)) {
+          fighter.alive = false
+          markOut(fighter, 'crash')
+        }
       }
     }
 
-    if (snapshot.elapsed >= snapshot.timeLimit) {
-      // Time out: more lives wins, then the healthier line. A dead heat draws.
-      const hpDifference = player.hp - rival.hp
-      const lineDifference = player.lineIntegrity - rival.lineIntegrity
-      const winner: FighterSide | 'draw'
-        = hpDifference !== 0
-          ? hpDifference > 0 ? 'player' : 'rival'
-          : Math.abs(lineDifference) < 0.02
-            ? 'draw'
-            : lineDifference > 0 ? 'player' : 'rival'
-      resolve({ kind: 'timeout', winner })
+    /**
+     * The round is over when the player goes out, or when only one line is left.
+     *
+     * The player's own cut ends it even with opponents still flying: watching two
+     * AI flyers finish a duel you are no longer in is not a game. The other way
+     * round, the player is welcome to stand back and let the opponents cut each
+     * other — which is exactly the tactic a free-for-all should reward.
+     */
+    const contenders = fighters.filter(fighter => !roundOut[fighter.index]).length
+    if (roundOut[0] || contenders <= 1) {
+      closeRound()
+      return
     }
+
+    if (snapshot.elapsed >= snapshot.timeLimit) resolveOnTime()
   }
 
   /**
-   * Score a lost round.
+   * Deduct a life and record what happened.
    *
-   * Deducts a life from whoever went out, records what happened for the banner,
-   * and either resolves the match or opens the between-rounds pause. Nothing is
+   * Called at most once per fighter per round. A fighter out of lives is out of the
+   * match — in a free-for-all the sky thins out as the rounds go by.
+   */
+  const markOut = (fighter: FighterState, reason: RoundEndReason): void => {
+    roundOut[fighter.index] = true
+    fighter.hp -= 1
+    lastReason = reason
+
+    if (fighter.hp <= 0) {
+      fighter.hp = 0
+      fighter.eliminated = true
+      if (fighter.side === 'rival') snapshot.stats.opponentsBeaten += 1
+    }
+
+    if (fighter.side === 'player') snapshot.stats.roundsLost += 1
+    else snapshot.stats.roundsWon += 1
+
+    // The banner names one loser, and the player's own loss is the one they need
+    // to see, so it is never overwritten by an opponent's.
+    if (!snapshot.lastRound || snapshot.lastRound.round !== snapshot.round
+      || (fighter.side === 'player' && !snapshot.lastRound.loserIsPlayer)) {
+      snapshot.lastRound = {
+        loser: fighter.index,
+        loserIsPlayer: fighter.side === 'player',
+        reason,
+        round: snapshot.round,
+      }
+    }
+  }
+
+  /** 0..1 score used to rank fighters when nobody has been cut out. */
+  const standing = (fighter: FighterState): number =>
+    fighter.hp * 10 + fighter.lineIntegrity
+
+  /** Time out: more lives wins, then the healthier line. A dead heat draws. */
+  const resolveOnTime = (): void => {
+    const ranked = fighters
+      .filter(fighter => !fighter.eliminated)
+      .sort((a, b) => standing(b) - standing(a))
+
+    const leader = ranked[0]
+    if (!leader) {
+      resolve({ kind: 'timeout', winner: 'draw' })
+      return
+    }
+
+    const runnerUp = ranked[1]
+    const tied = runnerUp !== undefined
+      && runnerUp.hp === leader.hp
+      && Math.abs(runnerUp.lineIntegrity - leader.lineIntegrity) < 0.02
+
+    resolve({ kind: 'timeout', winner: tied ? 'draw' : leader.index })
+  }
+
+  /**
+   * Close a round.
+   *
+   * Either resolves the match or opens the between-rounds pause. Nothing is
    * relaunched here — that happens when the pause expires, so the cut kite has
    * time to tumble away on screen.
    */
-  const endRound = (playerOut: boolean, rivalOut: boolean, reason: RoundEndReason): void => {
-    if (playerOut) {
-      player.hp -= 1
-      player.alive = false
-      snapshot.stats.roundsLost += 1
-    }
-    if (rivalOut) {
-      rival.hp -= 1
-      rival.alive = false
-      snapshot.stats.roundsWon += 1
-    }
+  const closeRound = (): void => {
+    const rivalsLeft = fighters.filter(
+      fighter => fighter.side === 'rival' && !fighter.eliminated,
+    ).length
 
-    // The banner names one loser; when both go out, the player's own loss is the
-    // one they need to see.
-    snapshot.lastRound = {
-      loser: playerOut ? 'player' : 'rival',
-      reason,
-      round: snapshot.round,
-    }
-
-    if (player.hp <= 0 || rival.hp <= 0) {
-      const winner: FighterSide | 'draw'
-        = player.hp <= 0 && rival.hp <= 0
+    if (player.eliminated || rivalsLeft === 0) {
+      const winner: FighterIndex | 'draw'
+        = player.eliminated && rivalsLeft === 0
           ? 'draw'
-          : player.hp <= 0 ? 'rival' : 'player'
+          : player.eliminated
+            ? nearestRival(player).index
+            : 0
 
       // A draw has no single cause, so it is reported as a timeout-style result.
       pendingOutcome
         = winner === 'draw'
           ? { kind: 'timeout', winner: 'draw' }
-          : reason === 'crash'
+          : lastReason === 'crash'
             ? { kind: 'crash', winner }
-            : reason === 'obstacle'
+            : lastReason === 'obstacle'
               ? { kind: 'obstacle', winner }
               : { kind: 'cut', winner }
 
@@ -433,13 +573,31 @@ export function createMatchEngine({
     roundAge = 0
     playerSnapWasActive = false
 
-    relaunchFighter(player, PLAYER_ANCHOR_X, safeLaunchAltitude(PLAYER_ANCHOR_X))
-    relaunchFighter(rival, RIVAL_ANCHOR_X, safeLaunchAltitude(RIVAL_ANCHOR_X))
+    for (const fighter of fighters) {
+      // An eliminated fighter stays out. Its kite is put on the ground so the
+      // arena shows who is finished rather than leaving it hanging mid-air.
+      if (fighter.eliminated) {
+        roundOut[fighter.index] = true
+        fighter.alive = false
+        fighter.position.y = 0
+        fighter.velocity.x = 0
+        fighter.velocity.y = 0
+        fighter.linePoints.length = 0
+        continue
+      }
+
+      roundOut[fighter.index] = false
+      relaunchFighter(
+        fighter,
+        anchors[fighter.index] as number,
+        safeLaunchAltitude(anchors[fighter.index] as number),
+      )
+    }
 
     clashes.length = 0
     lineClashes.length = 0
-    playerCables.length = 0
-    rivalCables.length = 0
+    for (let i = 0; i < contact.length; i += 1) contact[i] = false
+    for (const own of cables) own.length = 0
   }
 
   return {
@@ -466,11 +624,15 @@ export function createMatchEngine({
           accumulator -= holdSteps * FIXED_TIMESTEP
           for (let i = 0; i < holdSteps; i += 1) {
             wind.update(FIXED_TIMESTEP)
-            stepFighter(player, NEUTRAL_COMMAND, windFor(player), windDirection, FIXED_TIMESTEP)
-            stepFighter(rival, NEUTRAL_COMMAND, windFor(rival), windDirection, FIXED_TIMESTEP)
+            for (const fighter of fighters) {
+              stepFighter(
+                fighter, NEUTRAL_COMMAND, windFor(fighter), windDirection, FIXED_TIMESTEP,
+              )
+            }
             stepCount += 1
           }
           snapshot.wind = windFor(player)
+          snapshot.rival = nearestRival(player)
           return
         }
       }
@@ -491,8 +653,7 @@ export function createMatchEngine({
     },
 
     dispose(): void {
-      playerInput.dispose?.()
-      rivalSource.dispose?.()
+      for (const input of inputs) input.dispose?.()
     },
   }
 }

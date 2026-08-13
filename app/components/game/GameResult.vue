@@ -2,12 +2,14 @@
 import { selectAdvice } from '~/services/game/advice'
 import { LINE_BREAK_TENSION } from '~/services/game/constants'
 import type { MatchHud } from '~/composables/useMatch'
-import type {
-  MatchOutcome,
-  MatchReward,
-  MatchStats,
-  OpponentDefinition,
-  RoundResult,
+import {
+  isDraw as outcomeIsDraw,
+  isPlayerWin,
+  type MatchOutcome,
+  type MatchReward,
+  type MatchStats,
+  type OpponentDefinition,
+  type RoundResult,
 } from '~/services/game/types'
 
 /**
@@ -23,7 +25,10 @@ const props = defineProps<{
   reward: MatchReward | null
   coinsGranted: number
   stats: MatchStats | null
+  /** The rung the player chose; names the result. */
   opponent: OpponentDefinition
+  /** Everyone who was in the match, so a free-for-all can list them all. */
+  opponents?: OpponentDefinition[]
   hud: MatchHud
   /** True when a next rung on the ladder exists. */
   hasNext: boolean
@@ -37,15 +42,10 @@ const emit = defineEmits<{ rematch: [], next: [], quit: [] }>()
 const { t, locale } = useI18n()
 
 const playerWon = computed(
-  () =>
-    props.outcome.kind !== 'pending'
-    && 'winner' in props.outcome
-    && props.outcome.winner === 'player',
+  () => isPlayerWin(props.outcome),
 )
 
-const isDraw = computed(
-  () => props.outcome.kind === 'timeout' && props.outcome.winner === 'draw',
-)
+const isDraw = computed(() => outcomeIsDraw(props.outcome))
 
 const title = computed(() => {
   if (isDraw.value) return t('game.result.draw')
@@ -64,27 +64,23 @@ const reason = computed(() => {
   const { outcome, lastRound } = props
 
   if (outcome.kind === 'cut' && lastRound?.reason === 'cable') {
-    return lastRound.loser === 'player'
+    return lastRound.loserIsPlayer
       ? t('game.result.byCable')
       : t('game.result.byCableAgainst')
   }
 
+  const won = playerWon.value
+
   switch (outcome.kind) {
     case 'cut':
-      return outcome.winner === 'player' ? t('game.result.byCut') : t('game.result.byCutAgainst')
+      return won ? t('game.result.byCut') : t('game.result.byCutAgainst')
     case 'crash':
-      return outcome.winner === 'player'
-        ? t('game.result.byCrash')
-        : t('game.result.byCrashAgainst')
+      return won ? t('game.result.byCrash') : t('game.result.byCrashAgainst')
     case 'obstacle':
-      return outcome.winner === 'player'
-        ? t('game.result.byObstacle')
-        : t('game.result.byObstacleAgainst')
+      return won ? t('game.result.byObstacle') : t('game.result.byObstacleAgainst')
     case 'timeout':
-      if (outcome.winner === 'draw') return t('game.result.byTimeoutDraw')
-      return outcome.winner === 'player'
-        ? t('game.result.byTimeout')
-        : t('game.result.byTimeoutAgainst')
+      if (isDraw.value) return t('game.result.byTimeoutDraw')
+      return won ? t('game.result.byTimeout') : t('game.result.byTimeoutAgainst')
     default:
       return ''
   }

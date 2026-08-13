@@ -6,14 +6,15 @@ import { DEFAULT_TIME_LIMIT, STARTING_HP } from '~/services/game/constants'
 import { exchangeAdvantage } from '~/services/game/physics/combat'
 import { breakingTension } from '~/services/game/physics/fighter'
 import { describeWind } from '~/services/game/physics/wind'
-import { computeReward, isPlayerWin } from '~/services/economy/rewards'
-import type {
-  MatchOutcome,
-  MatchPhase,
-  MatchReward,
-  MatchStats,
-  OpponentDefinition,
-  RoundResult,
+import { computeReward } from '~/services/economy/rewards'
+import {
+  isPlayerWin,
+  type MatchOutcome,
+  type MatchPhase,
+  type MatchReward,
+  type MatchStats,
+  type OpponentDefinition,
+  type RoundResult,
 } from '~/services/game/types'
 import { clamp01 } from '~/services/game/math/scalar'
 import { createSfxEngine, type SfxEngine } from '~/services/audio/sfx'
@@ -30,6 +31,17 @@ import { createSfxEngine, type SfxEngine } from '~/services/audio/sfx'
  * only the handful of scalars the HUD actually shows into refs. The canvas reads
  * the snapshot directly and never goes through Vue at all.
  */
+/** One opponent's line on the HUD. */
+export interface RivalHud {
+  /** 0..1 line condition. */
+  integrity: number
+  hp: number
+  /** True once they are out of lives and out of the match. */
+  eliminated: boolean
+  /** True while this is the opponent the player is closest to. */
+  primary: boolean
+}
+
 export interface MatchHud {
   phase: MatchPhase
   countdown: number
@@ -52,10 +64,15 @@ export interface MatchHud {
   clashing: boolean
   /** True while the line is dragging over an arena cable. */
   snagged: boolean
-  /** Lives left. The match ends when one side reaches 0. */
+  /** Lives left. The match ends when the player, or every opponent, reaches 0. */
   playerHp: number
   rivalHp: number
   maxHp: number
+  /**
+   * Every opponent's standing, in ladder order — so a free-for-all HUD can show
+   * three rows of pips instead of one. A duel has exactly one entry.
+   */
+  rivals: RivalHud[]
   /** 1-based round being fought. */
   round: number
   /** Seconds left on the between-rounds pause; 0 while flying. */
@@ -88,6 +105,7 @@ function emptyHud(): MatchHud {
     playerHp: STARTING_HP,
     rivalHp: STARTING_HP,
     maxHp: STARTING_HP,
+    rivals: [],
     round: 1,
     roundBreak: 0,
     lastRound: null,
@@ -117,7 +135,10 @@ export function useMatch({ canvas, container, hudFooter }: UseMatchOptions) {
   const outcome = ref<MatchOutcome>({ kind: 'pending' })
   const reward = ref<MatchReward | null>(null)
   const coinsGranted = ref(0)
-  const opponent = ref<OpponentDefinition | null>(null)
+  /** Everyone in the current match, ladder order. One entry for a duel. */
+  const opponents = ref<OpponentDefinition[]>([])
+  /** The one the player picked; drives the briefing and the result screen. */
+  const opponent = computed<OpponentDefinition | null>(() => opponents.value[0] ?? null)
   const running = ref(false)
   const paused = ref(false)
   const stats = ref<MatchStats | null>(null)
@@ -169,6 +190,12 @@ export function useMatch({ canvas, container, hudFooter }: UseMatchOptions) {
       playerHp: self.hp,
       rivalHp: rival.hp,
       maxHp: STARTING_HP,
+      rivals: snapshot.fighters.slice(1).map(fighter => ({
+        integrity: fighter.lineIntegrity,
+        hp: fighter.hp,
+        eliminated: fighter.eliminated,
+        primary: fighter === rival,
+      })),
       round: snapshot.round,
       roundBreak: snapshot.roundBreak,
       lastRound: snapshot.lastRound,
@@ -212,6 +239,10 @@ export function useMatch({ canvas, container, hudFooter }: UseMatchOptions) {
       : clamp01((snapshot.windSpeed - 3) / 9)
     sfx.setWind(windLevel)
 
+    // The player's own spool. Only theirs: hearing the opponent's reel would be
+    // information a flyer on the field does not have.
+    sfx.setReel(flying ? self.reelRate : 0)
+
     // Sparse ticks over the rasp: a flat noise band alone reads as static, and
     // glass-coated line grinding is granular. Rate follows contact intensity.
     if (flying && clashIntensity > 0.05) {
@@ -246,7 +277,7 @@ export function useMatch({ canvas, container, hudFooter }: UseMatchOptions) {
       else sfx.play('cut')
 
       if (snapshot.phase !== 'resolved') {
-        sfx.play(snapshot.lastRound?.loser === 'player' ? 'roundLost' : 'roundWon', 0.8)
+        sfx.play(snapshot.lastRound?.loserIsPlayer ? 'roundLost' : 'roundWon', 0.8)
       }
     }
 
@@ -273,7 +304,7 @@ export function useMatch({ canvas, container, hudFooter }: UseMatchOptions) {
 
   /** Bank the result exactly once, the moment the match resolves. */
   const bankResult = (): void => {
-    if (!engine || !opponent.value || resultBanked) return
+    if (!engine || opponents.value.length === 0 || resultBanked) return
     const snapshot = engine.snapshot
     if (snapshot.phase !== 'resolved') return
 
@@ -281,18 +312,18 @@ export function useMatch({ canvas, container, hudFooter }: UseMatchOptions) {
     outcome.value = snapshot.outcome
     stats.value = { ...snapshot.stats }
 
-    const computed = computeReward(
+    const earned = computeReward(
       snapshot.outcome,
-      opponent.value,
+      opponents.value,
       snapshot.stats,
       player.resolved.rewardMultiplier,
-      player.hasDefeated(opponent.value.id),
+      opponents.value.map(entry => player.hasDefeated(entry.id)),
     )
 
-    reward.value = computed
+    reward.value = earned
     coinsGranted.value = player.recordMatch(
-      opponent.value.id,
-      computed,
+      opponents.value.map(entry => entry.id),
+      earned,
       isPlayerWin(snapshot.outcome),
     )
   }
@@ -345,7 +376,13 @@ export function useMatch({ canvas, container, hudFooter }: UseMatchOptions) {
     }
   }
 
-  function start(target: OpponentDefinition): void {
+  /**
+   * Begin a match against everyone in `targets`, ladder order.
+   *
+   * A duel passes one; a free-for-all passes two or three, and the engine spreads
+   * their anchors across a wider field to suit.
+   */
+  function start(targets: readonly OpponentDefinition[]): void {
     stop()
 
     const element = canvas.value
@@ -356,7 +393,7 @@ export function useMatch({ canvas, container, hudFooter }: UseMatchOptions) {
 
     const seed = createMatchSeed()
 
-    opponent.value = target
+    opponents.value = [...targets]
     outcome.value = { kind: 'pending' }
     reward.value = null
     stats.value = null
@@ -388,7 +425,7 @@ export function useMatch({ canvas, container, hudFooter }: UseMatchOptions) {
     engine = createMatchEngine({
       config: {
         seed,
-        opponent: target,
+        opponents: opponents.value,
         player: player.loadout,
         arena,
         timeLimit: DEFAULT_TIME_LIMIT,
@@ -469,6 +506,7 @@ export function useMatch({ canvas, container, hudFooter }: UseMatchOptions) {
     coinsGranted,
     stats,
     opponent,
+    opponents,
     running,
     paused,
     start,

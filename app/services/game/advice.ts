@@ -1,5 +1,5 @@
 import { LINE_BREAK_TENSION } from './constants'
-import type { MatchOutcome, MatchSnapshot, MatchStats } from './types'
+import { isPlayerLoss, type MatchOutcome, type MatchSnapshot, type MatchStats } from './types'
 
 /**
  * Post-match coaching.
@@ -28,15 +28,16 @@ export interface AdviceInput {
 export function selectAdvice(input: AdviceInput): AdviceKey {
   const { outcome, stats, playerIntegrity, rivalIntegrity, breakingTension } = input
 
-  if (outcome.kind === 'crash' && outcome.winner === 'rival') return 'crash'
-  if (outcome.kind === 'obstacle' && outcome.winner === 'rival') return 'obstacle'
+  const lost = isPlayerLoss(outcome)
+
+  if (outcome.kind === 'crash' && lost) return 'crash'
+  if (outcome.kind === 'obstacle' && lost) return 'obstacle'
   // A cable cut is not a lost duel, and the advice for it is different.
-  if (input.lastReason === 'cable' && outcome.kind === 'cut' && outcome.winner === 'rival') {
+  if (input.lastReason === 'cable' && outcome.kind === 'cut' && lost) {
     return 'cable'
   }
 
-  const playerLost
-    = outcome.kind !== 'pending' && 'winner' in outcome && outcome.winner === 'rival'
+  const playerLost = lost
 
   if (playerLost) {
     // Peaking above the breaking point means the line was being destroyed by the

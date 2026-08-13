@@ -32,6 +32,10 @@ import { applyLineConstraint, sampleLine } from './tether'
 
 export interface FighterInit {
   side: FighterSide
+  /** Position in the match's fighter list. 0 is the human. */
+  index: number
+  /** The opponent definition being flown, or null for the human. */
+  opponentId?: FighterState['opponentId']
   anchorX: number
   stats: KiteStats
   reelSpeed: number
@@ -43,6 +47,8 @@ export interface FighterInit {
   staminaEfficiency: number
   /** Minimum launch altitude, so a match never opens inside a structure. */
   minAltitude?: number
+  /** How far this fighter may walk from centre. Defaults to the duel bound. */
+  walkBound?: number
 }
 
 /**
@@ -98,6 +104,8 @@ export function createFighter(init: FighterInit): FighterState {
 
   return {
     side: init.side,
+    index: init.index,
+    opponentId: init.opponentId ?? null,
     kiteId: init.kiteId,
     paletteId: init.paletteId,
     patternId: init.patternId,
@@ -116,8 +124,10 @@ export function createFighter(init: FighterInit): FighterState {
     tension: 0,
     lineIntegrity: 1,
     hp: STARTING_HP,
+    eliminated: false,
     stamina: 1,
     staminaEfficiency: Math.max(0.1, init.staminaEfficiency),
+    walkBound: init.walkBound ?? WALK_BOUND,
     snapCooldown: 0,
     snapActive: 0,
 
@@ -186,7 +196,11 @@ export function stepFighter(
   if (!state.alive) return
 
   // --- Intent ---------------------------------------------------------------
-  state.anchor.x = clamp(state.anchor.x + command.walk * WALK_SPEED * dt, -WALK_BOUND, WALK_BOUND)
+  state.anchor.x = clamp(
+    state.anchor.x + command.walk * WALK_SPEED * dt,
+    -state.walkBound,
+    state.walkBound,
+  )
 
   state.snapCooldown = Math.max(0, state.snapCooldown - dt)
   state.snapActive = Math.max(0, state.snapActive - dt)
@@ -312,12 +326,21 @@ export function hasCrashed(state: FighterState): boolean {
  * the moment everyone on the ground starts running after it.
  */
 export function driftCutKite(state: FighterState, wind: WindSample, dt: number): void {
-  const drag = 0.55
+  /**
+   * Falls at about seventy per cent of gravity rather than a third.
+   *
+   * A freed kite is not a parachute — it collapses, spins and comes down fast, and
+   * at a third of gravity the wait was long enough to be dead air in the match. The
+   * air drag term is lower too, so the wind carries it sideways less and the descent
+   * reads as a fall rather than a glide.
+   */
+  const drag = 0.4
   state.velocity.x += (wind.velocity.x - state.velocity.x) * drag * dt
-  state.velocity.y += (wind.velocity.y - state.velocity.y) * drag * dt - GRAVITY * 0.35 * dt
+  state.velocity.y += (wind.velocity.y - state.velocity.y) * drag * dt - GRAVITY * 0.7 * dt
   state.position.x += state.velocity.x * dt
   state.position.y = Math.max(0, state.position.y + state.velocity.y * dt)
-  state.heading += dt * 1.4
+  // Tumbling faster as it picks up speed sells the loss of control.
+  state.heading += dt * 2.6
   state.tension = 0
   state.linePoints.length = 0
 }

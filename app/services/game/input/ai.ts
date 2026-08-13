@@ -22,6 +22,10 @@ import type { InputContext, InputSource } from './source'
  *
  * A boss is not given extra grip or a stronger line; it simply behaves like
  * someone who has flown for twenty years.
+ *
+ * In a free-for-all each opponent gets its own instance and its own random stream,
+ * and `context.opponent` is whichever kite is nearest — so they fight each other as
+ * readily as they fight the player, with no notion that the human is special.
  */
 
 /**
@@ -53,7 +57,30 @@ const RECOVERY_ALTITUDE = 16
  */
 const SIDE_COMMITMENT = 5.5
 
+/**
+ * How long the AI stays on one target before reconsidering, seconds.
+ *
+ * Longer than the side commitment on purpose: switching target invalidates the side
+ * decision, and a fighter that re-picks every few seconds spends the whole match
+ * walking between two opponents instead of fighting either.
+ */
+const TARGET_COMMITMENT = 7.5
+
+/**
+ * How much more attractive the human is than another AI, before distance.
+ *
+ * Not flavour — balance. With purely nearest-target selection a passive player
+ * standing at the end of a widened field was ignored: measured over six seeds a
+ * player giving no input at all won 6 of 6 four-way matches against the top tier,
+ * because the AI flyers cut each other and left the human alone. Weighting the
+ * human above another AI restores the pressure while still leaving room for
+ * opponent-versus-opponent cuts, which are the point of a free-for-all.
+ */
+const PLAYER_APPEAL = 2.6
+
 interface AiPlan {
+  /** Fighter index this plan is aimed at. */
+  target: number
   /** Line length the AI is trying to settle at, metres. */
   targetLineLength: number
   /** Ground position it wants to stand at, metres. */
@@ -78,12 +105,19 @@ export interface AiOptions {
    * to do: an arena obstacle would end a round two seconds in.
    */
   clearance: (fromX: number, toX: number) => number
+  /**
+   * How far from centre the AI may plan to stand, metres. Matches the fighter's own
+   * walk bound, which widens with the number of fighters — a hard 24 m would pin the
+   * outer flyers of a four-way against the edge.
+   */
+  bounds: number
 }
 
-export function createAiInput({ profile, random, clearance }: AiOptions): InputSource {
+export function createAiInput({ profile, random, clearance, bounds }: AiOptions): InputSource {
   const command: FighterCommand = { reel: 0, walk: 0, snap: false }
 
   let plan: AiPlan = {
+    target: 0,
     targetLineLength: 70,
     targetAnchorX: 9,
     engaging: false,
@@ -94,13 +128,58 @@ export function createAiInput({ profile, random, clearance }: AiOptions): InputS
   let timeUntilRethink = 0
   /** Seconds left on the current side commitment. */
   let sideCommitment = 0
+  /** Seconds left before the target is reconsidered. */
+  let targetCommitment = 0
 
   /** Noise scaled by how imprecise this fighter is. */
   const jitter = (magnitude: number): number =>
     random.gaussian() * magnitude * (1 - profile.precision)
 
+  /**
+   * Pick who to fight.
+   *
+   * Weighted by how appealing each kite is and how far away it is — a nearby line is
+   * easier to reach than a distant one, and the human's line is the prize. A fighter
+   * already out of the match is never chosen.
+   */
+  const chooseTarget = (context: InputContext): FighterState => {
+    const candidates = context.others.filter(other => other.alive && !other.eliminated)
+    if (candidates.length <= 1) return candidates[0] ?? context.opponent
+
+    const weights = candidates.map((other) => {
+      const appeal = other.side === 'player' ? PLAYER_APPEAL : 1
+      const reach = V.distance(self0(context).position, other.position)
+      // Inverse-distance falloff, floored so a far opponent is unlikely, not impossible.
+      return appeal / (1 + reach / 30)
+    })
+
+    const total = weights.reduce((sum, weight) => sum + weight, 0)
+    let roll = random.next() * total
+
+    for (let i = 0; i < candidates.length; i += 1) {
+      roll -= weights[i] as number
+      if (roll <= 0) return candidates[i] as FighterState
+    }
+
+    return candidates[candidates.length - 1] as FighterState
+  }
+
+  /** Tiny helper so `chooseTarget` reads without destructuring twice. */
+  const self0 = (context: InputContext): FighterState => context.self
+
   const decide = (context: InputContext): AiPlan => {
-    const { self, opponent } = context
+    const { self } = context
+
+    /**
+     * Hold the current target while the commitment lasts, and only then re-pick.
+     * If the held target has gone out, re-pick immediately — there is nothing left
+     * to fight there.
+     */
+    const held = context.others.find(other => other.index === plan.target)
+    const keepTarget = targetCommitment > 0 && held?.alive === true && !held.eliminated
+
+    const opponent = keepTarget ? held : chooseTarget(context)
+    if (!keepTarget) targetCommitment = TARGET_COMMITMENT
 
     const losing = self.lineIntegrity < opponent.lineIntegrity - 0.12
     const winning = self.lineIntegrity > opponent.lineIntegrity + 0.12
@@ -180,8 +259,9 @@ export function createAiInput({ profile, random, clearance }: AiOptions): InputS
         && random.next() < lerp(0.25, 0.85, profile.aggression) * (0.4 + profile.discipline * 0.6)
 
     return {
+      target: opponent.index,
       targetLineLength,
-      targetAnchorX: clamp(targetAnchorX, -24, 24),
+      targetAnchorX: clamp(targetAnchorX, -bounds, bounds),
       engaging,
       flyShallower,
       wantsSnap,
@@ -210,6 +290,7 @@ export function createAiInput({ profile, random, clearance }: AiOptions): InputS
     sample(context: InputContext): FighterCommand {
       timeUntilRethink -= context.dt
       sideCommitment -= context.dt
+      targetCommitment -= context.dt
 
       if (timeUntilRethink <= 0) {
         plan = decide(context)

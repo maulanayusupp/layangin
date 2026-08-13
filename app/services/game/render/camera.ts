@@ -73,12 +73,27 @@ export function createCamera(): Camera {
     },
 
     follow(snapshot: MatchSnapshot, dt: number): void {
-      const { player, rival } = snapshot
+      /**
+       * Frame everyone who is still part of the match.
+       *
+       * An eliminated fighter is skipped: with their kite lying on the ground at the
+       * edge of the field, including them would keep the view zoomed out around
+       * something nobody is watching. If somehow nobody is left, the whole list is
+       * used so the camera always has a subject.
+       */
+      const inPlay = snapshot.fighters.filter(fighter => !fighter.eliminated)
+      const framed = inPlay.length > 0 ? inPlay : snapshot.fighters
 
-      const minX = Math.min(player.position.x, rival.position.x, player.anchor.x, rival.anchor.x)
-      const maxX = Math.max(player.position.x, rival.position.x, player.anchor.x, rival.anchor.x)
+      let minX = Infinity
+      let maxX = -Infinity
       // Always keep the ground in frame: it is the horizon players orient against.
-      const maxY = Math.max(player.position.y, rival.position.y, 24)
+      let maxY = 24
+
+      for (const fighter of framed) {
+        minX = Math.min(minX, fighter.position.x, fighter.anchor.x)
+        maxX = Math.max(maxX, fighter.position.x, fighter.anchor.x)
+        maxY = Math.max(maxY, fighter.position.y)
+      }
 
       const spanX = maxX - minX + PADDING * 2
       const spanY = maxY + PADDING

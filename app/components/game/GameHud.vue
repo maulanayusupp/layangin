@@ -16,10 +16,31 @@ import { LINE_BREAK_TENSION } from '~/services/game/constants'
  */
 const props = defineProps<{
   hud: MatchHud
-  opponent: OpponentDefinition
+  /** Everyone the player is fighting, ladder order. One entry for a duel. */
+  opponents: OpponentDefinition[]
 }>()
 
 const { t, locale } = useI18n()
+
+/**
+ * Opponent rows, paired with their live state.
+ *
+ * A duel shows one; a free-for-all shows up to three, each named, because "their
+ * line" means nothing when there are three of them. An eliminated opponent stays
+ * on the list, greyed out — knowing who is already finished is half the read.
+ */
+const rivals = computed(() =>
+  props.hud.rivals.map((rival, index) => ({
+    ...rival,
+    key: props.opponents[index]?.id ?? String(index),
+    name: props.opponents[index]
+      ? t(`opponents.${props.opponents[index]?.i18nKey}.name`)
+      : t('game.hud.rivalLine'),
+  })),
+)
+
+/** With three opponents the bars have to shrink to fit the box. */
+const compact = computed(() => rivals.value.length > 1)
 
 /** Exposed so the arena can hand it to the camera as a reserved band. */
 const footer = ref<HTMLElement | null>(null)
@@ -58,31 +79,43 @@ const advantageLabel = computed(() => {
 
           <span class="hud__round t-num">{{ t('game.hud.round') }} {{ hud.round }}</span>
 
-          <p class="hud__lives-group hud__lives-group--end">
-            <span class="visually-hidden">
-              {{ t('game.hud.rivalLives') }}: {{ hud.rivalHp }} / {{ hud.maxHp }}
-            </span>
-            <span
-              v-for="pip in hud.maxHp"
-              :key="`r${pip}`"
-              class="hud__pip hud__pip--rival"
-              :class="{ 'is-lost': pip > hud.rivalHp }"
-              aria-hidden="true"
-            />
-          </p>
+          <span class="hud__rival-lives">
+            <p
+              v-for="rival in rivals"
+              :key="rival.key"
+              class="hud__lives-group hud__lives-group--end"
+              :class="{ 'is-out': rival.eliminated }"
+            >
+              <span class="visually-hidden">
+                {{ rival.name }}: {{ rival.hp }} / {{ hud.maxHp }}
+              </span>
+              <span
+                v-for="pip in hud.maxHp"
+                :key="`${rival.key}-${pip}`"
+                class="hud__pip hud__pip--rival"
+                :class="{ 'is-lost': pip > rival.hp }"
+                aria-hidden="true"
+              />
+            </p>
+          </span>
         </div>
 
         <UiMeter
           :value="hud.playerIntegrity"
           :label="t('game.hud.yourLine')"
+          :size="compact ? 'sm' : 'md'"
           tone="sky"
           class="hud__line"
         />
         <UiMeter
-          :value="hud.rivalIntegrity"
-          :label="t('game.hud.rivalLine')"
+          v-for="rival in rivals"
+          :key="rival.key"
+          :value="rival.eliminated ? 0 : rival.integrity"
+          :label="compact ? rival.name : t('game.hud.rivalLine')"
+          :size="compact ? 'sm' : 'md'"
           tone="danger"
           class="hud__line"
+          :class="{ 'is-out': rival.eliminated }"
         />
       </div>
 
@@ -170,7 +203,7 @@ const advantageLabel = computed(() => {
     </p>
 
     <p class="visually-hidden">
-      {{ opponent ? t(`opponents.${opponent.i18nKey}.name`) : '' }} ·
+      {{ rivals.map(rival => rival.name).join(', ') }} ·
       {{ t('game.hud.tension') }} {{ formatNewtons(hud.playerTension, locale) }} /
       {{ formatNewtons(LINE_BREAK_TENSION, locale) }}
     </p>
@@ -217,6 +250,19 @@ const advantageLabel = computed(() => {
 
 .hud__lives-group--end {
   justify-content: flex-end;
+}
+
+/// One pip group per opponent, stacked so three of them still fit the box.
+.hud__rival-lives {
+  display: flex;
+  flex-wrap: wrap;
+  gap: rem(3) var(--sp-2);
+  justify-content: flex-end;
+}
+
+/// Out of the match: still listed, visibly finished.
+.is-out {
+  opacity: 0.42;
 }
 
 /// A life is a small kite rhombus; losing one hollows it out.

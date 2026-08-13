@@ -162,7 +162,7 @@ describe('the duel actually happens', () => {
     return createMatchEngine({
       config: {
         seed,
-        opponent: getOpponent('bocah-sawah'),
+        opponents: [getOpponent('bocah-sawah')],
         player: {
           kiteId: 'pecut',
           paletteId: 'senja',
@@ -248,7 +248,7 @@ describe('the duel actually happens', () => {
       const engine = createMatchEngine({
         config: {
           seed: 99,
-          opponent,
+          opponents: [opponent],
           player: {
             kiteId: 'pecut',
             paletteId: 'senja',

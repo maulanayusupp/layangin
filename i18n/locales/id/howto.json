@@ -11,7 +11,8 @@
     },
     "goal": {
       "title": "Tujuannya",
-      "body": "Kedua layangan terbang searah angin dari penerbangnya, jadi kedua benang bersilangan di tengah lapangan. Di mana pun keduanya bersentuhan, masing-masing menggerus yang lain. Benang Anda putus berarti kehilangan satu dari dua nyawa dan ronde dimulai lagi; habis keduanya, duel berakhir. Kalau dalam 45 detik belum ada yang habis, yang nyawanya lebih banyak — atau benangnya lebih utuh, kalau sama — yang menang."
+      "body": "Kedua layangan terbang searah angin dari penerbangnya, jadi kedua benang bersilangan di tengah lapangan. Di mana pun keduanya bersentuhan, masing-masing menggerus yang lain. Benang Anda putus berarti kehilangan satu dari dua nyawa dan ronde dimulai lagi; habis keduanya, duel berakhir. Kalau dalam 45 detik belum ada yang habis, yang nyawanya lebih banyak — atau benangnya lebih utuh, kalau sama — yang menang.",
+      "freeForAll": "Anda juga bisa melawan dua atau tiga sekaligus. Di adu rame-rame semua saling serang: setiap pasang benang yang bersilangan saling menggerus, jadi para lawan sama seringnya memutus benang satu sama lain seperti memutus benang Anda. Membiarkan dua di antaranya saling menghabisi memang taktik yang sah — tapi benang Anda lebih menarik bagi mereka daripada benang penerbang lain, jadi tidak akan lama Anda dibiarkan sendiri. Ronde berakhir kalau benang Anda putus atau hanya satu benang yang tersisa; lawan yang nyawanya habis keluar dari duel."
     },
     "controls": {
       "title": "Kontrol",

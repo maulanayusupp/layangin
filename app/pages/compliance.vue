@@ -38,7 +38,7 @@ const groups: readonly { key: string, items: readonly string[], accent: Accent }
     accent: 'sky',
   },
   { key: 'money', items: ['purchases', 'coins', 'chance', 'ads'], accent: 'gold' },
-  { key: 'fairness', items: ['cosmetic', 'ai', 'upgrades'], accent: 'brand' },
+  { key: 'fairness', items: ['cosmetic', 'ai', 'targeting', 'upgrades'], accent: 'brand' },
 ]
 
 usePageSeo(() => ({

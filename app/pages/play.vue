@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { OPPONENTS, isOpponentUnlocked } from '~/data/opponents'
 import { getKite } from '~/data/kites'
+import { availableLineupSizes, lineupFor, type LineupSize } from '~/services/game/lineup'
 import type { OpponentDefinition } from '~/services/game/types'
 import type { WizardStep } from '~/components/game/GameWizardSteps.vue'
 
@@ -21,6 +22,12 @@ const player = usePlayerStore()
 type Stage = 0 | 1 | 2
 const stage = ref<Stage>(0)
 const selected = ref<OpponentDefinition | null>(null)
+
+/**
+ * How many opponents to fly against. One is a duel; two or three is a free-for-all
+ * where they fight each other as well as the player.
+ */
+const lineupSize = ref<LineupSize>(1)
 
 /**
  * Bring the new step into view when the wizard advances, and the arena into view
@@ -63,6 +70,21 @@ const unlockedOpponents = computed(() =>
   OPPONENTS.filter(opponent => isOpponentUnlocked(opponent, player.save.defeated)),
 )
 
+/** Formats that can actually be filled from what the player has unlocked. */
+const formats = computed(() => availableLineupSizes(null, unlockedOpponents.value))
+
+/** Everyone in the current match, primary first. */
+const lineup = computed(() =>
+  selected.value
+    ? lineupFor(selected.value, lineupSize.value, unlockedOpponents.value)
+    : [],
+)
+
+/** Names of the extra opponents a free-for-all drafts in, for the match bar. */
+const extraNames = computed(() =>
+  lineup.value.slice(1).map(opponent => t(`opponents.${opponent.i18nKey}.name`)),
+)
+
 function fight(opponent: OpponentDefinition): void {
   selected.value = opponent
 }
@@ -80,6 +102,13 @@ function leaveMatch(): void {
   selected.value = null
   stage.value = 2
 }
+
+/**
+ * A match in progress is unsaved work: leaving loses the round and the coins. The
+ * guard only arms while a fight is actually running.
+ */
+const inMatch = computed(() => selected.value !== null)
+const leave = useLeaveGuard(inMatch)
 
 usePageSeo(() => ({
   title: t('game.meta.title'),
@@ -105,6 +134,12 @@ usePageSeo(() => ({
             <h1 class="play__title">
               {{ t(`opponents.${selected.i18nKey}.name`) }}
             </h1>
+            <p
+              v-if="extraNames.length > 0"
+              class="play__against"
+            >
+              {{ t('game.wizard.format.alsoFlying', { names: extraNames.join(', ') }) }}
+            </p>
           </div>
 
           <div class="play__meta">
@@ -120,11 +155,37 @@ usePageSeo(() => ({
       </div>
 
       <GameArena
-        :opponent="selected"
+        :opponents="lineup"
         :has-next="Boolean(nextOpponent)"
         @quit="leaveMatch"
         @next="advance"
       />
+
+      <UiModal
+        :open="leave.pending.value"
+        :title="t('game.leave.title')"
+        size="sm"
+        @close="leave.cancel()"
+      >
+        <p>{{ t('game.leave.body') }}</p>
+
+        <template #footer>
+          <UiButton
+            variant="ghost"
+            size="sm"
+            @click="leave.cancel()"
+          >
+            {{ t('game.leave.stay') }}
+          </UiButton>
+          <UiButton
+            variant="danger"
+            size="sm"
+            @click="leave.confirm()"
+          >
+            {{ t('game.leave.go') }}
+          </UiButton>
+        </template>
+      </UiModal>
     </section>
 
     <!-- Wizard ----------------------------------------------------------- -->
@@ -252,6 +313,51 @@ usePageSeo(() => ({
                 {{ t('game.briefing.difficultyNote', { count: player.save.ladderClears }) }}
               </p>
 
+              <!--
+                Match format. Only formats that can actually be filled from the
+                unlocked ladder are offered — a three-way that silently falls back
+                to a duel would be worse than not offering it at all.
+              -->
+              <UiPanel
+                v-if="formats.length > 1"
+                tone="sunken"
+                notch="none"
+              >
+                <fieldset class="wizard__format">
+                  <legend class="wizard__label">
+                    {{ t('game.wizard.format.legend') }}
+                  </legend>
+
+                  <div
+                    class="wizard__format-options"
+                    role="radiogroup"
+                    :aria-label="t('game.wizard.format.legend')"
+                  >
+                    <button
+                      v-for="size in formats"
+                      :key="size"
+                      type="button"
+                      role="radio"
+                      class="wizard__format-option"
+                      :class="{ 'is-active': lineupSize === size }"
+                      :aria-checked="lineupSize === size"
+                      @click="lineupSize = size"
+                    >
+                      <span class="wizard__format-name">
+                        {{ t(`game.wizard.format.size.${size}`) }}
+                      </span>
+                      <span class="wizard__format-note">
+                        {{ t(`game.wizard.format.note.${size}`) }}
+                      </span>
+                    </button>
+                  </div>
+
+                  <UiHint hint-id="wizard-format">
+                    {{ t('game.wizard.format.hint') }}
+                  </UiHint>
+                </fieldset>
+              </UiPanel>
+
               <ul class="l-grid l-grid--wide">
                 <li
                   v-for="opponent in OPPONENTS"
@@ -313,6 +419,13 @@ usePageSeo(() => ({
 </template>
 
 <style scoped lang="scss">
+/// Named opponents drafted into a free-for-all, under the headline rung.
+.play__against {
+  margin-block-start: rem(2);
+  font-size: var(--fs-sm);
+  color: var(--c-text-soft);
+}
+
 .play__bar {
   display: flex;
   flex-wrap: wrap;
@@ -398,6 +511,59 @@ usePageSeo(() => ({
 .wizard__difficulty {
   font-size: var(--fs-xs);
   color: var(--c-warn);
+}
+
+.wizard__format {
+  display: grid;
+  gap: var(--sp-3);
+  border: 0;
+}
+
+.wizard__format-options {
+  display: grid;
+  gap: var(--sp-2);
+
+  @include mq('sm') {
+    grid-auto-columns: 1fr;
+    grid-auto-flow: column;
+  }
+}
+
+/// A card per format rather than a select: the trade-off needs a line of text.
+.wizard__format-option {
+  display: grid;
+  gap: rem(3);
+  padding: var(--sp-3);
+  text-align: start;
+  border: 1px solid var(--c-hairline);
+  border-radius: var(--r-md);
+  background: color-mix(in srgb, var(--c-ink-800) 55%, transparent);
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out);
+
+  @include focus-visible(2px);
+
+  @include hover {
+    border-color: var(--c-border);
+  }
+
+  &.is-active {
+    border-color: color-mix(in srgb, var(--c-brand) 70%, transparent);
+    background: color-mix(in srgb, var(--c-brand) 12%, transparent);
+  }
+}
+
+.wizard__format-name {
+  font-family: var(--font-display);
+  font-size: var(--fs-md);
+  font-weight: 700;
+  color: var(--c-text);
+}
+
+.wizard__format-note {
+  font-size: var(--fs-xs);
+  color: var(--c-text-soft);
 }
 
 .wizard__nav {

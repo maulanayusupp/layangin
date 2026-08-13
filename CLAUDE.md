@@ -80,8 +80,8 @@ round; the match resolves when someone reaches 0. Two reasons this matters:
 - The line bars refill every round, so **the life pips are the only read of who is
   winning the match**. Keep them prominent in any HUD change.
 
-`endRound` and `startNextRound` in `engine.ts` own the transition. Nothing else
-may write `hp`.
+`markOut`, `closeRound` and `startNextRound` in `engine.ts` own the transition.
+Nothing else may write `hp` or `eliminated`.
 
 The **last** life is different: it goes to a `falling` phase rather than straight to
 `resolved`, so the player watches the kite come down before the result appears. The
@@ -92,6 +92,31 @@ Match length is dominated by how long the two lines take to *find* each other, n
 by how fast they cut — a sweep of the abrasion coefficient barely moved it past a
 point. If a duel needs to be shorter, make contact more reliable or remove a life;
 do not keep raising damage.
+
+### Two fighters or four
+
+The engine is written against `snapshot.fighters`, **player always at index 0**. A
+duel is the two-element case; a free-for-all adds one or two more. Rules that only
+exist because of the crowd:
+
+- **Every pair is tested.** `detectClashes` sweeps all pairs and `applyAbrasion`
+  accumulates damage for everyone before applying any of it, so a simultaneous
+  double cut stays simultaneous and list order cannot decide a match.
+- **Anchors widen, they do not crowd.** `anchorsFor` keeps the 14 m spacing and
+  spreads the line (`walkBoundFor` widens with it). Squeezing four into the duel's
+  span would drag every crossing down toward the ground — see `ANCHOR_SPACING`.
+- **A round ends when the player is cut, or one line is left.** An opponent going
+  out does not stop the round: the others fight on, and the cut kite keeps tumbling
+  (the `flying` phase drifts dead fighters for exactly this reason). But the player's
+  own cut always ends it — a match spent watching two AI flyers finish without you
+  is not a game.
+- **The AI picks its own target** (`chooseTarget` in `input/ai.ts`), weighted toward
+  the human and toward whatever is nearest. This is load-bearing balance, not
+  flavour: with purely nearest-target selection, a measured passive player won 6 of 6
+  four-way matches against the top tier because the opponents ignored them. The
+  weighting is disclosed on the compliance page.
+- **Rewards sum.** `computeReward` takes the whole lineup, and a first-time win
+  marks every opponent in it as beaten.
 
 ### The airframe generator
 

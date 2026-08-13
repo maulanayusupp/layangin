@@ -16,7 +16,7 @@ function makeEngine(seed = 1234, playerCommand: FighterCommand = { ...NEUTRAL_CO
   return createMatchEngine({
     config: {
       seed,
-      opponent: getOpponent('bocah-sawah'),
+      opponents: [getOpponent('bocah-sawah')],
       player: {
         kiteId: 'pecut',
         paletteId: 'senja',

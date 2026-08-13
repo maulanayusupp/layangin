@@ -174,6 +174,10 @@
           "term": "How the AI is made harder",
           "def": "Only through human-shaped limits — reaction time, aim precision, stamina discipline and mistake rate — plus the gear it flies, which you can also buy. It reads the same state you can see."
         },
+        "targeting": {
+          "term": "Who the AI goes after",
+          "def": "In a free-for-all every opponent picks its own target, weighted toward you and toward whichever line is nearest. That weighting is a balance decision, not a hidden advantage: with purely nearest-target selection a player who gave no input at all could win by letting the opponents cut each other."
+        },
         "upgrades": {
           "term": "Upgrades",
           "def": "Each one multiplies a value the physics model already uses, and the multiplier is shown before you buy."

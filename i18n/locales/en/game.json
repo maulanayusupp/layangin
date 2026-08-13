@@ -167,7 +167,28 @@
         "kite": "Your kite",
         "arena": "The field",
         "opponent": "Opponent"
+      },
+      "format": {
+        "legend": "Match format",
+        "hint": "In a free-for-all everyone fights everyone. Two opponents busy with each other is two opponents not cutting your line — but any of them can reach you.",
+        "alsoFlying": "Also flying: {names}",
+        "size": {
+          "1": "Duel",
+          "2": "Three-way",
+          "3": "Four-way"
+        },
+        "note": {
+          "1": "One opponent, one line to beat.",
+          "2": "Two opponents. They cut each other too.",
+          "3": "Three opponents in a crowded sky."
+        }
       }
+    },
+    "leave": {
+      "title": "Leave the match?",
+      "body": "The duel is still going. Leaving now forfeits the round and the coins it would have paid.",
+      "stay": "Keep flying",
+      "go": "Leave anyway"
     }
   },
   "opponents": {

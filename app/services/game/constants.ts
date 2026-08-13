@@ -53,8 +53,39 @@ export const MAX_FRAME_TIME = 0.25
 export const PLAYER_ANCHOR_X = -7
 export const RIVAL_ANCHOR_X = 7
 
-/** How far each fighter may walk from the arena centre, metres. */
+/**
+ * Gap between neighbouring anchors, metres — the same 14 m as a duel.
+ *
+ * A free-for-all keeps the spacing and widens the line instead: three fighters
+ * stand at −14/0/+14, four at −21/−7/+7/+21. Compressing them closer together to
+ * keep the field narrow would drag every crossing down toward the ground, and
+ * spreading them further would push the crossings above where the kites fly.
+ */
+export const ANCHOR_SPACING = 14
+
+/** Most fighters one match supports. Beyond this the sky stops being readable. */
+export const MAX_FIGHTERS = 4
+
+/**
+ * How far each fighter may walk from the arena centre, metres.
+ *
+ * Scales with the crowd: with four anchors spread to ±21 m, a 26 m bound would
+ * pin the outer two against the edge and stop them contesting at all.
+ */
 export const WALK_BOUND = 26
+
+/** Walk bound for a match with `count` fighters. */
+export function walkBoundFor(count: number): number {
+  return WALK_BOUND + Math.max(0, count - 2) * (ANCHOR_SPACING / 2)
+}
+
+/** Ground positions for `count` fighters, centred on the arena. Player first. */
+export function anchorsFor(count: number): number[] {
+  return Array.from(
+    { length: count },
+    (_, index) => (index - (count - 1) / 2) * ANCHOR_SPACING,
+  )
+}
 
 /** Walking speed, m/s (a brisk jog while holding a spool). */
 export const WALK_SPEED = 3.4

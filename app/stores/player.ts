@@ -282,7 +282,17 @@ export const usePlayerStore = defineStore('player', () => {
    * Record a finished match. Returns the coins actually granted so the result
    * screen can show the same number that was banked.
    */
-  function recordMatch(opponentId: OpponentId, reward: MatchReward, playerWon: boolean): number {
+  /**
+   * Bank a finished match.
+   *
+   * Takes every opponent who was in it: winning a free-for-all marks all of them
+   * beaten, which is the whole appeal of taking on three at once.
+   */
+  function recordMatch(
+    opponentIds: readonly OpponentId[],
+    reward: MatchReward,
+    playerWon: boolean,
+  ): number {
     const granted = reward.coins + reward.bonusCoins
 
     save.value.coins += granted
@@ -293,15 +303,16 @@ export const usePlayerStore = defineStore('player', () => {
       save.value.currentStreak += 1
       save.value.bestStreak = Math.max(save.value.bestStreak, save.value.currentStreak)
 
-      if (!save.value.defeated.includes(opponentId)) {
+      for (const opponentId of opponentIds) {
+        if (save.value.defeated.includes(opponentId)) continue
         save.value.defeated.push(opponentId)
+      }
 
-        // Clearing the final rung counts as a ladder completion and raises the
-        // AI's skill on the next run through.
-        if (save.value.defeated.length >= OPPONENTS.length) {
-          save.value.ladderClears += 1
-          save.value.defeated = []
-        }
+      // Clearing the final rung counts as a ladder completion and raises the
+      // AI's skill on the next run through.
+      if (save.value.defeated.length >= OPPONENTS.length) {
+        save.value.ladderClears += 1
+        save.value.defeated = []
       }
     }
     else {

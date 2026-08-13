@@ -20,8 +20,12 @@ import type { ClashPoint, FighterState } from '../types'
  *
  * 3. **Tension share** — the tauter line behaves like the blade and the slacker
  *    one like the workpiece. Keeping your line tighter than theirs is the core
- *    skill of the whole game, and it is the reason `playerShare` below is a
+ *    skill of the whole game, and it is the reason `aShare` below is a
  *    ratio of tensions rather than a constant.
+ *
+ * All of it is **pairwise**. In a free-for-all every pair of fighters is tested
+ * against every other, so a third flyer's line can cut yours while you are busy
+ * with the second — and two opponents can just as easily take each other out.
  *
  * Abrasion is then divided by the defender's `lineStrength` (gear and upgrades)
  * and multiplied by the attacker's `cutPower` (their *gelasan*, the abrasive
@@ -64,32 +68,33 @@ export function contactPressure(player: FighterState, rival: FighterState): numb
 }
 
 export interface AbrasionResult {
-  /** Integrity removed from the player this step. */
-  playerDamage: number
-  /** Integrity removed from the rival this step. */
-  rivalDamage: number
-  /** True while at least one crossing exists. */
+  /** Integrity removed this step, indexed like `fighters`. */
+  damage: number[]
+  /** True while at least one line-on-line crossing exists. */
   engaged: boolean
 }
 
 /**
- * Find every point where the two flying lines cross.
+ * Find every point where two given flying lines cross, **appending** to `out`.
  *
- * Writes into `out` in place. With 24 segments per line this is 576 segment
- * pairs, pre-filtered by bounding box, which is cheap enough to run at the full
- * 120 Hz simulation rate.
+ * Appends rather than replaces so the caller can sweep every pair into one list.
+ * With 24 segments per line this is 576 segment pairs per pair of fighters,
+ * pre-filtered by bounding box — cheap enough to run at the full 120 Hz rate even
+ * for the six pairs a four-way free-for-all produces.
  */
-export function detectClashes(
+export function detectPairClashes(
   player: FighterState,
   rival: FighterState,
   out: ClashPoint[],
 ): ClashPoint[] {
-  out.length = 0
-
   const a = player.linePoints
   const b = rival.linePoints
   if (a.length < 2 || b.length < 2) return out
   if (!player.alive || !rival.alive) return out
+
+  // Only merge duplicates found for *this* pair. Two different pairs can legitimately
+  // cross within a couple of metres of each other in a crowded sky.
+  const pairStart = out.length
 
   const snapMultiplier
     = player.snapActive > 0 || rival.snapActive > 0 ? SNAP_FORCE_MULTIPLIER : 1
@@ -102,7 +107,7 @@ export function detectClashes(
     * snapMultiplier
 
   const totalTension = player.tension + rival.tension
-  const playerShare = totalTension < 1e-3 ? 0.5 : clamp01(player.tension / totalTension)
+  const aShare = totalTension < 1e-3 ? 0.5 : clamp01(player.tension / totalTension)
 
   const pressure = contactPressure(player, rival)
 
@@ -127,11 +132,17 @@ export function detectClashes(
       if (!hit) continue
 
       // Adjacent segments can both report the same physical crossing.
-      const duplicate = out.some(
-        existing =>
+      let duplicate = false
+      for (let k = pairStart; k < out.length; k += 1) {
+        const existing = out[k] as ClashPoint
+        if (
           (existing.position.x - hit.point.x) ** 2 + (existing.position.y - hit.point.y) ** 2
-          < CLASH_MERGE_DISTANCE_SQ,
-      )
+          < CLASH_MERGE_DISTANCE_SQ
+        ) {
+          duplicate = true
+          break
+        }
+      }
       if (duplicate) continue
 
       const dirA = V.subtract(a2, a1)
@@ -147,9 +158,11 @@ export function detectClashes(
         position: hit.point,
         angle,
         slip,
-        playerShare,
         intensity: clamp01((pressure * bite * slip) / CLASH_INTENSITY_SCALE),
         kind: 'line',
+        a: player.index,
+        b: rival.index,
+        aShare,
       })
     }
   }
@@ -158,29 +171,52 @@ export function detectClashes(
 }
 
 /**
- * Apply this step's abrasion to both fighters. Mutates `lineIntegrity` and
- * clears `alive` when a line parts.
+ * Sweep every pair of fighters for crossings, replacing `out`.
+ *
+ * Every pair is tested, including opponent-versus-opponent: in a free-for-all the
+ * AI flyers cut each other's lines, and the player can profit by staying out of it.
+ */
+export function detectClashes(
+  fighters: readonly FighterState[],
+  out: ClashPoint[],
+): ClashPoint[] {
+  out.length = 0
+
+  for (let i = 0; i < fighters.length; i += 1) {
+    for (let j = i + 1; j < fighters.length; j += 1) {
+      detectPairClashes(fighters[i] as FighterState, fighters[j] as FighterState, out)
+    }
+  }
+
+  return out
+}
+
+/**
+ * Apply this step's abrasion to every fighter. Mutates `lineIntegrity` and clears
+ * `alive` when a line parts.
+ *
+ * Damage is accumulated for all fighters first and applied at the end, so the order
+ * fighters appear in cannot change the outcome — with three or four in the air, a
+ * simultaneous double cut has to stay simultaneous.
  */
 export function applyAbrasion(
-  player: FighterState,
-  rival: FighterState,
+  fighters: readonly FighterState[],
   clashes: readonly ClashPoint[],
   dt: number,
 ): AbrasionResult {
+  const damage = fighters.map(() => 0)
+
   // Arena cables are handled by `applyCableWear`; only line-on-line contacts
   // exchange damage in both directions.
-  const duelClashes = clashes.filter(clash => clash.kind === 'line')
+  let engaged = false
 
-  if (duelClashes.length === 0) {
-    return { playerDamage: 0, rivalDamage: 0, engaged: false }
-  }
+  for (const clash of clashes) {
+    if (clash.kind !== 'line') continue
+    engaged = true
 
-  const pressure = contactPressure(player, rival)
-
-  let playerDamage = 0
-  let rivalDamage = 0
-
-  for (const clash of duelClashes) {
+    const player = fighters[clash.a] as FighterState
+    const rival = fighters[clash.b] as FighterState
+    const pressure = contactPressure(player, rival)
     const bite = Math.abs(Math.sin(clash.angle))
 
     /**
@@ -196,24 +232,27 @@ export function applyAbrasion(
      *
      * Taking the square root of each is a deliberate gameplay compression, not a
      * physical claim. It keeps a duel roughly comparable in length at every tier
-     * while leaving the skill that decides it untouched — `playerShare` below is
+     * while leaving the skill that decides it untouched — `aShare` below is
      * still the tension ratio, so holding the tauter line still wins the exchange.
      */
     const base
       = ABRASION_COEFFICIENT * Math.sqrt(clash.slip) * Math.sqrt(pressure) * bite * dt
 
-    rivalDamage += (base * player.stats.cutPower * clash.playerShare) / rival.stats.lineStrength
-    playerDamage
-      += (base * rival.stats.cutPower * (1 - clash.playerShare)) / player.stats.lineStrength
+    damage[clash.b] = (damage[clash.b] as number)
+      + (base * player.stats.cutPower * clash.aShare) / rival.stats.lineStrength
+    damage[clash.a] = (damage[clash.a] as number)
+      + (base * rival.stats.cutPower * (1 - clash.aShare)) / player.stats.lineStrength
   }
 
-  player.lineIntegrity = clamp01(player.lineIntegrity - playerDamage)
-  rival.lineIntegrity = clamp01(rival.lineIntegrity - rivalDamage)
+  if (!engaged) return { damage, engaged: false }
 
-  if (player.lineIntegrity <= 0) player.alive = false
-  if (rival.lineIntegrity <= 0) rival.alive = false
+  for (let i = 0; i < fighters.length; i += 1) {
+    const fighter = fighters[i] as FighterState
+    fighter.lineIntegrity = clamp01(fighter.lineIntegrity - (damage[i] as number))
+    if (fighter.lineIntegrity <= 0) fighter.alive = false
+  }
 
-  return { playerDamage, rivalDamage, engaged: true }
+  return { damage, engaged: true }
 }
 
 /**

@@ -216,11 +216,12 @@ export function applyCableWear(
       position: contact.point,
       angle: contact.angle,
       slip,
-      // Cables do all the cutting; nothing flows back the other way.
-      playerShare: fighter.side === 'player' ? 0 : 1,
       intensity: clamp01(slip * bite * 0.12),
       kind: 'obstacle',
-      victim: fighter.side,
+      // The cable is A and does all the cutting; nothing flows back the other way.
+      a: -1,
+      b: fighter.index,
+      aShare: 1,
     })
   }
 

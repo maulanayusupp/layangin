@@ -11,7 +11,11 @@ import type { OpponentDefinition } from '~/services/game/types'
  * wiring and presentation.
  */
 const props = defineProps<{
-  opponent: OpponentDefinition
+  /**
+   * Everyone the player is fighting, ladder order. One for a duel, two or three
+   * for a free-for-all — the first is the one they picked.
+   */
+  opponents: OpponentDefinition[]
   /** Next rung on the ladder, if there is one. */
   hasNext: boolean
 }>()
@@ -39,6 +43,9 @@ const coarsePointer = useMediaQuery('(hover: none) and (pointer: coarse)')
 const resolved = computed(() => resolveLoadout(player.save.loadout.kiteId, player.save.upgrades))
 const playerBreakingTension = computed(() => breakingTension(resolved.value.stats))
 
+/** The rung the player chose; names the briefing and the result. */
+const primary = computed(() => props.opponents[0] as OpponentDefinition)
+
 const resolvedPhase = computed(() => match.hud.value.phase)
 const showResult = computed(() => resolvedPhase.value === 'resolved')
 
@@ -47,7 +54,7 @@ const roundBanner = computed(() => {
   const last = match.hud.value.lastRound
   if (!last) return null
 
-  const lostByPlayer = last.loser === 'player'
+  const lostByPlayer = last.loserIsPlayer
   return {
     lostByPlayer,
     verdict: lostByPlayer ? t('game.round.lost') : t('game.round.won'),
@@ -69,13 +76,13 @@ function onTouchSnap(): void {
 }
 
 function begin(): void {
-  match.start(props.opponent)
+  match.start(props.opponents)
 }
 
 onMounted(begin)
 
 // Switching opponents from the briefing restarts the match cleanly.
-watch(() => props.opponent.id, begin)
+watch(() => props.opponents.map(entry => entry.id).join(','), begin)
 
 function rematch(): void {
   begin()
@@ -111,7 +118,7 @@ function quit(): void {
       <GameHud
         ref="hud"
         :hud="match.hud.value"
-        :opponent="opponent"
+        :opponents="opponents"
       />
 
       <Transition name="page">
@@ -163,7 +170,8 @@ function quit(): void {
           <p class="arena__round-score t-num">
             {{ t('game.hud.yourLives') }} {{ match.hud.value.playerHp }}
             ·
-            {{ t('game.hud.rivalLives') }} {{ match.hud.value.rivalHp }}
+            {{ t('game.hud.rivalLives') }}
+            {{ match.hud.value.rivals.map(rival => rival.hp).join(' / ') }}
           </p>
           <p
             v-if="resolvedPhase === 'roundOver'"
@@ -246,7 +254,8 @@ function quit(): void {
       :reward="match.reward.value"
       :coins-granted="match.coinsGranted.value"
       :stats="match.stats.value"
-      :opponent="opponent"
+      :opponent="primary"
+      :opponents="opponents"
       :hud="match.hud.value"
       :has-next="hasNext"
       :breaking-tension="playerBreakingTension"

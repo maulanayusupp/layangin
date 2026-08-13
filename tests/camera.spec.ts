@@ -19,7 +19,7 @@ function framedCamera(width: number, height: number, insetBottom: number) {
   const engine = createMatchEngine({
     config: {
       seed: 5,
-      opponent: getOpponent('bocah-sawah'),
+      opponents: [getOpponent('bocah-sawah')],
       player: {
         kiteId: 'pecut',
         paletteId: 'senja',

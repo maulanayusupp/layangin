@@ -16,8 +16,8 @@
  *
  * ## The two continuous sounds
  * ## The continuous sounds
- * `clash` (line-on-line rasp), `cable` (steel zing) and `wind` (the field itself)
- * are *states*, not events: they last as long as the condition does. They run as
+ * `clash` (line-on-line rasp), `cable` (steel zing), `reel` (the spool) and `wind`
+ * (the field itself) are *states*, not events: they last as long as the condition does. They run as
  * gated loops whose gain tracks a level, rather than as repeated one-shots, which
  * would machine-gun.
  */
@@ -48,6 +48,15 @@ export interface SfxEngine {
   setClash(intensity: number): void
   /** Set the intensity of the cable-contact zing, 0..1. 0 stops it. */
   setCable(intensity: number): void
+  /**
+   * Spool sound. `rate` is the reel rate in metres per second, signed: positive
+   * hauls in, negative pays out. 0 stops it.
+   *
+   * One loop for both directions, with the filter moved rather than two separate
+   * sounds — hauling is line rasping through a hand under load, paying out is a
+   * spool running free, and the difference is mostly brightness.
+   */
+  setReel(rate: number): void
   /**
    * Wind bed level, 0..1, from the current wind speed. A constant presence rather
    * than an event: the arena sounds like an open field, and a gust is audible
@@ -89,6 +98,9 @@ export function createSfxEngine(initiallyMuted = false): SfxEngine {
   let clashLoop: Loop | null = null
   let cableLoop: Loop | null = null
   let windLoop: Loop | null = null
+  let reelLoop: Loop | null = null
+  /** The reel loop's filter, retuned as the direction changes. */
+  let reelFilter: BiquadFilterNode | null = null
 
   const ensureContext = (): AudioContext | null => {
     if (disposed) return null
@@ -192,11 +204,15 @@ export function createSfxEngine(initiallyMuted = false): SfxEngine {
     osc.stop(start + duration + 0.05)
   }
 
-  /** Build (or reuse) a gated noise loop for the continuous sounds. */
+  /**
+   * Build (or reuse) a gated noise loop for the continuous sounds.
+   * `onFilter` hands the filter node back so a caller can retune it later.
+   */
   const ensureLoop = (
     existing: Loop | null,
     context: AudioContext,
     filter: { type: BiquadFilterType, frequency: number, q: number },
+    onFilter?: (node: BiquadFilterNode) => void,
   ): Loop | null => {
     if (existing) return existing
     if (!noiseBuffer || !master) return null
@@ -209,6 +225,7 @@ export function createSfxEngine(initiallyMuted = false): SfxEngine {
     band.type = filter.type
     band.frequency.value = filter.frequency
     band.Q.value = filter.q
+    onFilter?.(band)
 
     const gain = context.createGain()
     gain.gain.value = 0
@@ -355,6 +372,37 @@ export function createSfxEngine(initiallyMuted = false): SfxEngine {
       rampLoop(cableLoop, context, Math.min(1, intensity) * 0.3)
     },
 
+    setReel(rate: number): void {
+      const speed = Math.abs(rate)
+
+      if (muted || speed < 0.4) {
+        if (reelLoop && ctx) rampLoop(reelLoop, ctx, 0)
+        return
+      }
+
+      const context = ensureContext()
+      if (!context) return
+
+      reelLoop = ensureLoop(
+        reelLoop,
+        context,
+        { type: 'bandpass', frequency: 1400, q: 2.4 },
+        (node) => {
+          reelFilter = node
+        },
+      )
+
+      if (reelFilter) {
+        // Hauling under load is brighter and tighter; a free-running spool is
+        // lower and broader. Ramped, so a direction change does not click.
+        const target = rate > 0 ? 2100 : 760
+        reelFilter.frequency.setTargetAtTime(target, context.currentTime, 0.08)
+      }
+
+      // Level tracks how fast line is moving, capped at the base reel speed.
+      rampLoop(reelLoop, context, Math.min(1, speed / 9) * 0.15)
+    },
+
     setWind(level: number): void {
       if (muted || level <= 0.001) {
         if (windLoop && ctx) rampLoop(windLoop, ctx, 0)
@@ -381,6 +429,7 @@ export function createSfxEngine(initiallyMuted = false): SfxEngine {
       rampLoop(clashLoop, ctx, 0)
       rampLoop(cableLoop, ctx, 0)
       rampLoop(windLoop, ctx, 0)
+      rampLoop(reelLoop, ctx, 0)
     },
 
     dispose(): void {
@@ -388,9 +437,12 @@ export function createSfxEngine(initiallyMuted = false): SfxEngine {
       stopLoop(clashLoop)
       stopLoop(cableLoop)
       stopLoop(windLoop)
+      stopLoop(reelLoop)
       clashLoop = null
       cableLoop = null
       windLoop = null
+      reelLoop = null
+      reelFilter = null
       void ctx?.close()
       ctx = null
       master = null
