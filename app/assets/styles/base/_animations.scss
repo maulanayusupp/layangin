@@ -1,0 +1,135 @@
+@use '../abstracts' as *;
+
+/**
+ * Shared keyframes. Components reference them via the `animate()` mixin, which
+ * also disables motion under `prefers-reduced-motion`.
+ */
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    translate: 0 rem(18);
+  }
+
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes pop-in {
+  0% {
+    opacity: 0;
+    scale: 0.9;
+  }
+
+  100% {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+/// Slow sway used by decorative kite silhouettes.
+@keyframes kite-drift {
+  0%,
+  100% {
+    translate: 0 0;
+    rotate: -4deg;
+  }
+
+  50% {
+    translate: rem(14) rem(-18);
+    rotate: 5deg;
+  }
+}
+
+/// Wind streaks crossing the hero.
+@keyframes wind-sweep {
+  from {
+    translate: -110% 0;
+    opacity: 0;
+  }
+
+  15% {
+    opacity: 0.9;
+  }
+
+  to {
+    translate: 110% 0;
+    opacity: 0;
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 rgb(255 106 43 / 45%);
+  }
+
+  70% {
+    box-shadow: 0 0 0 rem(14) rgb(255 106 43 / 0%);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgb(255 106 43 / 0%);
+  }
+}
+
+@keyframes shimmer {
+  from {
+    background-position: -160% 0;
+  }
+
+  to {
+    background-position: 260% 0;
+  }
+}
+
+@keyframes spin {
+  to {
+    rotate: 360deg;
+  }
+}
+
+/// Nuxt page transition (registered in nuxt.config.ts as `page`).
+.page-enter-active,
+.page-leave-active {
+  transition:
+    opacity var(--dur-base) var(--ease-out),
+    translate var(--dur-base) var(--ease-out);
+}
+
+.page-enter-from {
+  opacity: 0;
+  translate: 0 rem(10);
+}
+
+.page-leave-to {
+  opacity: 0;
+  translate: 0 rem(-6);
+}
+
+@include reduced-motion {
+  .page-enter-active,
+  .page-leave-active {
+    transition: none;
+  }
+}
+
+/// Shared enter animation used by list/grid children.
+.anim-rise {
+  @include animate(rise-in);
+}
+
+.anim-fade {
+  @include animate(fade-in);
+}

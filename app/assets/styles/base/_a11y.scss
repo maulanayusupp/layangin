@@ -1,0 +1,57 @@
+@use '../abstracts' as *;
+
+/**
+ * Accessibility affordances documented on the /compliance page. Keep the two in
+ * sync: any change here must be reflected there (see CLAUDE.md → workflow).
+ */
+
+.visually-hidden {
+  @include visually-hidden;
+}
+
+/// Keyboard-only skip link that becomes visible on focus.
+.skip-link {
+  position: fixed;
+  inset-block-start: var(--sp-2);
+  inset-inline-start: var(--sp-2);
+  z-index: var(--z-toast);
+  padding: var(--sp-2) var(--sp-4);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--c-text-on-brand);
+  border-radius: var(--r-sm);
+  background: var(--c-brand);
+  translate: 0 rem(-200);
+
+  &:focus-visible {
+    translate: 0 0;
+  }
+}
+
+/// Respect the OS "increase contrast" setting by hardening borders and text.
+@media (prefers-contrast: more) {
+  :root {
+    --c-text-soft: #dbe2f7;
+    --c-text-mute: #b8c2de;
+    --c-hairline: rgb(255 255 255 / 24%);
+    --c-border: rgb(255 255 255 / 38%);
+    --c-border-strong: rgb(255 255 255 / 58%);
+  }
+}
+
+/// Windows High Contrast / forced-colors: drop decorative fills so system
+/// colours win, and keep focus visible.
+@media (forced-colors: active) {
+  .bg-grain::after,
+  .bg-kawung,
+  .bg-strings,
+  .bg-grid,
+  .bg-glow-brand::before,
+  .bg-glow-sky::before {
+    display: none;
+  }
+
+  :focus-visible {
+    outline: 3px solid CanvasText;
+  }
+}

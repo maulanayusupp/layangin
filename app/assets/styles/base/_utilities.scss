@@ -1,0 +1,49 @@
+@use '../abstracts' as *;
+
+/**
+ * A deliberately tiny utility set. Utilities exist only for things that are
+ * genuinely one-off positioning/flow tweaks; anything visual belongs in a
+ * component stylesheet so it stays reviewable.
+ */
+
+.u-relative {
+  position: relative;
+}
+
+.u-overflow-clip {
+  overflow: hidden;
+}
+
+.u-full {
+  width: 100%;
+}
+
+.u-center-text {
+  text-align: center;
+}
+
+.u-mx-auto {
+  margin-inline: auto;
+}
+
+.u-no-scroll {
+  overflow: hidden;
+}
+
+/// Escape hatch for wide content (tables, stat rows) on small screens.
+.u-scroll-x {
+  overflow-x: auto;
+  @include custom-scrollbar;
+}
+
+.u-desktop-only {
+  @include mq-below('md') {
+    display: none !important;
+  }
+}
+
+.u-mobile-only {
+  @include mq('md') {
+    display: none !important;
+  }
+}

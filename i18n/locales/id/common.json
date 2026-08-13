@@ -1,0 +1,124 @@
+{
+  "brand": {
+    "name": "Layangin",
+    "tagline": "Arena adu layangan",
+    "shortDescription": "Game adu layangan di browser. Terbangkan model layangan yang disimulasikan, sangkutkan benang dengan lawan, dan putuskan benangnya lebih dulu."
+  },
+  "actions": {
+    "play": "Main",
+    "playNow": "Main sekarang",
+    "startMatch": "Mulai duel",
+    "rematch": "Ulang",
+    "nextOpponent": "Lawan berikutnya",
+    "back": "Kembali",
+    "backToArena": "Kembali ke arena",
+    "close": "Tutup",
+    "buy": "Beli",
+    "equip": "Pakai",
+    "equipped": "Dipakai",
+    "owned": "Dimiliki",
+    "upgrade": "Tingkatkan",
+    "reset": "Reset",
+    "confirm": "Konfirmasi",
+    "cancel": "Batal",
+    "retry": "Coba lagi",
+    "continue": "Lanjut",
+    "viewAll": "Lihat semua",
+    "learnMore": "Selengkapnya",
+    "pause": "Jeda",
+    "resume": "Lanjutkan",
+    "quit": "Keluar duel",
+    "skip": "Lewati",
+    "copyEmail": "Salin alamat email",
+    "copied": "Tersalin",
+    "openShop": "Buka toko",
+    "seeKites": "Lihat semua layangan",
+    "howToPlay": "Cara main"
+  },
+  "labels": {
+    "coins": "Koin",
+    "wins": "Menang",
+    "losses": "Kalah",
+    "streak": "Rentetan",
+    "bestStreak": "Rentetan terbaik",
+    "rarity": "Kelangkaan",
+    "price": "Harga",
+    "free": "Gratis",
+    "locked": "Terkunci",
+    "stats": "Statistik",
+    "origin": "Asal",
+    "tier": "Tingkat",
+    "boss": "Bos",
+    "level": "Level",
+    "maxLevel": "Level maksimal",
+    "progress": "Kemajuan",
+    "of": "dari",
+    "new": "Baru",
+    "soon": "Menyusul nanti",
+    "optional": "Opsional"
+  },
+  "rarity": {
+    "common": "Biasa",
+    "uncommon": "Tidak umum",
+    "rare": "Langka",
+    "epic": "Epik",
+    "legend": "Legendaris"
+  },
+  "origin": {
+    "java": "Jawa",
+    "bali": "Bali",
+    "sumatra": "Sumatra",
+    "modern": "Modern",
+    "legend": "Legenda"
+  },
+  "wind": {
+    "label": "Angin",
+    "calm": "Teduh",
+    "light": "Sepoi",
+    "good": "Bagus",
+    "strong": "Kencang",
+    "wild": "Liar"
+  },
+  "hint": {
+    "label": "Tips",
+    "dismiss": "Paham",
+    "showAgain": "Tampilkan tips lagi",
+    "toggle": "Lihat tips"
+  },
+  "a11y": {
+    "skipToContent": "Lewati ke konten",
+    "openMenu": "Buka menu",
+    "closeMenu": "Tutup menu",
+    "localeSwitcher": "Ganti bahasa",
+    "currentLanguage": "Bahasa saat ini",
+    "arenaCanvas": "Arena adu layangan. Semua angka langsung juga ditulis sebagai teks di bawah arena.",
+    "kitePreview": "Pratinjau layangan {kite}",
+    "meter": "{label}: {value}",
+    "external": "terbuka di tab baru"
+  },
+  "storage": {
+    "blockedTitle": "Kemajuan tidak bisa disimpan",
+    "blockedBody": "Browser Anda memblokir penyimpanan lokal, jadi koin dan barang yang terbuka akan hilang saat tab ditutup. Duel tetap bisa dimainkan."
+  },
+  "notFound": {
+    "title": "Benangnya putus",
+    "body": "Halaman yang Anda cari tidak ada di sini. Mungkin sudah hanyut terbawa angin.",
+    "action": "Kembali ke lapangan"
+  },
+  "error": {
+    "title": "Ada yang bermasalah",
+    "body": "Terjadi kesalahan yang tidak terduga. Biasanya muat ulang halaman sudah cukup.",
+    "reload": "Muat ulang"
+  },
+  "footer": {
+    "builtBy": "Dibuat oleh {name}",
+    "sourceCode": "Kode sumber",
+    "rights": "Layangin adalah game buatan penggemar yang terinspirasi tradisi layangan Indonesia.",
+    "noAffiliation": "Tidak berafiliasi dengan klub, festival, atau organisasi layangan mana pun.",
+    "sections": {
+      "game": "Game",
+      "learn": "Pelajari",
+      "site": "Situs"
+    }
+  }
+}

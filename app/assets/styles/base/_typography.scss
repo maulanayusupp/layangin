@@ -1,0 +1,183 @@
+@use '../abstracts' as *;
+
+/**
+ * Global type scale. Components should apply these classes (or the
+ * `display-type` / `eyebrow` mixins) rather than restating font properties.
+ */
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: var(--lh-tight);
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: var(--fs-3xl);
+}
+
+h2 {
+  font-size: var(--fs-2xl);
+}
+
+h3 {
+  font-size: var(--fs-xl);
+}
+
+h4 {
+  font-size: var(--fs-lg);
+}
+
+p {
+  text-wrap: pretty;
+}
+
+strong,
+b {
+  font-weight: 700;
+  color: var(--c-text);
+}
+
+small {
+  font-size: var(--fs-sm);
+}
+
+code,
+kbd,
+samp {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+}
+
+kbd {
+  display: inline-block;
+  min-width: rem(22);
+  padding: rem(2) rem(6);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  line-height: 1.4;
+  text-align: center;
+  color: var(--c-text);
+  border: 1px solid var(--c-border-strong);
+  border-bottom-width: 2px;
+  border-radius: var(--r-xs);
+  background: var(--c-ink-600);
+}
+
+.t-eyebrow {
+  @include eyebrow;
+}
+
+.t-lead {
+  max-width: 60ch;
+  font-size: var(--fs-md);
+  color: var(--c-text-soft);
+}
+
+.t-body {
+  color: var(--c-text-soft);
+}
+
+.t-mute {
+  color: var(--c-text-mute);
+}
+
+.t-num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.t-gradient {
+  @include gradient-text;
+}
+
+/** Long-form copy blocks: legal pages, about, how-to-play. */
+.prose {
+  max-width: 72ch;
+  color: var(--c-text-soft);
+
+  > * + * {
+    margin-block-start: var(--sp-4);
+  }
+
+  h2 {
+    margin-block-start: var(--sp-7);
+    font-size: var(--fs-xl);
+    color: var(--c-text);
+  }
+
+  h3 {
+    margin-block-start: var(--sp-6);
+    font-size: var(--fs-lg);
+    color: var(--c-text);
+  }
+
+  a {
+    color: var(--c-brand-soft);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+
+    @include hover {
+      color: var(--c-brand);
+    }
+  }
+
+  ul,
+  ol {
+    display: grid;
+    gap: var(--sp-2);
+    padding-inline-start: var(--sp-5);
+  }
+
+  ul li {
+    position: relative;
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset-inline-start: calc(-1 * var(--sp-4));
+      inset-block-start: 0.62em;
+      width: rem(7);
+      height: rem(7);
+      background: var(--c-brand);
+      // Rhombus bullet — the kite motif repeated at the smallest scale.
+      clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+    }
+  }
+
+  ol {
+    counter-reset: prose-ol;
+
+    li {
+      counter-increment: prose-ol;
+
+      &::before {
+        content: counter(prose-ol) '.';
+        position: absolute;
+        inset-inline-start: calc(-1 * var(--sp-5));
+        font-family: var(--font-mono);
+        font-size: var(--fs-sm);
+        font-weight: 700;
+        color: var(--c-brand);
+      }
+
+      position: relative;
+    }
+  }
+
+  dl {
+    display: grid;
+    gap: var(--sp-3);
+  }
+
+  dt {
+    font-weight: 700;
+    color: var(--c-text);
+  }
+}

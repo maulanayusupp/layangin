@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Layangin">
+  <!--
+    Tab favicon. Simplified on purpose: at 16 px the tail, tassels and spar of the
+    full mark collapse into mud, so only the diamond, the spine and one tail bow
+    survive. Stroke weights are set for a 16 px render, not for looking good large.
+  -->
+  <defs>
+    <linearGradient id="s" x1="0.15" y1="0" x2="0.85" y2="1">
+      <stop offset="0" stop-color="#FFC24B"/>
+      <stop offset="0.6" stop-color="#FF6A2B"/>
+      <stop offset="1" stop-color="#D1400F"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="#0A0F1F"/>
+  <path d="M32 46 C 35 53, 43 54, 45 58" fill="none" stroke="#FF6A2B" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M32 8 L 51 28 L 32 46 L 13 28 Z" fill="url(#s)"/>
+  <path d="M32 8 L 32 46" stroke="#2A1206" stroke-width="2.6" stroke-linecap="round"/>
+</svg>

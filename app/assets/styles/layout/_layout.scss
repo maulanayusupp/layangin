@@ -1,0 +1,103 @@
+@use '../abstracts' as *;
+
+/**
+ * Layout primitives (`l-` prefix). These own spacing and flow only — never
+ * colour or type — so pages compose structure without writing new CSS.
+ */
+
+.l-container {
+  @include container;
+}
+
+.l-container--narrow {
+  @include container(880px);
+}
+
+.l-container--wide {
+  @include container(1440px);
+}
+
+.l-section {
+  position: relative;
+  padding-block: var(--section-y);
+}
+
+.l-section--tight {
+  padding-block: var(--sp-6);
+}
+
+/// Vertical rhythm. `--stack-gap` can be overridden by a parent rule.
+.l-stack {
+  display: grid;
+  gap: var(--stack-gap, var(--sp-4));
+  align-content: start;
+}
+
+.l-stack--lg {
+  --stack-gap: var(--sp-6);
+}
+
+.l-stack--sm {
+  --stack-gap: var(--sp-2);
+}
+
+/// Horizontal group that wraps gracefully.
+.l-cluster {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--cluster-gap, var(--sp-3));
+  align-items: center;
+}
+
+.l-cluster--between {
+  justify-content: space-between;
+}
+
+/// Auto-fitting card grid: the single grid used by kites, shop and roster.
+.l-grid {
+  display: grid;
+  gap: var(--sp-4);
+  grid-template-columns: 1fr;
+
+  @include mq('sm') {
+    grid-template-columns: repeat(auto-fill, minmax(rem(240), 1fr));
+  }
+}
+
+.l-grid--wide {
+  @include mq('sm') {
+    grid-template-columns: repeat(auto-fill, minmax(rem(300), 1fr));
+  }
+}
+
+.l-grid--pair {
+  @include mq('md') {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/// Content + sticky aside (shop, kite codex on desktop).
+.l-split {
+  display: grid;
+  gap: var(--sp-5);
+
+  @include mq('lg') {
+    grid-template-columns: minmax(0, 1fr) rem(340);
+    align-items: start;
+  }
+}
+
+.l-sticky {
+  @include mq('lg') {
+    position: sticky;
+    inset-block-start: calc(var(--header-h) + var(--sp-4));
+  }
+}
+
+/// Page hero band shared by all secondary pages.
+.l-page-header {
+  position: relative;
+  overflow: hidden;
+  padding-block: var(--sp-7) var(--sp-6);
+  border-block-end: 1px solid var(--c-hairline);
+}

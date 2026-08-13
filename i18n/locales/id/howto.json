@@ -1,0 +1,119 @@
+{
+  "howto": {
+    "meta": {
+      "title": "Cara main",
+      "description": "Kontrol, aturan adu layangan, dan taktik yang menentukan: pembagian tegangan, sudut persilangan, ketinggian, dan tenaga."
+    },
+    "header": {
+      "eyebrow": "Panduan",
+      "title": "Bagaimana adu layangan dimenangkan",
+      "lead": "Anda tidak menembak apa pun. Anda menggerus benang lawan di titik keduanya bersilangan — dan benang yang lebih tegang itulah yang memutus."
+    },
+    "goal": {
+      "title": "Tujuannya",
+      "body": "Kedua layangan terbang searah angin dari penerbangnya, jadi kedua benang bersilangan di tengah lapangan. Di mana pun keduanya bersentuhan, masing-masing menggerus yang lain. Benang yang putus pertama kalah. Kalau dalam 90 detik tidak ada yang putus, benang yang kondisinya lebih baik yang menang."
+    },
+    "controls": {
+      "title": "Kontrol",
+      "lead": "Tiga input. Kedalamannya ada pada kapan Anda memakainya.",
+      "keyboardTitle": "Papan ketik",
+      "touchTitle": "Sentuh",
+      "rows": {
+        "haul": {
+          "action": "Tarik (narik)",
+          "keys": "W atau ↑",
+          "touch": "Geser gulungan ke atas",
+          "effect": "Memperpendek benang, menaikkan tegangan, menambah ketinggian dan kecepatan. Menguras tenaga."
+        },
+        "release": {
+          "action": "Ulur (ngulur)",
+          "keys": "S atau ↓",
+          "touch": "Geser gulungan ke bawah",
+          "effect": "Memperpanjang benang, menurunkan tegangan, membiarkan layangan hanyut searah angin. Tidak menguras tenaga."
+        },
+        "walk": {
+          "action": "Jalan",
+          "keys": "A / D atau ← / →",
+          "touch": "Geser gulungan ke kiri atau kanan",
+          "effect": "Memindahkan posisi Anda di tanah dan memiringkan layar. Inilah cara Anda masuk ke atau keluar dari persilangan."
+        },
+        "snap": {
+          "action": "Sentak (sentak)",
+          "keys": "Spasi",
+          "touch": "Ketuk tombol sentak",
+          "effect": "Tarikan pendek dan keras. Lonjakan tegangan dan gesekan besar selama sekitar setengah detik. Menguras banyak tenaga dan ada masa jeda."
+        }
+      }
+    },
+    "reading": {
+      "title": "Membaca HUD",
+      "items": {
+        "integrity": {
+          "term": "Kondisi benang",
+          "def": "Berapa banyak sisa masing-masing benang. Kalau milik Anda mencapai nol, benang putus."
+        },
+        "load": {
+          "term": "Beban benang",
+          "def": "Tegangan saat ini sebagai persentase dari yang mampu ditahan benang Anda. Ditahan di atas tanda merah, benang Anda mulai tergerus sendiri — tanpa perlu lawan."
+        },
+        "stamina": {
+          "term": "Tenaga",
+          "def": "Menarik mengurasnya dan terisi lagi saat Anda berhenti. Tangan yang kosong tenaga hanya menarik sekitar sepertiga kekuatan."
+        },
+        "exchange": {
+          "term": "Pertukaran",
+          "def": "Siapa yang sedang unggul pada persinggungan saat ini, dihitung dari pembagian tegangan dan perlengkapan. Di atas tengah, Andalah yang menggerus."
+        },
+        "wind": {
+          "term": "Angin",
+          "def": "Kecepatan acuan pada 10 m. Angin menghentak, dan selalu lebih lemah dekat tanah."
+        }
+      }
+    },
+    "tactics": {
+      "title": "Empat hal yang benar-benar menentukan",
+      "items": {
+        "tension": {
+          "title": "Jadilah benang yang lebih tegang",
+          "body": "Kerusakan dibagi menurut pembagian tegangan: benang yang lebih kencang berperan sebagai mata pisau, yang lebih kendur sebagai benda kerja. Tarik *sebelum* bersilangan, supaya Anda datang dalam keadaan tegang."
+        },
+        "angle": {
+          "title": "Bersilangan mendekati tegak lurus",
+          "body": "Persilangan yang hampir tegak lurus menekan paling keras dan menggerus paling dalam. Sentuhan yang dangkal dan hampir sejajar nyaris tidak berpengaruh. Gunakan langkah kaki Anda untuk mengubah sudutnya."
+        },
+        "altitude": {
+          "title": "Bertahan di ketinggian",
+          "body": "Angin menguat seiring ketinggian, jadi ketinggian adalah tenaga gratis. Ketinggian juga menempatkan benang Anda di atas benang lawan, dan di situlah Anda ingin berada."
+        },
+        "stamina": {
+          "title": "Jangan menarik terus-terusan",
+          "body": "Menarik tanpa henti mengosongkan tenaga dan membebani benang Anda berlebihan. Tegangkan untuk pertukaran, lalu kendurkan dan pulihkan di antara persinggungan."
+        }
+      }
+    },
+    "glossary": {
+      "title": "Istilah yang dipakai di game",
+      "lead": "Ini istilah yang dipakai penerbang layangan di Indonesia. Semuanya muncul di seluruh antarmuka.",
+      "items": {
+        "layangan": { "term": "Layangan", "def": "Layang-layang." },
+        "sangkutan": { "term": "Sangkutan", "def": "Saat dua benang saling tersangkut — inti duelnya." },
+        "gelasan": { "term": "Gelasan", "def": "Benang pengikis, tradisionalnya dilapisi kaca yang dihaluskan dan direkat dengan lem." },
+        "narik": { "term": "Narik", "def": "Menarik benang masuk." },
+        "ngulur": { "term": "Ngulur", "def": "Mengulurkan benang keluar." },
+        "sentak": { "term": "Sentak", "def": "Tarikan mendadak yang keras pada benang." },
+        "putus": { "term": "Putus", "def": "Benangnya sudah terputus." },
+        "sawangan": { "term": "Sawangan", "def": "Layangan besar yang membawa busur berdengung di angin." },
+        "janggan": { "term": "Janggan", "def": "Layangan Bali berkepala mahkota dengan ekor yang sangat panjang." }
+      }
+    },
+    "safety": {
+      "title": "Satu catatan soal yang sebenarnya",
+      "body": "Layangin adalah game. Gelasan yang sebenarnya adalah benang pengikis dan sudah menyebabkan cedera serius pada manusia, hewan, serta jaringan listrik. Kalau Anda menerbangkan layangan sungguhan, pakai benang biasa, jauhi jalan dan kabel listrik, dan ikuti aturan setempat."
+    },
+    "cta": {
+      "title": "Sudah, itu semuanya",
+      "body": "Sisanya soal rasa. Silakan kalah beberapa kali dulu.",
+      "action": "Coba satu duel"
+    }
+  }
+}

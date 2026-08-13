@@ -1,0 +1,33 @@
+# Dependencies
+node_modules
+
+# Nuxt build output
+.nuxt
+.output
+.data
+dist
+
+# Generated icon/brand raster output (regenerate with `pnpm icons`)
+# NOTE: generated icons ARE committed so deployments do not need sharp.
+# Keep this section empty on purpose.
+
+# Env
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+logs
+
+# Editor / OS
+.DS_Store
+.idea
+.vscode/*
+!.vscode/extensions.json
+*.swp
+
+# Test / cache
+coverage
+.vitest
+.eslintcache

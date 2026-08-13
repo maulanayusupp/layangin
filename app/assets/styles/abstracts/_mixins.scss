@@ -1,0 +1,190 @@
+@use 'breakpoints' as *;
+@use 'functions' as *;
+
+/// Page gutter + max width. One definition, used by every section.
+@mixin container($max: 1200px) {
+  width: 100%;
+  max-width: rem($max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/// ---------------------------------------------------------------------------
+/// Signature surface treatments
+///
+/// Layangin's visual identity is built from the kite silhouette: a rhombus with
+/// clipped corners. `notched()` cuts opposite corners so panels read as kite
+/// sails rather than generic rounded cards.
+/// ---------------------------------------------------------------------------
+@mixin notched($size: 18px, $corners: 'tr-bl') {
+  border-radius: var(--r-sm);
+
+  @if $corners == 'tr-bl' {
+    clip-path: polygon(
+      0 0,
+      calc(100% - #{$size}) 0,
+      100% #{$size},
+      100% 100%,
+      #{$size} 100%,
+      0 calc(100% - #{$size})
+    );
+  } @else if $corners == 'tl-br' {
+    clip-path: polygon(
+      #{$size} 0,
+      100% 0,
+      100% calc(100% - #{$size}),
+      calc(100% - #{$size}) 100%,
+      0 100%,
+      0 #{$size}
+    );
+  } @else if $corners == 'tr' {
+    clip-path: polygon(0 0, calc(100% - #{$size}) 0, 100% #{$size}, 100% 100%, 0 100%);
+  } @else {
+    @error "notched(): unknown $corners value `#{$corners}`.";
+  }
+}
+
+/// Frosted panel used for cards, HUD blocks and dialogs.
+@mixin panel($tone: 'raised') {
+  position: relative;
+  border: 1px solid var(--c-hairline);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 4%), rgb(255 255 255 / 0%)),
+    var(--c-surface);
+
+  @if $tone == 'sunken' {
+    background: var(--c-surface-sunken);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 4%);
+  } @else if $tone == 'raised' {
+    box-shadow: var(--sh-2);
+  } @else if $tone == 'flat' {
+    box-shadow: none;
+  }
+}
+
+/// Thin gradient hairline used as a section/heading accent.
+@mixin rule-gradient($height: 2px) {
+  height: $height;
+  border: 0;
+  background: linear-gradient(90deg, var(--c-brand), transparent 70%);
+}
+
+/// ---------------------------------------------------------------------------
+/// Accessibility helpers
+/// ---------------------------------------------------------------------------
+@mixin focus-ring($offset: 3px) {
+  outline: 2px solid var(--c-focus);
+  outline-offset: $offset;
+}
+
+/// Applies the ring only for keyboard users, never on mouse press.
+@mixin focus-visible($offset: 3px) {
+  &:focus-visible {
+    @include focus-ring($offset);
+  }
+}
+
+@mixin visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/// Minimum comfortable tap target (WCAG 2.2 target-size guidance).
+@mixin tap-target($size: 44px) {
+  min-width: $size;
+  min-height: $size;
+}
+
+/// ---------------------------------------------------------------------------
+/// Text helpers
+/// ---------------------------------------------------------------------------
+@mixin display-type($size: fluid(30, 56)) {
+  font-family: var(--font-display);
+  font-size: $size;
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+@mixin eyebrow {
+  display: inline-flex;
+  gap: var(--sp-2);
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: rem(11);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--c-brand-soft);
+}
+
+@mixin clamp-lines($lines: 2) {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: $lines;
+}
+
+@mixin gradient-text($gradient: var(--g-brand)) {
+  background: $gradient;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+/// ---------------------------------------------------------------------------
+/// Scroll + motion
+/// ---------------------------------------------------------------------------
+@mixin custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--c-border-strong) transparent;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border-radius: var(--r-pill);
+    background: var(--c-border-strong);
+  }
+}
+
+/// Horizontal snap rail — the mobile fallback for every card grid.
+@mixin snap-rail($gap: var(--sp-4)) {
+  display: grid;
+  grid-auto-columns: minmax(rem(240), 1fr);
+  grid-auto-flow: column;
+  gap: $gap;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+
+  > * {
+    scroll-snap-align: start;
+  }
+
+  @include custom-scrollbar;
+}
+
+@mixin animate($name, $duration: var(--dur-slow), $easing: var(--ease-out), $extra: none) {
+  animation: $name $duration $easing forwards;
+
+  @if $extra != none {
+    animation-delay: $extra;
+  }
+
+  @include reduced-motion {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}

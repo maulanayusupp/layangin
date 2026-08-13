@@ -1,0 +1,227 @@
+{
+  "about": {
+    "meta": {
+      "title": "About",
+      "description": "Why Layangin exists, what it simulates, what it deliberately does not do, and who built it."
+    },
+    "header": {
+      "eyebrow": "About",
+      "title": "A kite duel, taken seriously",
+      "lead": "Layangin is a small browser game about one specific thing: the moment two kite lines cross and one of them gives."
+    },
+    "why": {
+      "title": "Why this game",
+      "body": "Kite fighting is one of the few games where the whole contest happens through a piece of string. Most kite games skip that and turn it into a dodging game. Layangin does the opposite: the line is the entire mechanic — its tension, its sag, where it crosses, and how fast it is sliding."
+    },
+    "simulated": {
+      "title": "What is simulated",
+      "items": [
+        "Wind that increases with altitude following the standard power-law profile, with gusts generated as fractal noise.",
+        "Thin-plate aerodynamics: lift and drag computed from the sail's angle of attack against the apparent wind.",
+        "A flying line that sags as a shallow catenary when slack, goes straight under load, and parts if held past its breaking tension.",
+        "Abrasion at every crossing, weighted by sliding speed, contact pressure, crossing angle and which line is tauter."
+      ]
+    },
+    "notSimulated": {
+      "title": "What is not simulated",
+      "lead": "Stated plainly, so the game is not mistaken for something it is not.",
+      "items": [
+        "It is a 2D side-on view. Real kite duels happen in three dimensions and the wind window is a hemisphere, not an arc.",
+        "The kite's attitude is set by the bridle geometry rather than solved as a full rigid body with rotational inertia.",
+        "Line stretch, line weight distribution along its length, and line-on-line friction heating are approximated, not modelled.",
+        "The numbers are tuned for a readable 90-second match, not calibrated against measurements of real kites."
+      ]
+    },
+    "cultural": {
+      "title": "About the kites",
+      "body": "The airframes are based on real Indonesian kite traditions — the Javanese pecut and sawangan, the Balinese bebean and janggan — alongside two modern shapes. They are interpretations for a game, not accurate reconstructions, and the game is not affiliated with any kite club, festival or organisation.",
+      "note": "If something here misrepresents a tradition you know well, please say so — see the contact page."
+    },
+    "tech": {
+      "title": "How it is built",
+      "items": {
+        "framework": {
+          "term": "Framework",
+          "def": "Nuxt with Vue and TypeScript, rendered mostly as static pages."
+        },
+        "render": {
+          "term": "Rendering",
+          "def": "The arena is a 2D canvas drawn from a fixed-timestep simulation running at 120 Hz."
+        },
+        "state": {
+          "term": "State",
+          "def": "Pinia stores, with progress persisted to your browser's local storage."
+        },
+        "i18n": {
+          "term": "Languages",
+          "def": "English and Indonesian, with all interface text in translation files."
+        },
+        "hosting": {
+          "term": "Data",
+          "def": "No backend. Nothing you do is sent anywhere."
+        }
+      }
+    },
+    "author": {
+      "title": "Who made it",
+      "body": "Built by {name} as a side project. Bug reports, corrections and ideas are all welcome.",
+      "cta": "Get in touch"
+    }
+  },
+  "contact": {
+    "meta": {
+      "title": "Contact",
+      "description": "Reach the developer of Layangin by email for bug reports, corrections or questions."
+    },
+    "header": {
+      "eyebrow": "Contact",
+      "title": "Say something",
+      "lead": "One person maintains this. Email is the only channel, and it is read."
+    },
+    "email": {
+      "label": "Email",
+      "name": "Maulana Yusup A",
+      "cta": "Send an email",
+      "note": "No contact form, no phone line, no chat widget — an email address is the whole thing."
+    },
+    "expect": {
+      "title": "What to expect",
+      "items": [
+        "This is a side project, so replies are not guaranteed and may take a while.",
+        "Bug reports are much easier to act on with your browser, device and what you were doing at the time.",
+        "There is no account system, so there is nothing to recover if you clear your browser storage."
+      ]
+    },
+    "good": {
+      "title": "Especially useful",
+      "items": [
+        "A match that behaved in a way the rules do not explain.",
+        "A control scheme that does not work on your device.",
+        "A translation that reads wrong in Indonesian.",
+        "Anything about the kites or terminology that a flyer would call incorrect."
+      ]
+    },
+    "privacyNote": "An email tells me your address and whatever you write. It is not added to any list and nothing is sent back to you except a reply."
+  },
+  "compliance": {
+    "meta": {
+      "title": "Compliance",
+      "description": "Accessibility, data handling, monetisation and content statements for Layangin, with what is verified and what is not."
+    },
+    "header": {
+      "eyebrow": "Compliance",
+      "title": "What this site does and does not do",
+      "lead": "Written to be checkable. Where something has not been formally tested, it says so instead of claiming a standard."
+    },
+    "updated": "Last reviewed",
+    "data": {
+      "title": "Data",
+      "items": {
+        "collection": {
+          "term": "Personal data collected",
+          "def": "None. There is no account system, no analytics, no tracking pixels and no third-party scripts."
+        },
+        "storage": {
+          "term": "What is stored on your device",
+          "def": "Game progress (coins, owned airframes, liveries, colourways and effects, upgrade levels, ladder position, chosen arena) and your preferences, in your browser's local storage. A single cookie remembers your language choice."
+        },
+        "transmission": {
+          "term": "What leaves your device",
+          "def": "Nothing from gameplay. Pages and fonts are downloaded from the host when you load the site; fonts are served from the same origin, not from a third party."
+        },
+        "deletion": {
+          "term": "Deleting your data",
+          "def": "Use \"Reset progress\" in the shop, or clear site data in your browser. Since nothing is stored on a server, that is a complete deletion."
+        },
+        "children": {
+          "term": "Children",
+          "def": "The game has no chat, no user-generated content, no purchases and no data collection, so there is nothing collected from any visitor regardless of age."
+        }
+      }
+    },
+    "money": {
+      "title": "Money",
+      "items": {
+        "purchases": {
+          "term": "Real-money purchases",
+          "def": "None. There is no store, no currency pack, no subscription and no payment processing anywhere in this project."
+        },
+        "coins": {
+          "term": "In-game coins",
+          "def": "Earned by playing only. They cannot be bought and have no value outside the game. Arenas are not purchasable at all — they unlock by win count."
+        },
+        "chance": {
+          "term": "Loot boxes or randomised rewards",
+          "def": "None. Every price is fixed and every item is bought directly."
+        },
+        "ads": {
+          "term": "Advertising",
+          "def": "None."
+        }
+      }
+    },
+    "fairness": {
+      "title": "Fairness",
+      "items": {
+        "cosmetic": {
+          "term": "Cosmetics",
+          "def": "Colourways, sail liveries and trail effects do not touch the simulation. None of them can change a match result — only airframes and upgrades affect how a kite flies, and both state their numbers before you buy."
+        },
+        "ai": {
+          "term": "How the AI is made harder",
+          "def": "Only through human-shaped limits — reaction time, aim precision, stamina discipline and mistake rate — plus the gear it flies, which you can also buy. It reads the same state you can see."
+        },
+        "upgrades": {
+          "term": "Upgrades",
+          "def": "Each one multiplies a value the physics model already uses, and the multiplier is shown before you buy."
+        }
+      }
+    },
+    "accessibility": {
+      "title": "Accessibility",
+      "lead": "The target is WCAG 2.2 level AA. This has not been independently audited, so the list below separates what is implemented from what is known to fall short.",
+      "doneTitle": "Implemented",
+      "done": [
+        "Keyboard operation throughout, including the whole match — no pointer is required to play.",
+        "Visible focus indicators on every interactive element, never removed.",
+        "A skip link to the main content on every page.",
+        "Semantic landmarks and headings in document order.",
+        "Live match readings duplicated as text next to the arena, so the canvas is not the only source of that information.",
+        "prefers-reduced-motion respected: page transitions, decorative animation and match particles all stop.",
+        "prefers-contrast: more strengthens borders and secondary text.",
+        "forced-colors support: decorative layers are dropped so system colours win.",
+        "Text and spacing sized in rem, so browser font-size settings scale the whole interface.",
+        "Touch targets of at least 44 px on the controls."
+      ],
+      "gapsTitle": "Known gaps",
+      "gaps": [
+        "The arena itself is a canvas. It has a text alternative and text read-outs, but a fast duel is not a good experience with a screen reader.",
+        "The game requires reacting inside roughly a second, and there is currently no slow-motion or extended-time mode.",
+        "Colour is used alongside labels to distinguish the two fighters; the pairing has not been verified for every form of colour vision deficiency.",
+        "No formal audit or assistive-technology test matrix has been run. Reports of problems are genuinely useful."
+      ]
+    },
+    "content": {
+      "title": "Content",
+      "items": {
+        "cultural": {
+          "term": "Cultural material",
+          "def": "Kite shapes and terminology are interpretations of Indonesian kite traditions for a game. No affiliation with, or endorsement by, any club, festival or organisation is claimed."
+        },
+        "safety": {
+          "term": "Real-world safety",
+          "def": "Abrasive kite line is dangerous in reality. The how-to-play page says so directly rather than treating it as a game mechanic only."
+        },
+        "assets": {
+          "term": "Artwork",
+          "def": "All kite artwork is generated in code from the geometry in this repository. No third-party images are used."
+        }
+      }
+    },
+    "report": {
+      "title": "Report a problem",
+      "body": "If any statement on this page is wrong, or you hit an accessibility barrier, email {email} and it will be corrected here.",
+      "cta": "Contact"
+    }
+  }
+}

@@ -1,0 +1,186 @@
+{
+  "game": {
+    "meta": {
+      "title": "Arena",
+      "description": "Fly a match against the AI across six arenas. Cross lines and wear through your opponent's line before they wear through yours — while avoiding the cables and structures in the field."
+    },
+    "briefing": {
+      "title": "Pick your opponent",
+      "lead": "Beat one to unlock the next. Your loadout comes from the shop.",
+      "loadout": "Your loadout",
+      "changeLoadout": "Change in shop",
+      "locked": "Beat tier {tier} first",
+      "difficulty": "Difficulty",
+      "difficultyNote": "Raised because you have cleared the ladder {count} time(s).",
+      "windForecast": "Expected wind"
+    },
+    "hud": {
+      "yourLine": "Your line",
+      "rivalLine": "Their line",
+      "tension": "Tension",
+      "load": "Line load",
+      "stamina": "Stamina",
+      "altitude": "Altitude",
+      "lineOut": "Line out",
+      "advantage": "Exchange",
+      "advantageYou": "You are cutting",
+      "advantageThem": "They are cutting",
+      "advantageEven": "Even",
+      "clashing": "Lines crossed",
+      "snap": "Yank",
+      "snapReady": "Ready",
+      "snapCooling": "{seconds}s",
+      "time": "Time",
+      "overload": "Overloaded",
+      "readouts": "Live readings",
+      "snagged": "Line on a cable"
+    },
+    "controls": {
+      "title": "Controls",
+      "haul": "Haul in",
+      "release": "Pay out",
+      "left": "Walk upwind",
+      "right": "Walk downwind",
+      "snap": "Yank",
+      "keyboard": "Keyboard",
+      "touch": "Touch",
+      "spool": "Spool",
+      "spoolHint": "Drag up to haul in, down to pay out",
+      "walkHint": "Drag left or right to walk",
+      "snapHint": "Tap to yank — big tension spike, costs stamina"
+    },
+    "countdown": {
+      "ready": "Get set",
+      "go": "Go"
+    },
+    "paused": {
+      "title": "Paused",
+      "body": "The match is waiting for you.",
+      "resume": "Resume",
+      "quit": "Quit to briefing"
+    },
+    "result": {
+      "win": "You won",
+      "loss": "You lost",
+      "draw": "Draw",
+      "byCut": "Their line parted",
+      "byCutAgainst": "Your line parted",
+      "byCrash": "They went down",
+      "byCrashAgainst": "You went down",
+      "byTimeout": "Time — you had more line left",
+      "byTimeoutAgainst": "Time — they had more line left",
+      "byTimeoutDraw": "Time — dead even",
+      "coins": "Coins earned",
+      "bonus": "Bonus",
+      "firstWin": "First win against this opponent",
+      "total": "Banked",
+      "stats": {
+        "title": "Match",
+        "duration": "Duration",
+        "clashTime": "Time in contact",
+        "peakTension": "Peak tension",
+        "peakAltitude": "Peak altitude",
+        "snaps": "Yanks used"
+      },
+      "unlocked": "Unlocked: {name}",
+      "advice": {
+        "title": "What to try next",
+        "tension": "Your line was slacker than theirs for most of the contact. Haul in before you cross, not after.",
+        "overload": "Your line broke under its own load. Ease off in the gusts — watch the load bar, not just the tension number.",
+        "crash": "You lost height and could not get it back. Wind is weaker near the ground, so recover early.",
+        "close": "That was close. One upgrade level either way would have decided it.",
+        "solid": "Cleanly done. Try the next rung.",
+        "obstacle": "You flew into something solid. Check the arena brief before a match — every structure on screen is exactly where the collision is, and the wind behind a tall one is much weaker than in front of it."
+      },
+      "byObstacle": "They flew into a structure",
+      "byObstacleAgainst": "You flew into a structure"
+    },
+    "empty": {
+      "title": "Nothing to fly yet",
+      "body": "Pick an opponent to begin."
+    },
+    "arena": {
+      "title": "Pick a field",
+      "lead": "The obstacles change the fight, not just the view. Cables cut, structures stop a kite dead, and tall buildings steal the wind behind them.",
+      "current": "Field",
+      "select": "Fly here",
+      "selected": "Selected",
+      "hazard": "Hazard level",
+      "cables": "{count} cable(s) — will shred a line dragged across them",
+      "structures": "{count} structure(s) the kite can hit",
+      "shadows": "{count} wind shadow(s)",
+      "clear": "Open air, nothing in the way",
+      "gust": "gusts",
+      "unlockAt": "Win {wins} more match(es) to unlock",
+      "hint": "Cables are the one hazard you cannot fight back against — they abrade your line and take nothing in return. On a field with cables, keep your kite above them.",
+      "items": {
+        "sawah": {
+          "name": "Rice Fields",
+          "lore": "Open paddy at dusk, one tree at either edge and nothing else in the way. The field everyone learns on."
+        },
+        "pantai": {
+          "name": "Beach",
+          "lore": "Sand between two headlands. The sea breeze is stronger and far less steady, and the rock faces cast dead air behind them."
+        },
+        "kampung": {
+          "name": "Neighbourhood",
+          "lore": "An alley between rooftops with four power lines strung across it. Drag your line over a cable and it is gone — the cable takes no damage back."
+        },
+        "kota": {
+          "name": "City Block",
+          "lore": "Two concrete slabs straddling the middle of the field. Behind them the wind all but stops, and there is a lot of behind them."
+        },
+        "monumen": {
+          "name": "Monument Plaza",
+          "lore": "Overcast and gusty, with one tower tall enough that going over it is not an option. A line of trees to leeward."
+        },
+        "viaduk": {
+          "name": "Viaduct",
+          "lore": "Arches across the whole arena and a tram cable along the deck. Climb over, or thread the gap and hope."
+        }
+      }
+    }
+  },
+  "opponents": {
+    "bocah-sawah": {
+      "name": "Rice-Field Kid",
+      "title": "First flyer",
+      "lore": "Flies a plain pecut on a borrowed spool. Loses height constantly and has not worked out that hauling in is what cuts."
+    },
+    "anak-kampung": {
+      "name": "Neighbourhood Regular",
+      "title": "Every afternoon, same field",
+      "lore": "Knows the field better than the kite. Keeps a steady line and will punish you if you stall, but rarely presses an advantage."
+    },
+    "juara-lorong": {
+      "name": "Alley Champion",
+      "title": "Undefeated on one street",
+      "lore": "Flies a delta far too fast for their own good. Quick to reach a crossing, quick to over-commit."
+    },
+    "bos-pasar": {
+      "name": "Market Boss",
+      "title": "Boss · buys the best glass",
+      "lore": "Runs a stall and a small kite empire. Flies a broad bebean that simply refuses to come down, and paid for gelasan that bites."
+    },
+    "si-gelasan": {
+      "name": "The Glass Cutter",
+      "title": "All coins into one thing",
+      "lore": "Spent everything on abrasive and nothing on the line itself. Cuts brutally fast, but a patient opponent can outlast the frame."
+    },
+    "sultan-angin": {
+      "name": "Wind Sultan",
+      "title": "Reads the gusts",
+      "lore": "Picks the windiest afternoons on purpose. Flies an eagle on a tight line and always seems to be a few metres above you."
+    },
+    "raja-sawangan": {
+      "name": "Sawangan King",
+      "title": "Boss · the humming kite",
+      "lore": "You hear the bow before you see the kite. A heavy sawangan that pulls relentlessly and never gives back a metre of line."
+    },
+    "naga-senja": {
+      "name": "Dusk Dragon",
+      "title": "Final boss",
+      "lore": "Flies the last light of the day. Reacts in a fifth of a second, wastes nothing, and will take the exchange the moment you let the line go slack."
+    }
+  }
+}

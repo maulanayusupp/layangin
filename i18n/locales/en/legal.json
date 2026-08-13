@@ -1,0 +1,148 @@
+{
+  "legal": {
+    "notLegalAdvice": "Plain-language summary written by the developer. It describes how this site actually behaves; it is not legal advice.",
+    "updated": "Last updated",
+    "privacy": {
+      "meta": {
+        "title": "Privacy",
+        "description": "Layangin collects no personal data. What is stored on your device, what leaves it, and how to delete everything."
+      },
+      "header": {
+        "eyebrow": "Privacy",
+        "title": "Nothing is collected",
+        "lead": "There is no account, no analytics and no backend. This page explains exactly what that means."
+      },
+      "sections": {
+        "collect": {
+          "title": "What is collected",
+          "body": "No personal data at all. No name, no email address, no identifier, no IP logging by the application, no analytics, no advertising, no fingerprinting and no third-party scripts."
+        },
+        "device": {
+          "title": "What is stored on your device",
+          "body": "Two things, both in your own browser:",
+          "items": [
+            "Local storage — your game progress (coins, owned items, upgrade levels, ladder position, chosen arena, win/loss counts) and your settings (language, reduced effects, dismissed tips). This never leaves your browser.",
+            "One cookie — your language choice, so the site opens in the language you picked. It contains a language code and nothing else."
+          ]
+        },
+        "server": {
+          "title": "What the server sees",
+          "body": "The site is served as static files. Whoever hosts it will see ordinary web-server request information such as your IP address and browser user-agent, as any website does. The application itself does not read, store or process that information, and no gameplay data is sent to it."
+        },
+        "third": {
+          "title": "Third parties",
+          "body": "None embedded. Fonts are downloaded at build time and served from the same origin as the site, so loading a page does not contact a font provider. There are no analytics, social widgets, comment systems or ad networks."
+        },
+        "email": {
+          "title": "If you email me",
+          "body": "You are sharing your email address and whatever you write, through your own mail provider. It is used to reply and nothing else — no mailing list, no forwarding, no storage beyond the mailbox."
+        },
+        "delete": {
+          "title": "Deleting everything",
+          "body": "Use \"Reset progress\" in the shop, or clear this site's data in your browser settings. Because nothing is held on a server, that removes everything there is."
+        },
+        "children": {
+          "title": "Children",
+          "body": "Since nothing is collected from anyone, nothing is collected from children either. There is no chat and no way for players to contact each other."
+        },
+        "changes": {
+          "title": "Changes",
+          "body": "If this ever changes — for example if online play is added, which would require a server — this page will be updated before the feature ships, and the date above will change."
+        }
+      }
+    },
+    "terms": {
+      "meta": {
+        "title": "Terms",
+        "description": "The terms for using Layangin: free to play, provided as-is, no accounts, no purchases."
+      },
+      "header": {
+        "eyebrow": "Terms",
+        "title": "Terms of use",
+        "lead": "Short, because the site does very little on your behalf."
+      },
+      "sections": {
+        "what": {
+          "title": "What this is",
+          "body": "A free browser game, offered as-is. There is no account to create, nothing to pay for, and no service level promised."
+        },
+        "use": {
+          "title": "Using it",
+          "body": "Play it, share the link, and take screenshots or video freely. Do not present it as your own work, and do not attempt to disrupt the site for other people."
+        },
+        "progress": {
+          "title": "Your progress",
+          "body": "Progress lives in your browser's local storage. Clearing site data, switching browsers or using private browsing will lose it. There is no backup and no way to restore it."
+        },
+        "availability": {
+          "title": "Availability",
+          "body": "The site may change, break or go offline at any time without notice. Features described today — including anything marked as planned — may never ship."
+        },
+        "warranty": {
+          "title": "No warranty",
+          "body": "The game is provided without warranty of any kind. To the extent permitted by law, the developer is not liable for any loss arising from using it, including lost game progress."
+        },
+        "safety": {
+          "title": "Real kites",
+          "body": "Nothing here is instruction for flying real kites. Abrasive line causes real injuries. Fly safely and follow local rules."
+        },
+        "ip": {
+          "title": "Names and traditions",
+          "body": "Kite names and terms are drawn from Indonesian kite culture and are used descriptively. No affiliation with any club, festival, brand or organisation is claimed."
+        },
+        "contact": {
+          "title": "Questions",
+          "body": "Email {email}."
+        }
+      }
+    },
+    "cookies": {
+      "meta": {
+        "title": "Cookies",
+        "description": "Layangin uses one cookie, for your language choice, and no tracking cookies at all."
+      },
+      "header": {
+        "eyebrow": "Cookies",
+        "title": "One cookie",
+        "lead": "No consent banner, because there is nothing to consent to beyond remembering your language."
+      },
+      "sections": {
+        "why": {
+          "title": "Why there is no banner",
+          "body": "Consent requirements apply to storage that is not strictly necessary for a function you asked for. The only cookie here records the language you selected, which is that function. Nothing is used for tracking, profiling or advertising."
+        },
+        "table": {
+          "title": "The full list",
+          "name": "Name",
+          "purpose": "Purpose",
+          "duration": "Duration",
+          "type": "Type",
+          "rows": {
+            "locale": {
+              "name": "layangin_locale",
+              "purpose": "Remembers whether you chose English or Indonesian.",
+              "duration": "1 year",
+              "type": "Cookie · strictly necessary"
+            },
+            "save": {
+              "name": "layangin:save",
+              "purpose": "Your game progress: coins, owned airframes and cosmetics, upgrade levels, ladder position, chosen arena, win and loss counts.",
+              "duration": "Until you clear it",
+              "type": "Local storage · not a cookie, never sent to a server"
+            },
+            "settings": {
+              "name": "layangin:settings",
+              "purpose": "Your preferences: reduced effects, and which tips you dismissed.",
+              "duration": "Until you clear it",
+              "type": "Local storage · not a cookie, never sent to a server"
+            }
+          }
+        },
+        "control": {
+          "title": "Controlling it",
+          "body": "Block or clear cookies and site data for this domain in your browser settings. The game still runs; it will simply forget your language and your progress."
+        }
+      }
+    }
+  }
+}

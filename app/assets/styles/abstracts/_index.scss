@@ -1,0 +1,10 @@
+// Abstracts barrel — auto-injected into every stylesheet via
+// nuxt.config.ts → vite.css.preprocessorOptions.scss.additionalData.
+//
+// It may only contain SCSS-time constructs (variables, maps, mixins, functions).
+// Never put emitted CSS rules here: they would be duplicated into every
+// component stylesheet. Emitted design values live in base/_tokens.scss as
+// CSS custom properties.
+@forward 'breakpoints';
+@forward 'functions';
+@forward 'mixins';

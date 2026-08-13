@@ -1,0 +1,119 @@
+{
+  "howto": {
+    "meta": {
+      "title": "How to play",
+      "description": "Controls, the rules of a kite duel, and the tactics that decide it: tension share, crossing angle, altitude and stamina."
+    },
+    "header": {
+      "eyebrow": "Guide",
+      "title": "How a kite duel is won",
+      "lead": "You do not shoot anything. You wear through the other line where the two cross — and the tauter line does the cutting."
+    },
+    "goal": {
+      "title": "The goal",
+      "body": "Both kites fly downwind of their flyer, so the two lines cross in the middle of the field. Wherever they touch, each line abrades the other. The first line to part loses. If nobody is cut inside 90 seconds, the line in better condition wins."
+    },
+    "controls": {
+      "title": "Controls",
+      "lead": "Three inputs. The depth is in when you use them.",
+      "keyboardTitle": "Keyboard",
+      "touchTitle": "Touch",
+      "rows": {
+        "haul": {
+          "action": "Haul in (narik)",
+          "keys": "W or ↑",
+          "touch": "Drag the spool up",
+          "effect": "Shortens the line, raises tension, gains height and speed. Costs stamina."
+        },
+        "release": {
+          "action": "Pay out (ngulur)",
+          "keys": "S or ↓",
+          "touch": "Drag the spool down",
+          "effect": "Lengthens the line, drops tension, lets the kite drift downwind. Free."
+        },
+        "walk": {
+          "action": "Walk",
+          "keys": "A / D or ← / →",
+          "touch": "Drag the spool left or right",
+          "effect": "Moves you along the ground and banks the sail. This is how you steer into or out of a crossing."
+        },
+        "snap": {
+          "action": "Yank (sentak)",
+          "keys": "Space",
+          "touch": "Tap the yank button",
+          "effect": "A short, violent haul. Big tension and slip spike for about half a second. Costs a chunk of stamina and has a cooldown."
+        }
+      }
+    },
+    "reading": {
+      "title": "Reading the HUD",
+      "items": {
+        "integrity": {
+          "term": "Line condition",
+          "def": "How much of each line is left. When yours reaches zero, the line parts."
+        },
+        "load": {
+          "term": "Line load",
+          "def": "Current tension as a share of what your line can take. Held above the red mark, your line starts wearing out on its own — no opponent needed."
+        },
+        "stamina": {
+          "term": "Stamina",
+          "def": "Hauling drains it and it refills when you stop. Empty arms haul at about a third strength."
+        },
+        "exchange": {
+          "term": "Exchange",
+          "def": "Who is winning the current contact, from tension share and gear. Above the middle, you are the one doing the cutting."
+        },
+        "wind": {
+          "term": "Wind",
+          "def": "Reference speed at 10 m. It gusts, and it is always weaker close to the ground."
+        }
+      }
+    },
+    "tactics": {
+      "title": "Four things that actually decide it",
+      "items": {
+        "tension": {
+          "title": "Be the tauter line",
+          "body": "Damage is split by tension share: the tighter line behaves like the blade, the slacker one like the workpiece. Haul in *before* you cross, so you arrive loaded."
+        },
+        "angle": {
+          "title": "Cross near square",
+          "body": "A near-perpendicular crossing presses hardest and bites deepest. A shallow, near-parallel contact barely does anything. Use your walk to change the angle."
+        },
+        "altitude": {
+          "title": "Stay high",
+          "body": "Wind strengthens with height, so height is free power. It also puts your line above theirs, which is where you want it."
+        },
+        "stamina": {
+          "title": "Do not haul forever",
+          "body": "Constant hauling empties your arms and overloads your line. Load up for the exchange, then ease off and recover between contacts."
+        }
+      }
+    },
+    "glossary": {
+      "title": "Words used in the game",
+      "lead": "These are the terms Indonesian kite flyers use. They appear throughout the interface.",
+      "items": {
+        "layangan": { "term": "Layangan", "def": "A kite." },
+        "sangkutan": { "term": "Sangkutan", "def": "The moment two lines catch on each other — the duel proper." },
+        "gelasan": { "term": "Gelasan", "def": "Abrasive line, traditionally coated with finely crushed glass bound in glue." },
+        "narik": { "term": "Narik", "def": "To haul the line in." },
+        "ngulur": { "term": "Ngulur", "def": "To pay the line out." },
+        "sentak": { "term": "Sentak", "def": "A sharp yank on the line." },
+        "putus": { "term": "Putus", "def": "Cut — the line has parted." },
+        "sawangan": { "term": "Sawangan", "def": "A large kite carrying a bow that hums in the wind." },
+        "janggan": { "term": "Janggan", "def": "A Balinese kite with a crowned head and an extremely long tail." }
+      }
+    },
+    "safety": {
+      "title": "One note about the real thing",
+      "body": "Layangin is a game. Real gelasan is abrasive line and has caused serious injuries to people, animals and power infrastructure. If you fly kites for real, use plain line, keep clear of roads and power lines, and follow your local rules."
+    },
+    "cta": {
+      "title": "That is all of it",
+      "body": "The rest is feel. Go and lose a few.",
+      "action": "Fly a match"
+    }
+  }
+}

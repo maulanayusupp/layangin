@@ -1,0 +1,93 @@
+{
+  "kites": {
+    "meta": {
+      "title": "Kite codex",
+      "description": "Every airframe in Layangin, with the aerodynamic numbers behind it: sail area, mass, lift and drag coefficients, tail drag and handling."
+    },
+    "header": {
+      "eyebrow": "Codex",
+      "title": "The rack",
+      "lead": "Eight airframes. The shape is the stat sheet — sail area, mass and tail drag are what make one kite steady and another quick."
+    },
+    "filter": {
+      "all": "All",
+      "owned": "Owned",
+      "locked": "Not owned"
+    },
+    "stat": {
+      "area": "Sail area",
+      "mass": "Mass",
+      "lift": "Lift coefficient",
+      "drag": "Drag coefficient",
+      "tailDrag": "Tail drag",
+      "agility": "Agility",
+      "stability": "Stability",
+      "lineStrength": "Line resistance",
+      "cutPower": "Cutting power",
+      "size": "Span"
+    },
+    "rating": {
+      "lift": "Lift",
+      "speed": "Speed",
+      "control": "Control",
+      "toughness": "Toughness",
+      "bite": "Bite",
+      "stability": "Stability"
+    },
+    "tooltip": {
+      "area": "Larger sails generate more lift and more drag. Both scale with area.",
+      "mass": "Heavier kites resist gusts but sink faster in light wind.",
+      "lift": "Peak lift coefficient of the sail. Higher means more pull for the same wind.",
+      "drag": "Baseline resistance through the air, before tails.",
+      "tailDrag": "Extra drag from the tails. High tail drag means very stable and slow to steer.",
+      "agility": "How quickly the sail answers your steering.",
+      "stability": "How strongly the kite returns to trim after being upset.",
+      "lineStrength": "How well the line resists being worn through.",
+      "cutPower": "How fast this rig wears through the other line."
+    },
+    "unlockNote": "Unlocks after {wins} win(s)",
+    "equippedNote": "Currently flying",
+    "items": {
+      "pecut": {
+        "name": "Pecut",
+        "lore": "The plain fighting diamond. Two bamboo spars, a paper sail, and nothing else — the kite almost everyone learns on, and still a fair fight in the right hands."
+      },
+      "delta": {
+        "name": "Delta",
+        "lore": "A modern triangle with a keel instead of a tail. Very quick to the crossing and very quick to over-rotate; there is no tail to save you."
+      },
+      "bebean": {
+        "name": "Bebean",
+        "lore": "The Balinese fish. A broad sail that hangs on in light air and simply will not come down, at the cost of answering the line slowly."
+      },
+      "kotak": {
+        "name": "Box kite",
+        "lore": "Two cells and no tail at all. The steadiest thing in the sky and the hardest to steer — it wins by outlasting, not by cutting."
+      },
+      "sawangan": {
+        "name": "Sawangan",
+        "lore": "The big bowed kite with a humming bow across the top. You hear it before you see it. Heavy, relentless, and hard on your own arms."
+      },
+      "elang": {
+        "name": "Elang",
+        "lore": "Swept wings and a sharp edge. Fast, light and unforgiving — it bites hard but has little line to spare if the exchange goes the wrong way."
+      },
+      "janggan": {
+        "name": "Janggan",
+        "lore": "The Balinese dragon: a small crowned sail dragging a tail many times its own length. The tail is the kite. Nothing upsets it, and nothing hurries it."
+      },
+      "naga": {
+        "name": "Naga Senja",
+        "lore": "The dusk dragon's own rig, jagged and triple-tailed. The best of everything on the rack, and priced accordingly."
+      }
+    },
+    "picker": {
+      "title": "Pick your kite",
+      "owned": "{owned} of {total} combinations unlocked",
+      "pages": "Kite pages",
+      "note": "Each cell is one airframe wearing one livery. Buy airframes and liveries in the shop; the colourway applies to all of them.",
+      "needKite": "You do not own the {name} airframe yet",
+      "needPattern": "You do not own the {name} livery yet"
+    }
+  }
+}

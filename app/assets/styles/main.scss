@@ -1,0 +1,18 @@
+/**
+ * Global stylesheet entry — registered once in nuxt.config.ts (`css` array).
+ *
+ * Order matters: tokens must be emitted before anything consumes them, and the
+ * reset before element/typography defaults.
+ *
+ * Component-specific rules DO NOT belong here. They live in the component's own
+ * `<style lang="scss" scoped>` block, which already has the abstracts layer
+ * injected. See CLAUDE.md → "Styling rules".
+ */
+@use 'base/tokens';
+@use 'base/reset';
+@use 'base/typography';
+@use 'base/animations';
+@use 'base/patterns';
+@use 'base/a11y';
+@use 'base/utilities';
+@use 'layout/layout';

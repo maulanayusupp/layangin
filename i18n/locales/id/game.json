@@ -1,0 +1,186 @@
+{
+  "game": {
+    "meta": {
+      "title": "Arena",
+      "description": "Duel melawan AI di enam arena. Sangkutkan benang dan gerus benang lawan sebelum benang Anda yang tergerus — sambil menghindari kabel dan bangunan di lapangan."
+    },
+    "briefing": {
+      "title": "Pilih lawan",
+      "lead": "Kalahkan satu untuk membuka berikutnya. Perlengkapan Anda diambil dari toko.",
+      "loadout": "Perlengkapan Anda",
+      "changeLoadout": "Ubah di toko",
+      "locked": "Kalahkan tingkat {tier} dulu",
+      "difficulty": "Kesulitan",
+      "difficultyNote": "Dinaikkan karena Anda sudah menuntaskan tangga lawan {count} kali.",
+      "windForecast": "Perkiraan angin"
+    },
+    "hud": {
+      "yourLine": "Benang Anda",
+      "rivalLine": "Benang lawan",
+      "tension": "Tegangan",
+      "load": "Beban benang",
+      "stamina": "Tenaga",
+      "altitude": "Ketinggian",
+      "lineOut": "Benang terulur",
+      "advantage": "Pertukaran",
+      "advantageYou": "Anda yang menggerus",
+      "advantageThem": "Lawan yang menggerus",
+      "advantageEven": "Seimbang",
+      "clashing": "Benang bersilangan",
+      "snap": "Sentak",
+      "snapReady": "Siap",
+      "snapCooling": "{seconds}s",
+      "time": "Waktu",
+      "overload": "Kelebihan beban",
+      "readouts": "Angka langsung",
+      "snagged": "Benang kena kabel"
+    },
+    "controls": {
+      "title": "Kontrol",
+      "haul": "Tarik",
+      "release": "Ulur",
+      "left": "Jalan melawan angin",
+      "right": "Jalan searah angin",
+      "snap": "Sentak",
+      "keyboard": "Papan ketik",
+      "touch": "Sentuh",
+      "spool": "Gulungan",
+      "spoolHint": "Geser ke atas untuk menarik, ke bawah untuk mengulur",
+      "walkHint": "Geser kiri atau kanan untuk berjalan",
+      "snapHint": "Ketuk untuk menyentak — lonjakan tegangan besar, menguras tenaga"
+    },
+    "countdown": {
+      "ready": "Siap",
+      "go": "Mulai"
+    },
+    "paused": {
+      "title": "Dijeda",
+      "body": "Duel sedang menunggu Anda.",
+      "resume": "Lanjutkan",
+      "quit": "Keluar ke pemilihan lawan"
+    },
+    "result": {
+      "win": "Anda menang",
+      "loss": "Anda kalah",
+      "draw": "Seri",
+      "byCut": "Benang lawan putus",
+      "byCutAgainst": "Benang Anda putus",
+      "byCrash": "Layangan lawan jatuh",
+      "byCrashAgainst": "Layangan Anda jatuh",
+      "byTimeout": "Waktu habis — benang Anda lebih utuh",
+      "byTimeoutAgainst": "Waktu habis — benang lawan lebih utuh",
+      "byTimeoutDraw": "Waktu habis — sama kuat",
+      "coins": "Koin didapat",
+      "bonus": "Bonus",
+      "firstWin": "Kemenangan pertama atas lawan ini",
+      "total": "Masuk kantong",
+      "stats": {
+        "title": "Duel",
+        "duration": "Durasi",
+        "clashTime": "Waktu bersinggungan",
+        "peakTension": "Tegangan puncak",
+        "peakAltitude": "Ketinggian puncak",
+        "snaps": "Sentakan dipakai"
+      },
+      "unlocked": "Terbuka: {name}",
+      "advice": {
+        "title": "Coba ini berikutnya",
+        "tension": "Benang Anda lebih kendur daripada lawan selama hampir seluruh persinggungan. Tarik dulu sebelum bersilangan, jangan setelahnya.",
+        "overload": "Benang Anda putus karena bebannya sendiri. Kendurkan saat angin menghentak — perhatikan bar beban, bukan cuma angka tegangan.",
+        "crash": "Anda kehilangan ketinggian dan tidak bisa mengembalikannya. Angin lebih lemah di dekat tanah, jadi pulihkan lebih awal.",
+        "close": "Tipis sekali. Satu level upgrade saja bisa menentukan.",
+        "solid": "Bersih. Coba tingkat berikutnya.",
+        "obstacle": "Anda menabrak benda padat. Periksa ringkasan arena sebelum duel — setiap bangunan yang terlihat itu persis tempat tabrakannya, dan angin di belakang bangunan tinggi jauh lebih lemah daripada di depannya."
+      },
+      "byObstacle": "Layangan lawan menabrak bangunan",
+      "byObstacleAgainst": "Layangan Anda menabrak bangunan"
+    },
+    "empty": {
+      "title": "Belum ada yang bisa diterbangkan",
+      "body": "Pilih lawan untuk mulai."
+    },
+    "arena": {
+      "title": "Pilih lapangan",
+      "lead": "Obstacle-nya mengubah jalannya duel, bukan cuma pemandangan. Kabel memutus, bangunan menghentikan layangan seketika, dan gedung tinggi mencuri angin di belakangnya.",
+      "current": "Lapangan",
+      "select": "Main di sini",
+      "selected": "Dipilih",
+      "hazard": "Tingkat bahaya",
+      "cables": "{count} kabel — akan menggerus benang yang terseret melewatinya",
+      "structures": "{count} bangunan yang bisa ditabrak layangan",
+      "shadows": "{count} area angin mati",
+      "clear": "Udara terbuka, tidak ada penghalang",
+      "gust": "hentakan",
+      "unlockAt": "Menangkan {wins} duel lagi untuk membuka",
+      "hint": "Kabel adalah satu-satunya bahaya yang tidak bisa Anda balas — ia menggerus benang Anda tanpa rugi apa pun. Di lapangan berkabel, jaga layangan tetap di atasnya.",
+      "items": {
+        "sawah": {
+          "name": "Sawah",
+          "lore": "Petak sawah terbuka saat senja, satu pohon di tiap sisi dan tidak ada apa-apa lagi yang menghalangi. Lapangan tempat semua orang belajar."
+        },
+        "pantai": {
+          "name": "Pantai",
+          "lore": "Pasir di antara dua tanjung. Angin laut lebih kencang dan jauh kurang stabil, dan dinding batunya membuat udara mati di belakangnya."
+        },
+        "kampung": {
+          "name": "Kampung",
+          "lore": "Gang di antara atap rumah dengan empat kabel listrik terentang di atasnya. Seret benang Anda ke kabel dan habis — kabelnya sama sekali tidak rusak."
+        },
+        "kota": {
+          "name": "Blok Kota",
+          "lore": "Dua bongkah beton mengapit tengah lapangan. Di belakangnya angin nyaris berhenti, dan bagian belakangnya luas."
+        },
+        "monumen": {
+          "name": "Plaza Monumen",
+          "lore": "Berawan dan berangin, dengan satu menara yang terlalu tinggi untuk dilewati dari atas. Sederet pohon di sisi bawah angin."
+        },
+        "viaduk": {
+          "name": "Viaduk",
+          "lore": "Lengkungan melintang seluruh arena dan kabel trem di sepanjang dek. Naik melewatinya, atau selipkan lewat celah dan berharap."
+        }
+      }
+    }
+  },
+  "opponents": {
+    "bocah-sawah": {
+      "name": "Bocah Sawah",
+      "title": "Baru belajar",
+      "lore": "Main pecut polos dengan gulungan pinjaman. Sering kehilangan ketinggian dan belum paham bahwa menarik benanglah yang memutus."
+    },
+    "anak-kampung": {
+      "name": "Anak Kampung",
+      "title": "Tiap sore, lapangan yang sama",
+      "lore": "Lebih hafal lapangan daripada layangannya. Benangnya stabil dan akan menghukum kalau Anda lengah, tapi jarang menekan saat unggul."
+    },
+    "juara-lorong": {
+      "name": "Juara Lorong",
+      "title": "Belum pernah kalah di satu gang",
+      "lore": "Main delta yang jauh terlalu cepat untuk kebaikannya sendiri. Cepat sampai ke titik silang, cepat juga terlalu memaksa."
+    },
+    "bos-pasar": {
+      "name": "Bos Pasar",
+      "title": "Bos · beli kaca paling halus",
+      "lore": "Punya kios dan sedikit kerajaan layangan. Main bebean lebar yang benar-benar enggan turun, dan gelasannya dibeli mahal."
+    },
+    "si-gelasan": {
+      "name": "Si Gelasan",
+      "title": "Semua koin untuk satu hal",
+      "lore": "Habis semua untuk gelasan, tidak sepeser pun untuk benangnya. Memutus dengan brutal cepat, tapi lawan yang sabar bisa mengunggulinya."
+    },
+    "sultan-angin": {
+      "name": "Sultan Angin",
+      "title": "Membaca hentakan angin",
+      "lore": "Sengaja memilih sore paling berangin. Main elang dengan benang kencang dan selalu terlihat beberapa meter di atas Anda."
+    },
+    "raja-sawangan": {
+      "name": "Raja Sawangan",
+      "title": "Bos · layangan berdengung",
+      "lore": "Bunyi busurnya terdengar sebelum layangannya kelihatan. Sawangan berat yang menarik tanpa henti dan tidak pernah memberi satu meter benang."
+    },
+    "naga-senja": {
+      "name": "Naga Senja",
+      "title": "Bos terakhir",
+      "lore": "Menerbangkan sisa cahaya terakhir hari itu. Bereaksi dalam seperlima detik, tidak membuang apa pun, dan langsung mengambil pertukaran begitu benang Anda kendur."
+    }
+  }
+}

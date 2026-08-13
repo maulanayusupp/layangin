@@ -1,0 +1,148 @@
+{
+  "legal": {
+    "notLegalAdvice": "Ringkasan berbahasa sederhana yang ditulis oleh pengembang. Isinya menjelaskan bagaimana situs ini sebenarnya berperilaku; ini bukan nasihat hukum.",
+    "updated": "Terakhir diperbarui",
+    "privacy": {
+      "meta": {
+        "title": "Privasi",
+        "description": "Layangin tidak mengumpulkan data pribadi. Apa yang tersimpan di perangkat Anda, apa yang keluar darinya, dan cara menghapus semuanya."
+      },
+      "header": {
+        "eyebrow": "Privasi",
+        "title": "Tidak ada yang dikumpulkan",
+        "lead": "Tidak ada akun, tidak ada analitik, dan tidak ada backend. Halaman ini menjelaskan apa persisnya arti pernyataan itu."
+      },
+      "sections": {
+        "collect": {
+          "title": "Yang dikumpulkan",
+          "body": "Sama sekali tidak ada data pribadi. Tidak ada nama, tidak ada alamat email, tidak ada pengenal, tidak ada pencatatan IP oleh aplikasi, tidak ada analitik, tidak ada iklan, tidak ada fingerprinting, dan tidak ada skrip pihak ketiga."
+        },
+        "device": {
+          "title": "Yang tersimpan di perangkat Anda",
+          "body": "Dua hal, keduanya di browser Anda sendiri:",
+          "items": [
+            "Penyimpanan lokal — kemajuan game Anda (koin, barang yang dimiliki, level upgrade, posisi tangga lawan, arena yang dipilih, jumlah menang/kalah) dan pengaturan Anda (bahasa, efek dikurangi, tips yang ditutup). Ini tidak pernah keluar dari browser Anda.",
+            "Satu cookie — pilihan bahasa Anda, supaya situs terbuka dalam bahasa yang Anda pilih. Isinya kode bahasa dan tidak lebih."
+          ]
+        },
+        "server": {
+          "title": "Yang dilihat server",
+          "body": "Situs ini dilayani sebagai berkas statis. Siapa pun yang menghosting-nya akan melihat informasi permintaan web biasa seperti alamat IP dan user-agent browser Anda, sebagaimana situs web mana pun. Aplikasinya sendiri tidak membaca, menyimpan, atau memproses informasi itu, dan tidak ada data permainan yang dikirim ke sana."
+        },
+        "third": {
+          "title": "Pihak ketiga",
+          "body": "Tidak ada yang disematkan. Font diunduh pada saat build dan dilayani dari origin yang sama dengan situs, jadi memuat halaman tidak menghubungi penyedia font. Tidak ada analitik, widget media sosial, sistem komentar, atau jaringan iklan."
+        },
+        "email": {
+          "title": "Kalau Anda mengirim email",
+          "body": "Anda membagikan alamat email dan apa pun yang Anda tulis, melalui penyedia surel Anda sendiri. Itu dipakai untuk membalas dan tidak untuk hal lain — tidak ada daftar milis, tidak diteruskan, tidak disimpan di luar kotak surat."
+        },
+        "delete": {
+          "title": "Menghapus semuanya",
+          "body": "Gunakan \"Reset kemajuan\" di toko, atau hapus data situs ini di pengaturan browser. Karena tidak ada yang disimpan di server, itu menghapus semua yang ada."
+        },
+        "children": {
+          "title": "Anak-anak",
+          "body": "Karena tidak ada yang dikumpulkan dari siapa pun, tidak ada juga yang dikumpulkan dari anak-anak. Tidak ada chat dan tidak ada cara bagi pemain untuk saling menghubungi."
+        },
+        "changes": {
+          "title": "Perubahan",
+          "body": "Kalau ini pernah berubah — misalnya kalau mode online ditambahkan, yang akan memerlukan server — halaman ini akan diperbarui sebelum fiturnya dirilis, dan tanggal di atas akan berubah."
+        }
+      }
+    },
+    "terms": {
+      "meta": {
+        "title": "Ketentuan",
+        "description": "Ketentuan penggunaan Layangin: gratis dimainkan, disediakan sebagaimana adanya, tanpa akun, tanpa pembelian."
+      },
+      "header": {
+        "eyebrow": "Ketentuan",
+        "title": "Ketentuan penggunaan",
+        "lead": "Singkat, karena situs ini sangat sedikit melakukan sesuatu atas nama Anda."
+      },
+      "sections": {
+        "what": {
+          "title": "Ini apa",
+          "body": "Game browser gratis, ditawarkan sebagaimana adanya. Tidak ada akun yang perlu dibuat, tidak ada yang perlu dibayar, dan tidak ada tingkat layanan yang dijanjikan."
+        },
+        "use": {
+          "title": "Memakainya",
+          "body": "Silakan mainkan, bagikan tautannya, dan ambil tangkapan layar atau video sebebasnya. Jangan menampilkannya sebagai karya Anda sendiri, dan jangan berusaha mengganggu situs bagi orang lain."
+        },
+        "progress": {
+          "title": "Kemajuan Anda",
+          "body": "Kemajuan berada di penyimpanan lokal browser Anda. Menghapus data situs, berpindah browser, atau memakai mode penjelajahan pribadi akan menghilangkannya. Tidak ada cadangan dan tidak ada cara memulihkannya."
+        },
+        "availability": {
+          "title": "Ketersediaan",
+          "body": "Situs bisa berubah, rusak, atau offline kapan saja tanpa pemberitahuan. Fitur yang dijelaskan hari ini — termasuk apa pun yang ditandai sebagai rencana — bisa jadi tidak pernah dirilis."
+        },
+        "warranty": {
+          "title": "Tanpa jaminan",
+          "body": "Game ini disediakan tanpa jaminan dalam bentuk apa pun. Sejauh diizinkan hukum, pengembang tidak bertanggung jawab atas kerugian apa pun yang timbul dari penggunaannya, termasuk hilangnya kemajuan game."
+        },
+        "safety": {
+          "title": "Layangan sungguhan",
+          "body": "Tidak ada apa pun di sini yang merupakan petunjuk menerbangkan layangan sungguhan. Benang gelasan menyebabkan cedera nyata. Bermainlah dengan aman dan ikuti aturan setempat."
+        },
+        "ip": {
+          "title": "Nama dan tradisi",
+          "body": "Nama layangan dan istilahnya diambil dari budaya layangan Indonesia dan dipakai secara deskriptif. Tidak ada klaim afiliasi dengan klub, festival, merek, atau organisasi mana pun."
+        },
+        "contact": {
+          "title": "Pertanyaan",
+          "body": "Email ke {email}."
+        }
+      }
+    },
+    "cookies": {
+      "meta": {
+        "title": "Cookie",
+        "description": "Layangin memakai satu cookie, untuk pilihan bahasa Anda, dan sama sekali tidak ada cookie pelacak."
+      },
+      "header": {
+        "eyebrow": "Cookie",
+        "title": "Satu cookie",
+        "lead": "Tidak ada spanduk persetujuan, karena tidak ada yang perlu disetujui selain mengingat bahasa Anda."
+      },
+      "sections": {
+        "why": {
+          "title": "Kenapa tidak ada spanduk",
+          "body": "Keharusan meminta persetujuan berlaku untuk penyimpanan yang tidak benar-benar diperlukan bagi fungsi yang Anda minta. Satu-satunya cookie di sini mencatat bahasa yang Anda pilih, dan itulah fungsinya. Tidak ada yang dipakai untuk pelacakan, pembuatan profil, atau iklan."
+        },
+        "table": {
+          "title": "Daftar lengkapnya",
+          "name": "Nama",
+          "purpose": "Tujuan",
+          "duration": "Durasi",
+          "type": "Jenis",
+          "rows": {
+            "locale": {
+              "name": "layangin_locale",
+              "purpose": "Mengingat apakah Anda memilih bahasa Inggris atau Indonesia.",
+              "duration": "1 tahun",
+              "type": "Cookie · benar-benar diperlukan"
+            },
+            "save": {
+              "name": "layangin:save",
+              "purpose": "Kemajuan game Anda: koin, rangka dan kosmetik yang dimiliki, level upgrade, posisi tangga lawan, arena yang dipilih, jumlah menang dan kalah.",
+              "duration": "Sampai Anda menghapusnya",
+              "type": "Penyimpanan lokal · bukan cookie, tidak pernah dikirim ke server"
+            },
+            "settings": {
+              "name": "layangin:settings",
+              "purpose": "Preferensi Anda: efek dikurangi, dan tips yang sudah Anda tutup.",
+              "duration": "Sampai Anda menghapusnya",
+              "type": "Penyimpanan lokal · bukan cookie, tidak pernah dikirim ke server"
+            }
+          }
+        },
+        "control": {
+          "title": "Mengendalikannya",
+          "body": "Blokir atau hapus cookie dan data situs untuk domain ini di pengaturan browser Anda. Game tetap jalan; ia hanya akan lupa bahasa dan kemajuan Anda."
+        }
+      }
+    }
+  }
+}

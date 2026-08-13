@@ -1,0 +1,124 @@
+{
+  "brand": {
+    "name": "Layangin",
+    "tagline": "Kite-fighting arena",
+    "shortDescription": "A browser kite-fighting game. Fly a real kite model, cross lines with an opponent, and try to cut theirs first."
+  },
+  "actions": {
+    "play": "Play",
+    "playNow": "Play now",
+    "startMatch": "Start match",
+    "rematch": "Rematch",
+    "nextOpponent": "Next opponent",
+    "back": "Back",
+    "backToArena": "Back to the arena",
+    "close": "Close",
+    "buy": "Buy",
+    "equip": "Equip",
+    "equipped": "Equipped",
+    "owned": "Owned",
+    "upgrade": "Upgrade",
+    "reset": "Reset",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "retry": "Try again",
+    "continue": "Continue",
+    "viewAll": "View all",
+    "learnMore": "Learn more",
+    "pause": "Pause",
+    "resume": "Resume",
+    "quit": "Quit match",
+    "skip": "Skip",
+    "copyEmail": "Copy email address",
+    "copied": "Copied",
+    "openShop": "Open shop",
+    "seeKites": "See all kites",
+    "howToPlay": "How to play"
+  },
+  "labels": {
+    "coins": "Coins",
+    "wins": "Wins",
+    "losses": "Losses",
+    "streak": "Streak",
+    "bestStreak": "Best streak",
+    "rarity": "Rarity",
+    "price": "Price",
+    "free": "Free",
+    "locked": "Locked",
+    "stats": "Stats",
+    "origin": "Origin",
+    "tier": "Tier",
+    "boss": "Boss",
+    "level": "Level",
+    "maxLevel": "Max level",
+    "progress": "Progress",
+    "of": "of",
+    "new": "New",
+    "soon": "Coming later",
+    "optional": "Optional"
+  },
+  "rarity": {
+    "common": "Common",
+    "uncommon": "Uncommon",
+    "rare": "Rare",
+    "epic": "Epic",
+    "legend": "Legendary"
+  },
+  "origin": {
+    "java": "Java",
+    "bali": "Bali",
+    "sumatra": "Sumatra",
+    "modern": "Modern",
+    "legend": "Legend"
+  },
+  "wind": {
+    "label": "Wind",
+    "calm": "Calm",
+    "light": "Light",
+    "good": "Good",
+    "strong": "Strong",
+    "wild": "Wild"
+  },
+  "hint": {
+    "label": "Tip",
+    "dismiss": "Got it",
+    "showAgain": "Show tips again",
+    "toggle": "Show tip"
+  },
+  "a11y": {
+    "skipToContent": "Skip to content",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "localeSwitcher": "Change language",
+    "currentLanguage": "Current language",
+    "arenaCanvas": "Kite duel arena. Live readings are listed below the arena as text.",
+    "kitePreview": "Preview of the {kite} kite",
+    "meter": "{label}: {value}",
+    "external": "opens in a new tab"
+  },
+  "storage": {
+    "blockedTitle": "Progress cannot be saved",
+    "blockedBody": "Your browser is blocking local storage, so coins and unlocks will be lost when you close the tab. Matches still work."
+  },
+  "notFound": {
+    "title": "This line snapped",
+    "body": "The page you were looking for is not here. It may have drifted off downwind.",
+    "action": "Back to the field"
+  },
+  "error": {
+    "title": "Something went wrong",
+    "body": "An unexpected error stopped the page. Reloading usually clears it.",
+    "reload": "Reload"
+  },
+  "footer": {
+    "builtBy": "Built by {name}",
+    "sourceCode": "Source code",
+    "rights": "Layangin is a fan-made game inspired by Indonesian kite traditions.",
+    "noAffiliation": "Not affiliated with any kite club, festival, or organisation.",
+    "sections": {
+      "game": "Game",
+      "learn": "Learn",
+      "site": "Site"
+    }
+  }
+}

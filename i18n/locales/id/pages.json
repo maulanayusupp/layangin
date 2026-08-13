@@ -1,0 +1,227 @@
+{
+  "about": {
+    "meta": {
+      "title": "Tentang",
+      "description": "Kenapa Layangin dibuat, apa yang disimulasikan, apa yang sengaja tidak dilakukan, dan siapa yang membuatnya."
+    },
+    "header": {
+      "eyebrow": "Tentang",
+      "title": "Adu layangan, dianggap serius",
+      "lead": "Layangin adalah game browser kecil tentang satu hal yang spesifik: momen dua benang layangan bersilangan dan salah satunya menyerah."
+    },
+    "why": {
+      "title": "Kenapa game ini",
+      "body": "Adu layangan adalah salah satu dari sedikit permainan yang seluruh pertandingannya terjadi lewat sepotong benang. Sebagian besar game layangan melewatkan bagian itu dan mengubahnya jadi game menghindar. Layangin melakukan sebaliknya: benang adalah seluruh mekaniknya — tegangannya, lengkungannya, di mana ia bersilangan, dan seberapa cepat ia bergesek."
+    },
+    "simulated": {
+      "title": "Yang disimulasikan",
+      "items": [
+        "Angin yang menguat seiring ketinggian mengikuti profil hukum pangkat yang standar, dengan hentakan angin dibangkitkan sebagai derau fraktal.",
+        "Aerodinamika pelat tipis: daya angkat dan hambat dihitung dari sudut serang layar terhadap angin semu.",
+        "Benang yang melengkung sebagai katenari dangkal saat kendur, menegang lurus saat dibebani, dan putus kalau ditahan melewati tegangan patahnya.",
+        "Gerusan di setiap titik silang, dibobot oleh kecepatan gesekan, tekanan kontak, sudut persilangan, dan benang siapa yang lebih tegang."
+      ]
+    },
+    "notSimulated": {
+      "title": "Yang tidak disimulasikan",
+      "lead": "Disebutkan terang-terangan, supaya game ini tidak disalahpahami sebagai sesuatu yang bukan dirinya.",
+      "items": [
+        "Ini tampilan 2D dari samping. Adu layangan sungguhan terjadi dalam tiga dimensi, dan jendela anginnya berbentuk setengah bola, bukan busur.",
+        "Sikap layangan ditentukan oleh geometri tali kekang, bukan diselesaikan sebagai benda tegar penuh dengan inersia rotasi.",
+        "Pemuluran benang, sebaran berat sepanjang benang, dan pemanasan akibat gesekan benang hanya didekati, bukan dimodelkan.",
+        "Angkanya ditala agar duel 90 detik terasa jelas, bukan dikalibrasi terhadap pengukuran layangan sungguhan."
+      ]
+    },
+    "cultural": {
+      "title": "Tentang layangannya",
+      "body": "Rangka layangannya didasarkan pada tradisi layangan Indonesia yang nyata — pecut dan sawangan dari Jawa, bebean dan janggan dari Bali — ditambah dua bentuk modern. Semuanya interpretasi untuk sebuah game, bukan rekonstruksi akurat, dan game ini tidak berafiliasi dengan klub, festival, atau organisasi layangan mana pun.",
+      "note": "Kalau ada yang di sini salah menggambarkan tradisi yang Anda pahami dengan baik, tolong sampaikan — lihat halaman kontak."
+    },
+    "tech": {
+      "title": "Cara membangunnya",
+      "items": {
+        "framework": {
+          "term": "Kerangka kerja",
+          "def": "Nuxt dengan Vue dan TypeScript, sebagian besar dirender sebagai halaman statis."
+        },
+        "render": {
+          "term": "Render",
+          "def": "Arena adalah kanvas 2D yang digambar dari simulasi langkah waktu tetap 120 Hz."
+        },
+        "state": {
+          "term": "State",
+          "def": "Store Pinia, dengan kemajuan disimpan ke penyimpanan lokal browser Anda."
+        },
+        "i18n": {
+          "term": "Bahasa",
+          "def": "Inggris dan Indonesia, dengan semua teks antarmuka berada di berkas terjemahan."
+        },
+        "hosting": {
+          "term": "Data",
+          "def": "Tanpa backend. Tidak ada yang Anda lakukan dikirim ke mana pun."
+        }
+      }
+    },
+    "author": {
+      "title": "Siapa yang membuat",
+      "body": "Dibuat oleh {name} sebagai proyek sampingan. Laporan bug, koreksi, dan ide semuanya diterima dengan senang hati.",
+      "cta": "Hubungi saya"
+    }
+  },
+  "contact": {
+    "meta": {
+      "title": "Kontak",
+      "description": "Hubungi pengembang Layangin lewat email untuk laporan bug, koreksi, atau pertanyaan."
+    },
+    "header": {
+      "eyebrow": "Kontak",
+      "title": "Sampaikan sesuatu",
+      "lead": "Yang mengurus ini satu orang. Email adalah satu-satunya saluran, dan email itu dibaca."
+    },
+    "email": {
+      "label": "Email",
+      "name": "Maulana Yusup A",
+      "cta": "Kirim email",
+      "note": "Tidak ada formulir kontak, tidak ada saluran telepon, tidak ada widget chat — hanya sebuah alamat email."
+    },
+    "expect": {
+      "title": "Yang bisa diharapkan",
+      "items": [
+        "Ini proyek sampingan, jadi balasan tidak dijamin dan bisa memakan waktu.",
+        "Laporan bug jauh lebih mudah ditindaklanjuti kalau menyertakan browser, perangkat, dan apa yang Anda lakukan saat itu.",
+        "Tidak ada sistem akun, jadi tidak ada yang bisa dipulihkan kalau Anda menghapus penyimpanan browser."
+      ]
+    },
+    "good": {
+      "title": "Yang sangat berguna",
+      "items": [
+        "Duel yang berperilaku dengan cara yang tidak dijelaskan aturannya.",
+        "Skema kontrol yang tidak jalan di perangkat Anda.",
+        "Terjemahan yang terasa salah dalam bahasa Indonesia.",
+        "Apa pun soal layangan atau istilahnya yang menurut penerbang layangan keliru."
+      ]
+    },
+    "privacyNote": "Sebuah email memberi tahu saya alamat Anda dan apa pun yang Anda tulis. Itu tidak dimasukkan ke daftar apa pun dan tidak ada yang dikirim balik selain balasan."
+  },
+  "compliance": {
+    "meta": {
+      "title": "Kepatuhan",
+      "description": "Pernyataan aksesibilitas, penanganan data, monetisasi, dan konten untuk Layangin, beserta apa yang sudah diverifikasi dan apa yang belum."
+    },
+    "header": {
+      "eyebrow": "Kepatuhan",
+      "title": "Apa yang situs ini lakukan dan tidak lakukan",
+      "lead": "Ditulis supaya bisa diperiksa. Bila sesuatu belum diuji secara formal, halaman ini menyatakannya, bukan mengklaim sebuah standar."
+    },
+    "updated": "Terakhir ditinjau",
+    "data": {
+      "title": "Data",
+      "items": {
+        "collection": {
+          "term": "Data pribadi yang dikumpulkan",
+          "def": "Tidak ada. Tidak ada sistem akun, tidak ada analitik, tidak ada piksel pelacak, dan tidak ada skrip pihak ketiga."
+        },
+        "storage": {
+          "term": "Yang tersimpan di perangkat Anda",
+          "def": "Kemajuan game (koin, rangka, corak, kombinasi warna dan efek yang dimiliki, level upgrade, posisi tangga lawan, arena yang dipilih) dan preferensi Anda, di penyimpanan lokal browser. Satu cookie mengingat pilihan bahasa Anda."
+        },
+        "transmission": {
+          "term": "Yang keluar dari perangkat Anda",
+          "def": "Tidak ada dari permainan. Halaman dan font diunduh dari host saat Anda memuat situs; font dilayani dari origin yang sama, bukan dari pihak ketiga."
+        },
+        "deletion": {
+          "term": "Menghapus data Anda",
+          "def": "Gunakan \"Reset kemajuan\" di toko, atau hapus data situs di browser. Karena tidak ada yang tersimpan di server, itu sudah penghapusan yang lengkap."
+        },
+        "children": {
+          "term": "Anak-anak",
+          "def": "Game ini tidak punya chat, tidak ada konten buatan pengguna, tidak ada pembelian, dan tidak mengumpulkan data, jadi tidak ada yang dikumpulkan dari pengunjung mana pun terlepas dari usianya."
+        }
+      }
+    },
+    "money": {
+      "title": "Uang",
+      "items": {
+        "purchases": {
+          "term": "Pembelian dengan uang sungguhan",
+          "def": "Tidak ada. Tidak ada toko, tidak ada paket mata uang, tidak ada langganan, dan tidak ada pemrosesan pembayaran di mana pun dalam proyek ini."
+        },
+        "coins": {
+          "term": "Koin dalam game",
+          "def": "Hanya didapat dari bermain. Tidak bisa dibeli dan tidak punya nilai di luar game. Arena sama sekali tidak bisa dibeli — terbuka berdasarkan jumlah kemenangan."
+        },
+        "chance": {
+          "term": "Loot box atau hadiah acak",
+          "def": "Tidak ada. Setiap harga tetap dan setiap barang dibeli langsung."
+        },
+        "ads": {
+          "term": "Iklan",
+          "def": "Tidak ada."
+        }
+      }
+    },
+    "fairness": {
+      "title": "Keadilan",
+      "items": {
+        "cosmetic": {
+          "term": "Kosmetik",
+          "def": "Kombinasi warna, corak layar, dan efek jejak tidak menyentuh simulasi. Tidak satu pun bisa mengubah hasil duel — hanya rangka dan upgrade yang mempengaruhi cara layangan terbang, dan keduanya menampilkan angkanya sebelum Anda membeli."
+        },
+        "ai": {
+          "term": "Bagaimana AI dibuat lebih sulit",
+          "def": "Hanya melalui batas-batas yang manusiawi — waktu reaksi, ketepatan bidikan, disiplin tenaga, dan tingkat kesalahan — ditambah perlengkapan yang dipakainya, yang juga bisa Anda beli. AI membaca state yang sama dengan yang bisa Anda lihat."
+        },
+        "upgrades": {
+          "term": "Upgrade",
+          "def": "Masing-masing mengalikan nilai yang memang sudah dipakai model fisika, dan pengalinya ditampilkan sebelum Anda membeli."
+        }
+      }
+    },
+    "accessibility": {
+      "title": "Aksesibilitas",
+      "lead": "Targetnya adalah WCAG 2.2 level AA. Ini belum diaudit secara independen, jadi daftar di bawah memisahkan apa yang sudah diterapkan dari apa yang diketahui masih kurang.",
+      "doneTitle": "Sudah diterapkan",
+      "done": [
+        "Bisa dioperasikan sepenuhnya dengan papan ketik, termasuk seluruh duel — tidak perlu penunjuk untuk bermain.",
+        "Indikator fokus yang terlihat pada setiap elemen interaktif, tidak pernah dihilangkan.",
+        "Tautan lewati ke konten utama di setiap halaman.",
+        "Landmark dan heading semantik dalam urutan dokumen.",
+        "Angka duel langsung digandakan sebagai teks di samping arena, jadi kanvas bukan satu-satunya sumber informasi itu.",
+        "prefers-reduced-motion dihormati: transisi halaman, animasi dekoratif, dan partikel duel semuanya berhenti.",
+        "prefers-contrast: more menguatkan garis batas dan teks sekunder.",
+        "Dukungan forced-colors: lapisan dekoratif dihilangkan agar warna sistem yang berlaku.",
+        "Teks dan spasi memakai satuan rem, jadi pengaturan ukuran font browser menskalakan seluruh antarmuka.",
+        "Target sentuh minimal 44 px pada kontrol."
+      ],
+      "gapsTitle": "Kekurangan yang diketahui",
+      "gaps": [
+        "Arenanya sendiri adalah kanvas. Ada alternatif teks dan angka teks, tapi duel yang cepat bukan pengalaman yang baik dengan pembaca layar.",
+        "Game menuntut reaksi dalam kira-kira satu detik, dan saat ini belum ada mode gerak lambat atau perpanjangan waktu.",
+        "Warna dipakai bersama label untuk membedakan kedua penerbang; pasangan itu belum diverifikasi untuk setiap jenis buta warna.",
+        "Belum ada audit formal atau matriks pengujian teknologi bantu. Laporan masalah sungguh-sungguh berguna."
+      ]
+    },
+    "content": {
+      "title": "Konten",
+      "items": {
+        "cultural": {
+          "term": "Materi budaya",
+          "def": "Bentuk layangan dan istilahnya adalah interpretasi tradisi layangan Indonesia untuk sebuah game. Tidak ada klaim afiliasi maupun dukungan dari klub, festival, atau organisasi mana pun."
+        },
+        "safety": {
+          "term": "Keselamatan di dunia nyata",
+          "def": "Benang gelasan berbahaya dalam kenyataan. Halaman cara main menyatakannya secara langsung, bukan memperlakukannya semata sebagai mekanik game."
+        },
+        "assets": {
+          "term": "Karya visual",
+          "def": "Seluruh gambar layangan dihasilkan oleh kode dari geometri di repositori ini. Tidak ada gambar pihak ketiga yang dipakai."
+        }
+      }
+    },
+    "report": {
+      "title": "Laporkan masalah",
+      "body": "Kalau ada pernyataan di halaman ini yang salah, atau Anda menemui hambatan aksesibilitas, kirim email ke {email} dan itu akan diperbaiki di sini.",
+      "cta": "Kontak"
+    }
+  }
+}

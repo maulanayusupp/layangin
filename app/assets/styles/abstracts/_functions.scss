@@ -1,0 +1,31 @@
+@use 'sass:math';
+@use 'sass:string';
+
+/// px → rem against a 16px root. Keeps type and spacing responsive to the
+/// user's browser font-size setting (accessibility requirement, see /compliance).
+@function rem($px) {
+  @return math.div($px, 16) * 1rem;
+}
+
+/// Fluid value that grows with the viewport between two breakpoints without a
+/// media query. Used for display type and section rhythm.
+@function fluid($min-px, $max-px, $from-px: 400, $to-px: 1280) {
+  $slope: math.div($max-px - $min-px, $to-px - $from-px);
+  $intercept: $min-px - $slope * $from-px;
+
+  @return clamp(
+    #{rem($min-px)},
+    #{rem($intercept)} + #{$slope * 100}vw,
+    #{rem($max-px)}
+  );
+}
+
+/// Reference a design token defined in base/_tokens.scss with a compile-time
+/// typo guard on the prefix.
+@function token($name) {
+  @if string.index($name, '--') != 1 {
+    @error "token() expects a custom property name starting with `--`, got `#{$name}`.";
+  }
+
+  @return var(#{$name});
+}

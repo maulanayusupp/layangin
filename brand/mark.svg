@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Layangin kite mark">
+  <!--
+    Layangin brand mark — source of truth.
+
+    A pecut (fighting diamond) with its spine, cross spar, tail and two tassels.
+    The gradient runs the dusk palette: gold at the nose down to deep ember at
+    the tail, matching --g-brand / --g-gold in the design tokens.
+
+    Edit this file, then run `pnpm icons` to regenerate every raster size.
+  -->
+  <defs>
+    <linearGradient id="sail" x1="0.15" y1="0" x2="0.85" y2="1">
+      <stop offset="0" stop-color="#FFD98A"/>
+      <stop offset="0.38" stop-color="#FFC24B"/>
+      <stop offset="0.72" stop-color="#FF6A2B"/>
+      <stop offset="1" stop-color="#D1400F"/>
+    </linearGradient>
+    <linearGradient id="sailShade" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#000000" stop-opacity="0"/>
+      <stop offset="1" stop-color="#000000" stop-opacity="0.28"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Tail: two bows trailing off the bottom vertex. -->
+  <path
+    d="M256 396 C 268 428, 300 434, 312 458 C 322 478, 350 480, 362 466"
+    fill="none"
+    stroke="#FF6A2B"
+    stroke-width="14"
+    stroke-linecap="round"
+  />
+
+  <!-- Sail. -->
+  <path d="M256 64 L 396 236 L 256 396 L 116 236 Z" fill="url(#sail)"/>
+  <!-- Right half darkened so the diamond reads as a folded surface. -->
+  <path d="M256 64 L 396 236 L 256 396 Z" fill="url(#sailShade)"/>
+
+  <!-- Spine and cross spar. -->
+  <path
+    d="M256 64 L 256 396 M116 236 L 396 236"
+    stroke="#2A1206"
+    stroke-width="12"
+    stroke-linecap="round"
+  />
+
+  <!-- Tassels on the lower spar corners. -->
+  <path d="M150 300 l 22 -22 l 22 22 l -22 22 Z" fill="#35DFC7"/>
+  <path d="M318 300 l 22 -22 l 22 22 l -22 22 Z" fill="#35DFC7"/>
+</svg>

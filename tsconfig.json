@@ -1,0 +1,13 @@
+{
+  // Nuxt generates one tsconfig per environment (app, server, shared, node).
+  // This root file only references them, so a single `nuxt typecheck` covers all
+  // four with the correct globals and auto-import types in each.
+  // https://nuxt.com/docs/guide/concepts/typescript
+  "files": [],
+  "references": [
+    { "path": "./.nuxt/tsconfig.app.json" },
+    { "path": "./.nuxt/tsconfig.server.json" },
+    { "path": "./.nuxt/tsconfig.shared.json" },
+    { "path": "./.nuxt/tsconfig.node.json" }
+  ]
+}

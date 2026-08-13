@@ -1,0 +1,114 @@
+{
+  "home": {
+    "meta": {
+      "title": "Layangin — Indonesian kite-fighting game",
+      "description": "Fly a simulated kite, cross lines with an opponent and cut their line first. Eight airframes, six arenas with real obstacles, upgrades and a coin shop. Plays in the browser, no sign-up."
+    },
+    "hero": {
+      "eyebrow": "Kite duel · single player",
+      "title": "Cross lines.",
+      "titleAccent": "Cut first.",
+      "lead": "Layangin is a kite duel played the way it is played on a field at dusk: you only win by wearing through the other line where the two cross. Wind, tension and timing decide it — not button mashing.",
+      "primaryCta": "Fly a match",
+      "secondaryCta": "Read the rules",
+      "note": "Runs in your browser. No account, no install.",
+      "stat": {
+        "kites": "airframes",
+        "opponents": "opponents",
+        "bosses": "of them bosses"
+      }
+    },
+    "physics": {
+      "eyebrow": "What is actually simulated",
+      "title": "The wind does the work",
+      "lead": "The kite is not on rails. Every frame it is solved from the air moving over it.",
+      "items": {
+        "wind": {
+          "title": "Wind that changes with height",
+          "body": "Wind is slower near the ground and picks up with altitude, following the standard power-law profile. Lose height and you lose lift — which is why altitude is worth fighting for."
+        },
+        "aero": {
+          "title": "Lift and drag from angle of attack",
+          "body": "The sail is solved as a thin plate: lift peaks around 45° and collapses past it. Hold too steep an angle and the kite stalls and drops out of the sky."
+        },
+        "line": {
+          "title": "A line that sags and snaps",
+          "body": "Pay line out and the belly drops into a visible catenary; haul in and it goes straight. Load it past its breaking tension in a gust and it parts on its own."
+        },
+        "clash": {
+          "title": "Cutting by abrasion",
+          "body": "Where the lines cross, damage depends on how fast they slide, how hard they press, and which line is tauter. The tighter line acts as the blade."
+        }
+      }
+    },
+    "kites": {
+      "eyebrow": "The rack",
+      "title": "Eight airframes, not eight colours",
+      "lead": "Each kite is a different shape with different numbers behind it. A long-tailed janggan really is steadier and slower than a bare delta.",
+      "cta": "Open the codex"
+    },
+    "ladder": {
+      "eyebrow": "The ladder",
+      "title": "Eight opponents, three of them bosses",
+      "lead": "Difficulty is in the hands, not the gear. A boss reacts in a fifth of a second and rarely wastes stamina; it does not get a stronger line than you can buy.",
+      "cta": "See who is next",
+      "bossBadge": "Boss"
+    },
+    "progress": {
+      "eyebrow": "Between matches",
+      "title": "Earn coins, then choose what to fix",
+      "lead": "Wins pay, losses still pay a little. Spend it on the thing that keeps beating you.",
+      "items": {
+        "kites": {
+          "title": "Buy new airframes",
+          "body": "Each one changes how the kite flies, not just how it looks."
+        },
+        "upgrades": {
+          "title": "Upgrade what you have",
+          "body": "Line strength, gelasan, reel speed, control and stamina all feed straight into the simulation."
+        },
+        "cosmetics": {
+          "title": "Colours and trails",
+          "body": "Eight colourways and six trail effects. These are cosmetic only — they never change how a kite flies."
+        }
+      }
+    },
+    "howto": {
+      "eyebrow": "Controls",
+      "title": "Three inputs, a lot of depth",
+      "lead": "Haul or pay out line, walk along the ground, and yank. That is the whole control scheme.",
+      "cta": "Full guide"
+    },
+    "faq": {
+      "eyebrow": "Questions",
+      "title": "Before you start",
+      "items": {
+        "free": {
+          "q": "Is it free?",
+          "a": "Yes, and there is nothing to buy. Coins are earned by playing and only exist inside the game."
+        },
+        "account": {
+          "q": "Do I need an account?",
+          "a": "No. Progress is saved in your own browser storage. There is no sign-up and no server holding your data."
+        },
+        "device": {
+          "q": "Does it work on a phone?",
+          "a": "Yes. On a touch screen the arena shows an on-screen spool and yank button instead of keyboard controls."
+        },
+        "pvp": {
+          "q": "Can I play against a friend?",
+          "a": "Not yet. Only matches against the AI are available today. The simulation was built to be deterministic so online play can be added later, but it is not implemented."
+        },
+        "offline": {
+          "q": "Does it work offline?",
+          "a": "Not currently. The page needs to load once from the network; there is no offline mode yet."
+        }
+      }
+    },
+    "cta": {
+      "title": "The wind is up",
+      "body": "One match takes about a minute and a half.",
+      "action": "Fly now"
+    }
+  }
+}

@@ -1,0 +1,114 @@
+{
+  "home": {
+    "meta": {
+      "title": "Layangin — game adu layangan Indonesia",
+      "description": "Terbangkan layangan yang disimulasikan, sangkutkan benang dengan lawan, dan putuskan benangnya lebih dulu. Delapan rangka layangan, enam arena dengan obstacle nyata, upgrade, dan toko koin. Jalan di browser, tanpa daftar."
+    },
+    "hero": {
+      "eyebrow": "Adu layangan · pemain tunggal",
+      "title": "Sangkutkan benang.",
+      "titleAccent": "Putuskan lebih dulu.",
+      "lead": "Layangin adalah adu layangan seperti di lapangan sore hari: satu-satunya cara menang adalah menggerus benang lawan di titik persilangan. Yang menentukan angin, tarikan benang, dan waktu — bukan seberapa cepat Anda menekan tombol.",
+      "primaryCta": "Coba satu duel",
+      "secondaryCta": "Baca aturannya",
+      "note": "Jalan di browser. Tanpa akun, tanpa instal.",
+      "stat": {
+        "kites": "rangka layangan",
+        "opponents": "lawan",
+        "bosses": "di antaranya bos"
+      }
+    },
+    "physics": {
+      "eyebrow": "Yang benar-benar disimulasikan",
+      "title": "Anginlah yang bekerja",
+      "lead": "Layangan tidak bergerak di jalur tetap. Setiap frame dihitung dari udara yang mengalir di atasnya.",
+      "items": {
+        "wind": {
+          "title": "Angin berubah menurut ketinggian",
+          "body": "Angin lebih lemah di dekat tanah dan menguat seiring ketinggian, mengikuti profil hukum pangkat yang standar. Turun ketinggian berarti kehilangan daya angkat — itulah kenapa ketinggian layak diperjuangkan."
+        },
+        "aero": {
+          "title": "Angkat dan hambat dari sudut serang",
+          "body": "Layar dihitung sebagai pelat tipis: daya angkat memuncak di sekitar 45° dan runtuh setelahnya. Tahan sudut terlalu tajam, layangan akan stall lalu jatuh."
+        },
+        "line": {
+          "title": "Benang yang melengkung dan bisa putus",
+          "body": "Ulur benang, perutnya turun membentuk lengkung katenari yang terlihat; tarik, benang menegang lurus. Bebani melewati tegangan patahnya saat angin menghentak, benang putus sendiri."
+        },
+        "clash": {
+          "title": "Memutus dengan gerusan",
+          "body": "Di titik persilangan, kerusakan bergantung pada seberapa cepat benang bergesek, seberapa keras keduanya menekan, dan benang siapa yang lebih tegang. Benang yang lebih kencang berperan sebagai mata pisau."
+        }
+      }
+    },
+    "kites": {
+      "eyebrow": "Koleksi",
+      "title": "Delapan rangka, bukan delapan warna",
+      "lead": "Setiap layangan punya bentuk berbeda dengan angka yang berbeda di belakangnya. Janggan berekor panjang memang lebih stabil dan lebih lambat daripada delta polos.",
+      "cta": "Buka katalog"
+    },
+    "ladder": {
+      "eyebrow": "Tangga lawan",
+      "title": "Delapan lawan, tiga di antaranya bos",
+      "lead": "Kesulitan ada di tangan, bukan di perlengkapan. Bos bereaksi dalam seperlima detik dan hampir tidak pernah membuang tenaga; benangnya bukan benang yang tidak bisa Anda beli.",
+      "cta": "Lihat lawan berikutnya",
+      "bossBadge": "Bos"
+    },
+    "progress": {
+      "eyebrow": "Antar duel",
+      "title": "Kumpulkan koin, lalu pilih yang mau diperbaiki",
+      "lead": "Menang dibayar, kalah pun masih dapat sedikit. Belanjakan pada hal yang terus mengalahkan Anda.",
+      "items": {
+        "kites": {
+          "title": "Beli rangka baru",
+          "body": "Masing-masing mengubah cara layangan terbang, bukan cuma tampilannya."
+        },
+        "upgrades": {
+          "title": "Tingkatkan yang sudah ada",
+          "body": "Kekuatan benang, gelasan, kecepatan tarik, kendali, dan tenaga semuanya langsung masuk ke simulasi."
+        },
+        "cosmetics": {
+          "title": "Warna dan efek jejak",
+          "body": "Delapan kombinasi warna dan enam efek jejak. Ini murni kosmetik — tidak pernah mengubah cara layangan terbang."
+        }
+      }
+    },
+    "howto": {
+      "eyebrow": "Kontrol",
+      "title": "Tiga input, kedalamannya banyak",
+      "lead": "Tarik atau ulur benang, jalan di tanah, dan sentak. Itu seluruh skema kontrolnya.",
+      "cta": "Panduan lengkap"
+    },
+    "faq": {
+      "eyebrow": "Pertanyaan",
+      "title": "Sebelum mulai",
+      "items": {
+        "free": {
+          "q": "Gratis?",
+          "a": "Ya, dan tidak ada yang bisa dibeli. Koin didapat dari bermain dan hanya berlaku di dalam game."
+        },
+        "account": {
+          "q": "Perlu akun?",
+          "a": "Tidak. Kemajuan disimpan di penyimpanan browser Anda sendiri. Tidak ada pendaftaran dan tidak ada server yang menyimpan data Anda."
+        },
+        "device": {
+          "q": "Bisa di ponsel?",
+          "a": "Bisa. Di layar sentuh, arena menampilkan gulungan benang dan tombol sentak di layar, bukan kontrol papan ketik."
+        },
+        "pvp": {
+          "q": "Bisa lawan teman?",
+          "a": "Belum. Saat ini hanya tersedia duel melawan AI. Simulasinya dibangun agar deterministik supaya mode online bisa ditambahkan nanti, tapi belum diimplementasikan."
+        },
+        "offline": {
+          "q": "Bisa offline?",
+          "a": "Belum. Halaman perlu dimuat sekali dari jaringan; belum ada mode offline."
+        }
+      }
+    },
+    "cta": {
+      "title": "Anginnya sedang bagus",
+      "body": "Satu duel kira-kira satu setengah menit.",
+      "action": "Terbangkan sekarang"
+    }
+  }
+}

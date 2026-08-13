@@ -1,0 +1,185 @@
+{
+  "shop": {
+    "meta": {
+      "title": "Toko",
+      "description": "Belanjakan koin hasil duel untuk rangka layangan, upgrade, corak layar, kombinasi warna, dan efek jejak. Semuanya didapat dari bermain — tidak ada yang dibeli dengan uang sungguhan."
+    },
+    "header": {
+      "eyebrow": "Warung",
+      "title": "Belanjakan hasil menang",
+      "lead": "Koin hanya datang dari duel. Tidak ada di sini yang memakai uang sungguhan dan tidak ada yang dibatasi waktu."
+    },
+    "balance": "Koin Anda",
+    "tabs": {
+      "kites": "Rangka",
+      "upgrades": "Upgrade",
+      "palettes": "Warna",
+      "effects": "Jejak",
+      "patterns": "Corak"
+    },
+    "reason": {
+      "owned": "Sudah dimiliki",
+      "affordable": "Koin Anda cukup",
+      "too-expensive": "Butuh {shortfall} koin lagi",
+      "locked": "Menangkan {wins} duel lagi untuk membuka"
+    },
+    "cosmeticNote": "Warna dan efek jejak bersifat kosmetik. Tidak mengubah cara layangan terbang.",
+    "upgradeNote": "Upgrade mengalikan nilai yang memang sudah dipakai simulasi, jadi efeknya terlihat di arena.",
+    "empty": "Tidak ada lagi yang bisa dibeli di sini.",
+    "maxed": "Sudah maksimal",
+    "currentEffect": "Sekarang: {value}",
+    "nextEffect": "Berikutnya: {value}",
+    "invested": "Sudah diinvestasikan",
+    "settings": {
+      "title": "Preferensi",
+      "reducedEffects": {
+        "label": "Kurangi efek",
+        "description": "Mematikan partikel duel dan gradien berat. Membantu pada perangkat lama atau berdaya rendah. Juga diterapkan otomatis kalau sistem Anda meminta pengurangan gerak."
+      }
+    },
+    "reset": {
+      "title": "Reset kemajuan",
+      "body": "Menghapus koin, barang terbuka, upgrade, dan posisi tangga lawan dari browser ini. Tidak bisa dibatalkan.",
+      "action": "Reset semuanya",
+      "confirm": "Ya, reset",
+      "done": "Kemajuan sudah direset."
+    },
+    "upgrades": {
+      "line-strength": {
+        "name": "Kekuatan benang",
+        "description": "Benang yang lebih tebal dan lebih rapi pilinannya tahan gerusan serta selamat pada tegangan puncak yang lebih tinggi sebelum putus."
+      },
+      "gelasan": {
+        "name": "Gelasan",
+        "description": "Lapisan pengikis pada benang Anda — tradisionalnya kaca halus yang direkat dengan lem. Menggerus benang lawan lebih cepat."
+      },
+      "reel-speed": {
+        "name": "Kecepatan tarik",
+        "description": "Berapa meter benang yang bisa Anda tarik atau ulur per detik. Menarik lebih cepat berarti Anda mencapai titik silang sesuai kemauan Anda."
+      },
+      "control": {
+        "name": "Kendali",
+        "description": "Kerja tali kekang yang lebih rapi. Layar merespons kemudi Anda lebih cepat."
+      },
+      "stamina": {
+        "name": "Tenaga",
+        "description": "Tangan yang terlatih. Anda lebih lambat lelah saat menarik dan lebih cepat pulih antar pertukaran."
+      },
+      "luck": {
+        "name": "Reputasi",
+        "description": "Nama yang dikenal di lapangan. Setiap hadiah koin jadi lebih besar."
+      }
+    },
+    "palettes": {
+      "senja": {
+        "name": "Senja",
+        "description": "Jingga senja dan emas — cahaya tempat layangan benar-benar diterbangkan."
+      },
+      "pandan": {
+        "name": "Pandan",
+        "description": "Hijau daun pandan dengan tepian hijau limau pucat."
+      },
+      "samudra": {
+        "name": "Samudra",
+        "description": "Biru laut dalam yang beralih ke biru kehijauan dangkal."
+      },
+      "gula-kelapa": {
+        "name": "Gula Kelapa",
+        "description": "Putih dan merah, warna gula kelapa dan beras."
+      },
+      "batik-indigo": {
+        "name": "Batik Indigo",
+        "description": "Pewarna indigo dengan krem kapas belum diputihkan."
+      },
+      "mercusuar": {
+        "name": "Mercusuar",
+        "description": "Kuning mercusuar berlatar merah muda peringatan."
+      },
+      "arang": {
+        "name": "Arang",
+        "description": "Arang di atas arang, dengan satu aksen jingga bara."
+      },
+      "nusantara": {
+        "name": "Nusantara",
+        "description": "Ungu, emas, dan biru kehijauan sekaligus — sengaja ramai."
+      }
+    },
+    "effects": {
+      "none": {
+        "name": "Tanpa jejak",
+        "description": "Tanpa jejak. Arena paling mudah dibaca."
+      },
+      "debu": {
+        "name": "Debu",
+        "description": "Sebaran halus debu lapangan di belakang layar."
+      },
+      "kunang": {
+        "name": "Kunang-kunang",
+        "description": "Titik hangat yang melayang naik perlahan lalu pudar."
+      },
+      "asap": {
+        "name": "Asap",
+        "description": "Kepulan kelabu lembut yang dicerai-ceraikan angin."
+      },
+      "pelangi": {
+        "name": "Pelangi",
+        "description": "Jejak rapat yang diwarnai dari kombinasi warna Anda sendiri."
+      },
+      "bara": {
+        "name": "Bara",
+        "description": "Percik jingga panas yang naik lalu habis terbakar."
+      }
+    },
+    "patternNote": "Corak adalah gambar pada layar layangan. Seperti kombinasi warna, ini kosmetik dan tidak mengubah cara layangan terbang.",
+    "patterns": {
+      "plain": {
+        "name": "Polos",
+        "description": "Panel kosong tanpa gambar. Bentuk rangkanya paling terlihat."
+      },
+      "belang": {
+        "name": "Belang",
+        "description": "Garis mendatar di seluruh layar, corak kampung yang paling umum."
+      },
+      "palang": {
+        "name": "Palang",
+        "description": "Garis tegak — mudah dikenali di langit terang."
+      },
+      "seperempat": {
+        "name": "Seperempat",
+        "description": "Kuadran berlawanan dalam dua warna. Layangan aduan klasik."
+      },
+      "panah": {
+        "name": "Panah",
+        "description": "Anak panah bertumpuk mengarah ke ujung layangan."
+      },
+      "sasaran": {
+        "name": "Sasaran",
+        "description": "Cincin sepusat dengan titik kekang sebagai pusatnya."
+      },
+      "bintang": {
+        "name": "Bintang",
+        "description": "Bintang lima sudut dengan bagian tengah kontras."
+      },
+      "papan": {
+        "name": "Papan Catur",
+        "description": "Kotak-kotak penuh, dengan satu kotak dibalik agar tidak terlihat seperti tekstur."
+      },
+      "lidah-api": {
+        "name": "Lidah Api",
+        "description": "Jilatan api yang menyala dari tepi ekor."
+      },
+      "kawung": {
+        "name": "Kawung",
+        "description": "Jalinan batik Jawa empat kelopak, digambar di seluruh layar."
+      },
+      "mata": {
+        "name": "Mata",
+        "description": "Sepasang mata, seperti cara bebean atau layangan burung hantu dilukis."
+      },
+      "sinar": {
+        "name": "Sinar",
+        "description": "Pancaran sinar dari titik kekang. Ramai, dan memang disengaja."
+      }
+    }
+  }
+}

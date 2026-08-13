@@ -1,0 +1,93 @@
+{
+  "kites": {
+    "meta": {
+      "title": "Katalog layangan",
+      "description": "Semua rangka layangan di Layangin beserta angka aerodinamikanya: luas layar, massa, koefisien angkat dan hambat, hambatan ekor, dan kemudahan dikendalikan."
+    },
+    "header": {
+      "eyebrow": "Katalog",
+      "title": "Koleksi",
+      "lead": "Delapan rangka. Bentuknya adalah lembar statistiknya — luas layar, massa, dan hambatan ekor itulah yang membuat satu layangan stabil dan yang lain gesit."
+    },
+    "filter": {
+      "all": "Semua",
+      "owned": "Dimiliki",
+      "locked": "Belum dimiliki"
+    },
+    "stat": {
+      "area": "Luas layar",
+      "mass": "Massa",
+      "lift": "Koefisien angkat",
+      "drag": "Koefisien hambat",
+      "tailDrag": "Hambatan ekor",
+      "agility": "Kegesitan",
+      "stability": "Kestabilan",
+      "lineStrength": "Ketahanan benang",
+      "cutPower": "Daya putus",
+      "size": "Bentang"
+    },
+    "rating": {
+      "lift": "Angkat",
+      "speed": "Kecepatan",
+      "control": "Kendali",
+      "toughness": "Ketahanan",
+      "bite": "Gerusan",
+      "stability": "Kestabilan"
+    },
+    "tooltip": {
+      "area": "Layar lebih besar menghasilkan lebih banyak daya angkat sekaligus lebih banyak hambatan. Keduanya sebanding dengan luas.",
+      "mass": "Layangan lebih berat tahan terhadap hentakan angin, tapi lebih cepat turun saat angin lemah.",
+      "lift": "Koefisien angkat puncak layar. Makin tinggi, makin besar tarikan pada angin yang sama.",
+      "drag": "Hambatan dasar terhadap udara, sebelum memperhitungkan ekor.",
+      "tailDrag": "Hambatan tambahan dari ekor. Hambatan ekor tinggi berarti sangat stabil tapi lambat berbelok.",
+      "agility": "Seberapa cepat layar merespons kemudi Anda.",
+      "stability": "Seberapa kuat layangan kembali ke posisi trim setelah terganggu.",
+      "lineStrength": "Seberapa tahan benang terhadap gerusan.",
+      "cutPower": "Seberapa cepat rangka ini menggerus benang lawan."
+    },
+    "unlockNote": "Terbuka setelah {wins} kemenangan",
+    "equippedNote": "Sedang dipakai",
+    "items": {
+      "pecut": {
+        "name": "Pecut",
+        "lore": "Belah ketupat aduan yang paling sederhana. Dua bilah bambu, layar kertas, tidak ada yang lain — layangan yang hampir semua orang pakai untuk belajar, dan tetap lawan yang adil di tangan yang tepat."
+      },
+      "delta": {
+        "name": "Delta",
+        "lore": "Segitiga modern dengan lunas, bukan ekor. Sangat cepat mencapai titik silang dan sangat cepat pula kebablasan; tidak ada ekor yang menyelamatkan Anda."
+      },
+      "bebean": {
+        "name": "Bebean",
+        "lore": "Layangan ikan dari Bali. Layar lebar yang bertahan di angin ringan dan benar-benar enggan turun, dengan konsekuensi lambat merespons benang."
+      },
+      "kotak": {
+        "name": "Layangan kotak",
+        "lore": "Dua sel dan sama sekali tanpa ekor. Paling stabil di langit dan paling sulit dikemudikan — menang karena bertahan lebih lama, bukan karena memutus."
+      },
+      "sawangan": {
+        "name": "Sawangan",
+        "lore": "Layangan besar dengan busur berdengung di atasnya. Terdengar sebelum terlihat. Berat, tanpa ampun, dan melelahkan tangan Anda sendiri."
+      },
+      "elang": {
+        "name": "Elang",
+        "lore": "Sayap menyapu dan sisi yang tajam. Cepat, ringan, dan tidak memaafkan — gerusannya keras tapi benangnya tidak punya banyak sisa kalau pertukaran berbalik."
+      },
+      "janggan": {
+        "name": "Janggan",
+        "lore": "Naga Bali: layar kecil bermahkota yang menyeret ekor berkali-kali panjang tubuhnya. Ekornya itulah layangannya. Tidak ada yang bisa mengganggunya, dan tidak ada yang bisa membuatnya bergegas."
+      },
+      "naga": {
+        "name": "Naga Senja",
+        "lore": "Rangka milik Naga Senja sendiri, bergerigi dan berekor tiga. Terbaik dari semua yang ada di koleksi, dan harganya sepadan."
+      }
+    },
+    "picker": {
+      "title": "Pilih layangan",
+      "owned": "{owned} dari {total} kombinasi terbuka",
+      "pages": "Halaman layangan",
+      "note": "Setiap kotak adalah satu rangka dengan satu corak. Beli rangka dan corak di toko; kombinasi warna berlaku untuk semuanya.",
+      "needKite": "Anda belum punya rangka {name}",
+      "needPattern": "Anda belum punya corak {name}"
+    }
+  }
+}

@@ -1,0 +1,185 @@
+{
+  "shop": {
+    "meta": {
+      "title": "Shop",
+      "description": "Spend match coins on airframes, upgrades, sail liveries, colourways and trail effects. Everything is earned in game — there is nothing to buy with real money."
+    },
+    "header": {
+      "eyebrow": "Warung",
+      "title": "Spend what you won",
+      "lead": "Coins come from matches only. Nothing here costs real money and nothing here is time-limited."
+    },
+    "balance": "Your coins",
+    "tabs": {
+      "kites": "Airframes",
+      "upgrades": "Upgrades",
+      "palettes": "Colours",
+      "effects": "Trails",
+      "patterns": "Liveries"
+    },
+    "reason": {
+      "owned": "Already owned",
+      "affordable": "You can afford this",
+      "too-expensive": "Need {shortfall} more coins",
+      "locked": "Win {wins} more match(es) to unlock"
+    },
+    "cosmeticNote": "Colours and trails are cosmetic. They do not change how a kite flies.",
+    "upgradeNote": "Upgrades multiply a value the simulation already uses, so the effect is visible in the arena.",
+    "empty": "Nothing left to buy here.",
+    "maxed": "Fully upgraded",
+    "currentEffect": "Current: {value}",
+    "nextEffect": "Next: {value}",
+    "invested": "Invested so far",
+    "settings": {
+      "title": "Preferences",
+      "reducedEffects": {
+        "label": "Reduced effects",
+        "description": "Turns off match particles and heavy gradients. Helps on older or low-power devices. Also applied automatically if your system asks for reduced motion."
+      }
+    },
+    "reset": {
+      "title": "Reset progress",
+      "body": "Clears coins, unlocks, upgrades and ladder progress from this browser. This cannot be undone.",
+      "action": "Reset everything",
+      "confirm": "Yes, reset",
+      "done": "Progress reset."
+    },
+    "upgrades": {
+      "line-strength": {
+        "name": "Line strength",
+        "description": "A thicker, better-laid line resists abrasion and survives a higher peak tension before it parts."
+      },
+      "gelasan": {
+        "name": "Gelasan",
+        "description": "The abrasive coating on your line — traditionally crushed glass bound with glue. Wears through the other line faster."
+      },
+      "reel-speed": {
+        "name": "Reel speed",
+        "description": "How many metres of line you can haul or pay out per second. Faster reeling means you reach a crossing on your terms."
+      },
+      "control": {
+        "name": "Control",
+        "description": "Cleaner bridle work. The sail answers your steering more quickly."
+      },
+      "stamina": {
+        "name": "Stamina",
+        "description": "Conditioned arms. You tire more slowly while hauling and recover faster between exchanges."
+      },
+      "luck": {
+        "name": "Reputation",
+        "description": "A name on the field. Every coin reward is worth more."
+      }
+    },
+    "palettes": {
+      "senja": {
+        "name": "Senja",
+        "description": "Dusk orange and gold — the light kites actually fly in."
+      },
+      "pandan": {
+        "name": "Pandan",
+        "description": "The green of pandan leaf, with a pale lime edge."
+      },
+      "samudra": {
+        "name": "Samudra",
+        "description": "Deep sea blue running into shallow teal."
+      },
+      "gula-kelapa": {
+        "name": "Gula Kelapa",
+        "description": "White and red, the colours of palm sugar and rice."
+      },
+      "batik-indigo": {
+        "name": "Batik Indigo",
+        "description": "Indigo dye with an unbleached cotton cream."
+      },
+      "mercusuar": {
+        "name": "Mercusuar",
+        "description": "Lighthouse yellow against a warning pink."
+      },
+      "arang": {
+        "name": "Arang",
+        "description": "Charcoal on charcoal, with one ember-orange accent."
+      },
+      "nusantara": {
+        "name": "Nusantara",
+        "description": "Violet, gold and teal together — loud on purpose."
+      }
+    },
+    "effects": {
+      "none": {
+        "name": "None",
+        "description": "No trail. The cleanest read of the arena."
+      },
+      "debu": {
+        "name": "Dust",
+        "description": "A faint scatter of field dust behind the sail."
+      },
+      "kunang": {
+        "name": "Fireflies",
+        "description": "Slow warm motes that drift upward and fade."
+      },
+      "asap": {
+        "name": "Smoke",
+        "description": "Soft grey plume that the wind pulls apart."
+      },
+      "pelangi": {
+        "name": "Rainbow",
+        "description": "Dense trail tinted from your own colourway."
+      },
+      "bara": {
+        "name": "Embers",
+        "description": "Hot orange sparks that rise and burn out."
+      }
+    },
+    "patternNote": "Liveries are the sail graphics. Like colourways, they are cosmetic and do not change how a kite flies.",
+    "patterns": {
+      "plain": {
+        "name": "Plain",
+        "description": "Bare panels, no graphics. The cleanest read of the airframe."
+      },
+      "belang": {
+        "name": "Bands",
+        "description": "Horizontal bands across the sail, the most common village livery."
+      },
+      "palang": {
+        "name": "Bars",
+        "description": "Vertical bars — easy to pick out against a bright sky."
+      },
+      "seperempat": {
+        "name": "Quarters",
+        "description": "Opposing quadrants in two colours. The classic fighting kite."
+      },
+      "panah": {
+        "name": "Chevrons",
+        "description": "Nested arrows pointing at the nose."
+      },
+      "sasaran": {
+        "name": "Target",
+        "description": "Concentric rings centred on the bridle point."
+      },
+      "bintang": {
+        "name": "Star",
+        "description": "A five-pointed star with a contrasting centre."
+      },
+      "papan": {
+        "name": "Checkerboard",
+        "description": "A full check, with one cell flipped so the grid does not read as texture."
+      },
+      "lidah-api": {
+        "name": "Flames",
+        "description": "Tongues of flame licking up from the tail edge."
+      },
+      "kawung": {
+        "name": "Kawung",
+        "description": "The four-petal Javanese batik lattice, drawn across the whole sail."
+      },
+      "mata": {
+        "name": "Eyes",
+        "description": "Paired eyes, the way a bebean or an owl kite is painted."
+      },
+      "sinar": {
+        "name": "Sunburst",
+        "description": "Rays fanning out from the bridle. Loud, and meant to be."
+      }
+    }
+  }
+}
