@@ -20,6 +20,9 @@ const tabs = computed(() => [
   { value: 'locked', label: t('kites.filter.locked') },
 ])
 
+const gridAnchor = ref<HTMLElement | null>(null)
+useScrollToOnChange(filter, gridAnchor)
+
 const kites = computed(() => {
   const all = kitesByRarity()
   if (filter.value === 'all') return all
@@ -64,6 +67,7 @@ usePageSeo(() => ({
 
         <div
           :id="`codex-panel-${filter}`"
+          ref="gridAnchor"
           role="tabpanel"
           :aria-labelledby="`codex-tab-${filter}`"
         >

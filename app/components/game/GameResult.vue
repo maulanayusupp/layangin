@@ -7,6 +7,7 @@ import type {
   MatchReward,
   MatchStats,
   OpponentDefinition,
+  RoundResult,
 } from '~/services/game/types'
 
 /**
@@ -27,6 +28,8 @@ const props = defineProps<{
   /** True when a next rung on the ladder exists. */
   hasNext: boolean
   breakingTension?: number
+  /** How the deciding round ended, so the cause can be named precisely. */
+  lastRound?: RoundResult | null
 }>()
 
 const emit = defineEmits<{ rematch: [], next: [], quit: [] }>()
@@ -49,9 +52,23 @@ const title = computed(() => {
   return playerWon.value ? t('game.result.win') : t('game.result.loss')
 })
 
-/** One line naming exactly how the match ended. */
+/**
+ * One line naming exactly how the match ended.
+ *
+ * When the final life went to something other than the opponent — a cable, the
+ * kite's own overloaded line — the round reason is used instead of the generic
+ * "your line parted". Reporting a cable cut as a duel loss is what made a defeat
+ * read as inexplicable.
+ */
 const reason = computed(() => {
-  const { outcome } = props
+  const { outcome, lastRound } = props
+
+  if (outcome.kind === 'cut' && lastRound?.reason === 'cable') {
+    return lastRound.loser === 'player'
+      ? t('game.result.byCable')
+      : t('game.result.byCableAgainst')
+  }
+
   switch (outcome.kind) {
     case 'cut':
       return outcome.winner === 'player' ? t('game.result.byCut') : t('game.result.byCutAgainst')
@@ -77,6 +94,7 @@ const advice = computed(() => {
   if (!props.stats) return null
   return selectAdvice({
     outcome: props.outcome,
+    lastReason: props.lastRound?.reason,
     stats: props.stats,
     playerIntegrity: props.hud.playerIntegrity,
     rivalIntegrity: props.hud.rivalIntegrity,

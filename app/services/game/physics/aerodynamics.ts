@@ -61,7 +61,19 @@ export function computeAerodynamics(
   const angleOfAttack = Math.atan2(V.cross(chord, flowDirection), V.dot(chord, flowDirection))
   const alpha = angleOfAttack
 
-  const liftCoefficient = stats.liftCoefficient * Math.sin(2 * alpha)
+  /**
+   * Past 90° the flow has crossed to the back of the sail. A rigid plate would
+   * generate reversed lift there, but a kite's sail is a one-sided surface held by
+   * a bridle: it **luffs** — collapses and spills the air — producing almost no
+   * lift while still presenting its full bluff area to the wind.
+   *
+   * Modelling that as reversed lift was a real bug. A kite that lost airspeed got
+   * pushed *downward* by its own sail, which no amount of flying could recover
+   * from, so every stall became an unrecoverable dive into the ground.
+   */
+  const luffing = Math.abs(alpha) > Math.PI / 2
+
+  const liftCoefficient = luffing ? 0 : stats.liftCoefficient * Math.sin(2 * alpha)
   const dragCoefficient
     = stats.dragCoefficient + FLAT_PLATE_DRAG * Math.sin(alpha) ** 2 + stats.tailDrag
 
@@ -89,6 +101,18 @@ export function computeAerodynamics(
  * angle to the flying line, so the line direction sets the heading and the
  * player steers only by changing that geometry. `trim` is the bridle's built-in
  * angle of attack and `bank` is the fighter's steering input.
+ *
+ * ## Why the angle of attack shrinks as the kite climbs
+ * With this geometry the angle of attack works out to `90° − trim − elevation`, so
+ * a low kite meets the wind at a steep angle and a high one nearly edge-on. That
+ * is what gives a kite a *stable* equilibrium: lift-to-drag rises as it climbs, so
+ * it climbs until `tan(elevation) = L/D` and stops. For the starter kite that is
+ * about 63°, which is where real fighting kites sit.
+ *
+ * It also means the model cannot fly past `90° − trim`, where lift would reverse.
+ * A real kite cannot fly past the zenith either, so the limit is physical rather
+ * than a bug — do not "fix" it by flipping this sign. Doing so removes the
+ * equilibrium entirely and every kite sinks to the ground.
  */
 export function trimmedHeading(anchor: Vec2, kite: Vec2, trim: number, bank: number): number {
   const lineAngle = V.angleOf(V.subtract(kite, anchor))

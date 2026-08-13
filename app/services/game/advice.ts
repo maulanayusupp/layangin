@@ -10,10 +10,13 @@ import type { MatchOutcome, MatchSnapshot, MatchStats } from './types'
  * The point is to name the *specific* mistake. "You lost" teaches nothing; "your
  * line parted under its own load" points at the load bar and the fix.
  */
-export type AdviceKey = 'tension' | 'overload' | 'crash' | 'obstacle' | 'close' | 'solid'
+export type AdviceKey
+  = 'tension' | 'overload' | 'crash' | 'obstacle' | 'cable' | 'close' | 'solid'
 
 export interface AdviceInput {
   outcome: MatchOutcome
+  /** How the deciding round ended, when it was not the opponent's doing. */
+  lastReason?: 'cut' | 'crash' | 'obstacle' | 'cable'
   stats: MatchStats
   /** Player's line condition when the match ended, 0..1. */
   playerIntegrity: number
@@ -27,6 +30,10 @@ export function selectAdvice(input: AdviceInput): AdviceKey {
 
   if (outcome.kind === 'crash' && outcome.winner === 'rival') return 'crash'
   if (outcome.kind === 'obstacle' && outcome.winner === 'rival') return 'obstacle'
+  // A cable cut is not a lost duel, and the advice for it is different.
+  if (input.lastReason === 'cable' && outcome.kind === 'cut' && outcome.winner === 'rival') {
+    return 'cable'
+  }
 
   const playerLost
     = outcome.kind !== 'pending' && 'winner' in outcome && outcome.winner === 'rival'

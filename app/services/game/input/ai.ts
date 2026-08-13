@@ -24,6 +24,21 @@ import type { InputContext, InputSource } from './source'
  * someone who has flown for twenty years.
  */
 
+/**
+ * How far to the side of the opponent the AI stands when contesting, metres.
+ * This is the separation that sets the crossing altitude — see PLAYER_ANCHOR_X.
+ */
+const CONTEST_OFFSET = 13
+
+/** How far to walk away when breaking off, metres. */
+const RETREAT_OFFSET = 20
+
+/**
+ * Altitude below which the AI drops its plan and just flies, metres.
+ * Comfortably above `CRASH_ALTITUDE` so there is room to recover.
+ */
+const RECOVERY_ALTITUDE = 16
+
 interface AiPlan {
   /** Line length the AI is trying to settle at, metres. */
   targetLineLength: number
@@ -33,6 +48,8 @@ interface AiPlan {
   engaging: boolean
   /** True when it wants to fire a snap as soon as it is allowed. */
   wantsSnap: boolean
+  /** True when the plan is to be the flatter of the two lines. */
+  flyShallower: boolean
   /** Deliberate blunder: hold a plan that loses ground. */
   blundering: boolean
 }
@@ -56,6 +73,7 @@ export function createAiInput({ profile, random, clearance }: AiOptions): InputS
     targetLineLength: 70,
     targetAnchorX: 9,
     engaging: false,
+    flyShallower: false,
     wantsSnap: false,
     blundering: false,
   }
@@ -68,42 +86,65 @@ export function createAiInput({ profile, random, clearance }: AiOptions): InputS
   const decide = (context: InputContext): AiPlan => {
     const { self, opponent } = context
 
-    const opponentAltitude = opponent.position.y
     const losing = self.lineIntegrity < opponent.lineIntegrity - 0.12
     const winning = self.lineIntegrity > opponent.lineIntegrity + 0.12
 
     // Break off when the exchange is going badly and this fighter is careful.
     const shouldRetreat = losing && random.next() < profile.caution
+    const engaging = !shouldRetreat && random.next() < 0.35 + profile.aggression * 0.6
 
-    // Height is the currency of a kite duel: get above the other line and your
-    // own line presses down on theirs.
-    const wanted = shouldRetreat
-      ? Math.max(28, opponentAltitude - 18)
-      : opponentAltitude + lerp(6, 26, profile.aggression)
+    /**
+     * Seek a crossing, not just altitude.
+     *
+     * Two lines only cross when their elevations differ, and the crossing only
+     * exists if the *shallower* line belongs to the fighter standing further
+     * upwind. So a crossing is a two-part decision: which side to stand on, and
+     * whether to fly shallower or steeper than the opponent.
+     *
+     * Reeling — in either direction — always costs elevation, because the line
+     * drags the kite off its equilibrium arc. A fighter holding neutral therefore
+     * flies the steepest line available, and one that reels can only ever be the
+     * shallower of the two. That asymmetry is what the plan below works with:
+     * whichever side of the opponent it is on, it aims for the elevation that side
+     * requires, rather than blindly climbing.
+     *
+     * Aiming purely for "above the opponent" was the old behaviour, and it paid
+     * line out until the kite hung 90 m downwind on a slack line, stalled, and
+     * sank — which read on screen as an AI that refused to fight.
+     */
+    const elevationOf = (fighter: FighterState): number => {
+      const offset = V.subtract(fighter.position, fighter.anchor)
+      return Math.atan2(Math.max(0, offset.y), Math.abs(offset.x) + 1e-6)
+    }
 
-    // Never aim below the hazards in between. A careless flyer would clip them,
-    // but that is a mistake the mistake system should choose deliberately —
-    // not something the controller does on every single arena with a building.
+    const opponentSpan = V.distance(opponent.anchor, opponent.position)
+    const opponentElevation = elevationOf(opponent)
+    const selfElevation = elevationOf(self)
+
+    // Play to the hand we have: if we are already the flatter line, take the
+    // upwind side; if we are the steeper one, take the downwind side.
+    const flyShallower = selfElevation <= opponentElevation
+    const attackAnchor = opponent.anchor.x + (flyShallower ? -CONTEST_OFFSET : CONTEST_OFFSET)
+
+    // Shallower wants a longer line and active reeling; steeper wants to be left
+    // alone near the equilibrium arc.
+    const contestSpan = flyShallower ? opponentSpan * 1.15 : opponentSpan * 0.95
+
     const floor = clearance(self.anchor.x, self.position.x)
-    const desiredAltitude = Math.max(wanted, floor)
 
-    // Approximate the line length needed to sit at that altitude, given the line
-    // typically flies at 40–70° depending on wind.
     const targetLineLength = clamp(
-      desiredAltitude / 0.72 + jitter(14),
-      // The lower bound has to respect the clearance too, or the reel controller
-      // undoes the altitude decision the moment it saturates.
-      Math.max(MIN_LINE_LENGTH + 6, floor / 0.72),
-      MAX_LINE_LENGTH - 10,
+      (shouldRetreat ? opponentSpan * 1.4 : contestSpan) + jitter(9),
+      // Respect the arena's hazards, and never wind in so far that the kite ends
+      // up in the weak air near the ground.
+      Math.max(MIN_LINE_LENGTH + 12, floor / 0.72),
+      // Well short of the maximum: a very long line is slack line, and slack line
+      // is a stalled kite.
+      Math.min(MAX_LINE_LENGTH - 10, 130),
     )
 
-    // Stand so the lines cross: move under the opponent's kite when attacking,
-    // and away from it when retreating.
-    const attackAnchor = opponent.position.x - Math.sign(opponent.position.x - self.anchor.x) * 6
-    const retreatAnchor = self.anchor.x - Math.sign(opponent.position.x - self.anchor.x) * 14
-    const targetAnchorX = (shouldRetreat ? retreatAnchor : attackAnchor) + jitter(7)
-
-    const engaging = !shouldRetreat && random.next() < 0.35 + profile.aggression * 0.6
+    const retreatAnchor
+      = self.anchor.x + (self.anchor.x > opponent.anchor.x ? RETREAT_OFFSET : -RETREAT_OFFSET)
+    const targetAnchorX = (shouldRetreat ? retreatAnchor : attackAnchor) + jitter(5)
 
     // A disciplined fighter saves the snap for a real crossing and keeps enough
     // stamina in reserve; an undisciplined one yanks whenever it can.
@@ -117,14 +158,24 @@ export function createAiInput({ profile, random, clearance }: AiOptions): InputS
       targetLineLength,
       targetAnchorX: clamp(targetAnchorX, -24, 24),
       engaging,
+      flyShallower,
       wantsSnap,
       blundering: random.next() < profile.mistakeRate,
     }
   }
 
+  /**
+   * Proportional controller on line length, saturating at full haul/pay-out.
+   *
+   * A positive result means haul in. When the kite is further out than the plan
+   * wants, `error` is positive and hauling is exactly the correction needed — so
+   * the result is used directly. Negating it (as this once did) drove the line
+   * length *away* from the target until it saturated at the minimum, which
+   * dragged the AI's own kite down to the ground and made it look like it was
+   * refusing to fight.
+   */
   const reelToward = (self: FighterState, target: number): number => {
     const error = V.distance(self.anchor, self.position) - target
-    // Proportional controller, saturating at full haul/pay-out.
     return clamp(error * 0.06, -1, 1)
   }
 
@@ -142,14 +193,16 @@ export function createAiInput({ profile, random, clearance }: AiOptions): InputS
 
       const { self } = context
 
-      // Hauling in shortens the line; the controller wants a *longer* line when
-      // the error is negative, so the sign is inverted here.
-      let reel = -reelToward(self, plan.targetLineLength)
+      let reel = reelToward(self, plan.targetLineLength)
 
-      // Keeping the line tauter than the opponent's is what wins the exchange,
-      // so an engaging fighter biases toward haul.
-      if (plan.engaging) {
-        reel = clamp(reel + lerp(0.15, 0.55, profile.aggression), -1, 1)
+      /**
+       * Reeling costs elevation, so it is only wanted by the fighter that needs to
+       * be the flatter line. The steeper one holds still and lets the kite settle
+       * on its equilibrium arc — a standing haul here would flatten exactly the
+       * line it is trying to keep steep.
+       */
+      if (plan.engaging && plan.flyShallower) {
+        reel = Math.min(reel, -lerp(0.15, 0.5, profile.aggression))
       }
 
       // Out of breath: ease off rather than hauling ineffectively.
@@ -170,6 +223,21 @@ export function createAiInput({ profile, random, clearance }: AiOptions): InputS
       const floor = clearance(self.anchor.x, self.position.x)
       if (floor > 0 && self.position.y < floor + 6) {
         reel = Math.min(reel, 0)
+      }
+
+      /**
+       * Self-preservation, above every other consideration.
+       *
+       * Reeling costs elevation, so a fighter committed to being the flatter line
+       * will fly itself into the ground if nothing stops it. Below this altitude it
+       * abandons the plan and holds neutral, which is the only input that lets the
+       * kite climb back to its equilibrium arc.
+       */
+      if (self.position.y < RECOVERY_ALTITUDE) {
+        // A gentle haul, not neutral: a sinking kite is usually on a slack line,
+        // and taking that slack up is what restores the airspeed it needs to fly.
+        reel = 0.35
+        walk = 0
       }
 
       command.reel = clamp(reel + jitter(0.08), -1, 1)

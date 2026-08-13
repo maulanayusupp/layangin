@@ -22,6 +22,17 @@ type Stage = 0 | 1 | 2
 const stage = ref<Stage>(0)
 const selected = ref<OpponentDefinition | null>(null)
 
+/**
+ * Bring the new step into view when the wizard advances, and the arena into view
+ * when a match starts — otherwise the reader is left looking at the bottom of the
+ * step they just finished.
+ */
+const stepAnchor = ref<HTMLElement | null>(null)
+useScrollToOnChange(stage, stepAnchor)
+
+const matchAnchor = ref<HTMLElement | null>(null)
+useScrollToOnChange(() => selected.value?.id ?? null, matchAnchor)
+
 const equippedKite = computed(() => getKite(player.save.loadout.kiteId))
 
 const steps = computed<WizardStep[]>(() => [
@@ -81,6 +92,7 @@ usePageSeo(() => ({
     <!-- Live match ------------------------------------------------------- -->
     <section
       v-if="selected"
+      ref="matchAnchor"
       class="play l-section--tight"
     >
       <div class="l-container--wide">
@@ -133,7 +145,10 @@ usePageSeo(() => ({
       </header>
 
       <section class="l-section--tight">
-        <div class="l-container--wide wizard">
+        <div
+          ref="stepAnchor"
+          class="l-container--wide wizard"
+        >
           <ClientOnly>
             <GameWizardSteps
               :steps="steps"

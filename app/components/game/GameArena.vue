@@ -237,6 +237,7 @@ function quit(): void {
       :hud="match.hud.value"
       :has-next="hasNext"
       :breaking-tension="playerBreakingTension"
+      :last-round="match.hud.value.lastRound"
       @rematch="rematch"
       @next="next"
       @quit="quit"

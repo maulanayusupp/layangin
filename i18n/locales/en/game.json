@@ -94,10 +94,13 @@
         "crash": "You lost height and could not get it back. Wind is weaker near the ground, so recover early.",
         "close": "That was close. One upgrade level either way would have decided it.",
         "solid": "Cleanly done. Try the next rung.",
-        "obstacle": "You flew into something solid. Check the arena brief before a match — every structure on screen is exactly where the collision is, and the wind behind a tall one is much weaker than in front of it."
+        "obstacle": "You flew into something solid. Check the arena brief before a match — every structure on screen is exactly where the collision is, and the wind behind a tall one is much weaker than in front of it.",
+        "cable": "A cable took your line, not your opponent. Cables abrade without taking any damage back, so on a field with them the first job is keeping your kite above the wires — check the hazard list before you pick the field."
       },
       "byObstacle": "They flew into a structure",
-      "byObstacleAgainst": "You flew into a structure"
+      "byObstacleAgainst": "You flew into a structure",
+      "byCable": "Your line was cut on a cable, not by them",
+      "byCableAgainst": "Their line was cut on a cable"
     },
     "empty": {
       "title": "Nothing to fly yet",

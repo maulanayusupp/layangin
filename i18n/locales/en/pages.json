@@ -31,7 +31,8 @@
         "The kite's attitude is set by the bridle geometry rather than solved as a full rigid body with rotational inertia.",
         "Line stretch, line weight distribution along its length, and line-on-line friction heating are approximated, not modelled.",
         "The numbers are tuned for a readable 90-second match, not calibrated against measurements of real kites.",
-        "Lives are a game convention, not physics. A real cut line ends the flight; here it costs one of three lives so a duel is decided over several exchanges."
+        "Lives are a game convention, not physics. A real cut line ends the flight; here it costs one of three lives so a duel is decided over several exchanges.",
+        "Kites are drawn about four and a half times larger than life. At true scale a 1 m sail on a 60 m line is a couple of pixels; collision and aerodynamics use the real size, only the drawing is exaggerated."
       ]
     },
     "cultural": {

@@ -33,6 +33,15 @@ export interface ArenaRenderer {
   reset(): void
 }
 
+/**
+ * How much larger than life a kite is drawn. Purely visual — see the note at the
+ * call site. Tuned so the largest airframe still fits comfortably in frame.
+ */
+const KITE_RENDER_SCALE = 4.5
+
+/** Floor on the drawn half-extent, so a kite stays readable when zoomed out. */
+const MIN_KITE_PIXELS = 13
+
 export interface RendererOptions {
   ctx: CanvasRenderingContext2D
   /** Backdrop and obstacles to draw. */
@@ -144,7 +153,11 @@ export function createArenaRenderer({
       pattern: getPattern(fighter.patternId),
       x: camera.x(fighter.position.x),
       y: camera.y(fighter.position.y),
-      size: camera.m(kite.size / 2),
+      // Drawn larger than life. A 1.1 m sail on a 60 m line is a couple of pixels
+      // at true scale — accurate, and useless: you cannot tell which kite you are
+      // flying, let alone read its livery. Collision and aerodynamics still use
+      // the real `kite.size`; only the drawing is exaggerated.
+      size: Math.max(MIN_KITE_PIXELS, camera.m((kite.size / 2) * KITE_RENDER_SCALE)),
       angle,
       time,
       sway: clamp01(fighter.tension / 140),

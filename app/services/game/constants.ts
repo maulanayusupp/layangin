@@ -34,9 +34,24 @@ export const MAX_FRAME_TIME = 0.25
 
 // --- Arena -----------------------------------------------------------------
 
-/** Ground positions of the two fighters at the start of a match, metres. */
-export const PLAYER_ANCHOR_X = -9
-export const RIVAL_ANCHOR_X = 9
+/**
+ * Ground positions of the two fighters at the start of a match, metres.
+ *
+ * Two lines leaving these anchors cross at altitude
+ * `separation / (cot θ_left − cot θ_right)`, where θ is each line's elevation.
+ * Parallel lines never meet however long they are, so a duel needs an elevation
+ * *difference* — and the separation sets how high up the meeting happens.
+ *
+ * 14 m apart puts a realistic 15° difference (say 40° against 55°) at roughly
+ * 28 m altitude: high enough to read on screen, low enough that both kites can
+ * reach it. Too close and every crossing hugs the ground; too far and the
+ * crossing point climbs above where either kite flies.
+ *
+ * Fighters can still walk well past each other (see `WALK_BOUND`), which is how
+ * they contest the geometry.
+ */
+export const PLAYER_ANCHOR_X = -7
+export const RIVAL_ANCHOR_X = 7
 
 /** How far each fighter may walk from the arena centre, metres. */
 export const WALK_BOUND = 26
@@ -51,6 +66,22 @@ export const START_LINE_LENGTH = 62
 
 /** Base reel rate before the reel-speed upgrade, m/s. */
 export const BASE_REEL_SPEED = 9
+
+/**
+ * Elevation the kite is launched at, radians (55°).
+ *
+ * The launch **must** put the line under tension. A kite released on a slack line
+ * is accelerated downwind by drag with nothing restraining it; it quickly matches
+ * the wind, at which point the apparent wind over the sail falls to nearly zero
+ * and so does lift. By the time the line goes taut the kite is descending fast
+ * enough that the angle of attack has swung past 90°, where a flat plate produces
+ * *negative* lift — and from there it is pushed into the ground.
+ *
+ * That was a real bug: every match opened with both kites sinking. Launching taut
+ * at just under the ~63° equilibrium means the kite settles upward into trim
+ * instead of falling out of it.
+ */
+export const LAUNCH_ELEVATION = 0.96
 
 /** Altitude below which the kite is considered crashed, metres. */
 export const CRASH_ALTITUDE = 1.2
@@ -89,8 +120,15 @@ export const BASE_TRIM_ANGLE = 0.30
 /** Extra angle of attack gained at full haul-in. */
 export const HAUL_TRIM_BONUS = 0.16
 
-/** Maximum steering deflection the fighter can hold, radians. */
-export const MAX_BANK = 0.42
+/**
+ * Maximum steering deflection the fighter can hold, radians (~9°).
+ *
+ * Must stay well under `BASE_TRIM_ANGLE`. Steering shifts the angle of attack
+ * directly, so a deflection as large as the trim itself does not steer the kite —
+ * it re-trims it, and holding a walk key halved the kite's altitude. Keeping it
+ * small makes walking a nudge rather than a second throttle.
+ */
+export const MAX_BANK = 0.16
 
 // --- Snap (sentak) ---------------------------------------------------------
 

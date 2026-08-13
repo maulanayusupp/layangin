@@ -72,6 +72,9 @@ What is left, in order:
 - [ ] Slow-motion / extended-time accessibility mode. Listed as a known gap on
       `/compliance`; this is the fix.
 - [ ] Launch phase — walk the kite up rather than starting airborne.
+- [ ] Kites are drawn ~4.5× larger than life so the airframe and livery are
+      readable; collision still uses the true size. A zoom control, or drawing at
+      true scale with a picture-in-picture inset, would remove the discrepancy.
 
 ## 5. Progression
 

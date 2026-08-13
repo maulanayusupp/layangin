@@ -94,10 +94,13 @@
         "crash": "Anda kehilangan ketinggian dan tidak bisa mengembalikannya. Angin lebih lemah di dekat tanah, jadi pulihkan lebih awal.",
         "close": "Tipis sekali. Satu level upgrade saja bisa menentukan.",
         "solid": "Bersih. Coba tingkat berikutnya.",
-        "obstacle": "Anda menabrak benda padat. Periksa ringkasan arena sebelum duel — setiap bangunan yang terlihat itu persis tempat tabrakannya, dan angin di belakang bangunan tinggi jauh lebih lemah daripada di depannya."
+        "obstacle": "Anda menabrak benda padat. Periksa ringkasan arena sebelum duel — setiap bangunan yang terlihat itu persis tempat tabrakannya, dan angin di belakang bangunan tinggi jauh lebih lemah daripada di depannya.",
+        "cable": "Kabel yang memutus benang Anda, bukan lawan. Kabel menggerus tanpa rugi apa pun, jadi di lapangan berkabel tugas pertama adalah menjaga layangan tetap di atas kabel — periksa daftar bahaya sebelum memilih lapangan."
       },
       "byObstacle": "Layangan lawan menabrak bangunan",
-      "byObstacleAgainst": "Layangan Anda menabrak bangunan"
+      "byObstacleAgainst": "Layangan Anda menabrak bangunan",
+      "byCable": "Benang Anda putus kena kabel, bukan oleh lawan",
+      "byCableAgainst": "Benang lawan putus kena kabel"
     },
     "empty": {
       "title": "Belum ada yang bisa diterbangkan",

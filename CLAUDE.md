@@ -109,6 +109,40 @@ noise buffer — the project ships no audio assets. Two rules:
 - No information may be conveyed by sound alone — every cue has a visible
   counterpart. This is stated on `/compliance`.
 
+### Flight model — four traps
+
+These were all shipped bugs. `tests/flight.spec.ts` pins every one of them, so if
+you change the flight model and that file goes red, read this section first.
+
+1. **Launch taut.** A kite released on a slack line is pushed downwind by drag,
+   matches the wind, loses all airspeed and stalls. Launch span must equal line
+   length — see `launchState` and `LAUNCH_ELEVATION`.
+2. **A luffing sail makes no lift, not reverse lift.** Past 90° angle of attack a
+   rigid plate would push back the other way; a kite's sail collapses instead.
+   Modelling it as reverse lift made every stall an unrecoverable dive.
+3. **Angle of attack falls as the kite climbs** (`90° − trim − elevation`). That is
+   what gives a stable equilibrium at ~63°, and why the model cannot fly past the
+   zenith. Do not "fix" the sign in `trimmedHeading` — flipping it removes the
+   equilibrium and every kite sinks.
+4. **Reeling costs elevation, in either direction.** Both hauling and paying out
+   drag the kite off its equilibrium arc, so a fighter holding neutral flies the
+   steepest line available. The AI's crossing tactics depend on this.
+
+### Why the two lines cross
+
+Two lines cross at altitude `separation / (cot θ_left − cot θ_right)`, and only
+when the **shallower** line belongs to the fighter standing further upwind.
+Parallel lines never meet however long they are.
+
+So a duel needs an elevation *difference*, and `PLAYER_ANCHOR_X`/`RIVAL_ANCHOR_X`
+set how high up the meeting happens. The AI in `input/ai.ts` picks a side based on
+whether it is currently the flatter or steeper line, and reels accordingly. Before
+that logic existed the lines flew parallel for the whole match and the duel simply
+never happened — the player won by default whenever the AI eventually sank.
+
+If you change anchor separation, the trim angle, or the reel model, re-check the
+crossing-rate tests in `tests/flight.spec.ts`.
+
 ### Determinism (do not break this)
 
 A match is a pure function of `(seed, arena, loadout, command stream)`:
@@ -174,6 +208,8 @@ depends on (`input/network.ts`). `tests/engine.spec.ts` asserts it.
   owns the control buffer.
 - Prefer the platform: `<dialog>` for modals, `<details>` for disclosures, real
   `<input type="checkbox">` under a styled switch, real links for navigation.
+- When a control replaces the content below it (wizard step, tab, filter), wire
+  `useScrollToOnChange` so the reader is not left looking at the old panel.
 - Anything reading `localStorage` renders inside `<ClientOnly>`, or the first
   paint shows default values and then flickers.
 
@@ -210,6 +246,7 @@ Alongside the code change, update whichever of these it touches:
 | A catalog entry (kite, airframe, pattern, palette, effect, arena, opponent) | `*.name`/`*.lore` in both locales |
 | An airframe outline or the derivation formulas | nothing by hand — but check `tests/airframes.spec.ts` still passes, especially the distinct-silhouette test |
 | A sound cue | `/compliance` accessibility section: confirm it still has a visible counterpart |
+| The flight model, trim, reel model or anchor separation | `tests/flight.spec.ts` — especially the crossing-rate and "never sinks" tests |
 | Save shape, storage keys, cookies | `/compliance`, `/legal/privacy`, `/legal/cookies` + the date in `shared/constants/legal.ts` |
 | Monetisation, randomised rewards, cosmetic↔gameplay boundary | `/compliance` money + fairness sections |
 | Anything a11y-relevant | `/compliance` accessibility section — move the item between "implemented" and "known gaps" honestly |

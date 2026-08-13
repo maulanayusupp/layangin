@@ -28,6 +28,10 @@ const tabs = computed(() => [
 
 const kites = computed(() => kitesByRarity())
 
+// Switching tab replaces everything below it; bring the new panel into view.
+const panelAnchor = ref<HTMLElement | null>(null)
+useScrollToOnChange(tab, panelAnchor)
+
 usePageSeo(() => ({
   title: t('shop.meta.title'),
   description: t('shop.meta.description'),
@@ -84,6 +88,7 @@ usePageSeo(() => ({
 
         <div
           :id="`shop-panel-${tab}`"
+          ref="panelAnchor"
           role="tabpanel"
           :aria-labelledby="`shop-tab-${tab}`"
         >

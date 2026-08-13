@@ -134,7 +134,14 @@ describe('match engine', () => {
   it('resolves by the time limit and picks the healthier line', () => {
     const engine = makeEngine()
     engine.skipCountdown()
-    run(engine, DEFAULT_TIME_LIMIT + 1)
+
+    // Wall time is not match time: the clock pauses between rounds, so a match
+    // can take longer in real seconds than its own limit. Run until it resolves,
+    // with a generous cap so a genuine hang still fails the test.
+    const cap = Math.round((DEFAULT_TIME_LIMIT * 2) / FIXED_TIMESTEP)
+    for (let i = 0; i < cap && engine.snapshot.phase !== 'resolved'; i += 1) {
+      engine.advance(FIXED_TIMESTEP)
+    }
 
     expect(engine.snapshot.phase).toBe('resolved')
     expect(engine.snapshot.outcome.kind).not.toBe('pending')

@@ -4,6 +4,7 @@ import {
   EXHAUSTED_EFFECTIVENESS,
   GRAVITY,
   HAUL_TRIM_BONUS,
+  LAUNCH_ELEVATION,
   LINE_BREAK_TENSION,
   MAX_BANK,
   MAX_LINE_LENGTH,
@@ -42,14 +43,48 @@ export interface FighterInit {
   minAltitude?: number
 }
 
+/**
+ * Where a kite starts, and on how much line, always taut at `LAUNCH_ELEVATION`.
+ *
+ * Taut is the important part — see the note on `LAUNCH_ELEVATION`. When an arena
+ * hazard forces a higher start, the elevation is raised rather than the line
+ * lengthened, so the line stays under tension either way.
+ */
+interface Launch {
+  position: V.Vec2
+  /** Line length to start with; always equal to the span, so the line is taut. */
+  lineLength: number
+}
+
+function launchState(anchorX: number, minAltitude: number): Launch {
+  /** Never launch past the lift reversal at 90° − trim, or the sail has no lift. */
+  const steepest = Math.PI / 2 - BASE_TRIM_ANGLE - 0.05
+
+  const elevation = minAltitude > 0
+    ? Math.min(steepest, Math.max(LAUNCH_ELEVATION, Math.asin(Math.min(1, minAltitude / START_LINE_LENGTH))))
+    : LAUNCH_ELEVATION
+
+  // A tall obstacle can need more altitude than the default line reaches at a
+  // flyable elevation — the monument arena's 62 m tower against a 62 m line. In
+  // that case pay out more line rather than standing the kite up vertically,
+  // which would leave it with no lift at all.
+  const required = minAltitude > 0 ? minAltitude / Math.sin(elevation) : 0
+  const lineLength = clamp(Math.max(START_LINE_LENGTH, required), MIN_LINE_LENGTH, MAX_LINE_LENGTH)
+
+  return {
+    position: V.vec2(
+      anchorX + Math.cos(elevation) * lineLength,
+      Math.sin(elevation) * lineLength,
+    ),
+    lineLength,
+  }
+}
+
 export function createFighter(init: FighterInit): FighterState {
   const anchor = V.vec2(init.anchorX, 0)
   // Start already aloft and downwind, at a plausible launch attitude, so a
   // match opens in flight rather than with a launch minigame.
-  const position = V.vec2(
-    init.anchorX + START_LINE_LENGTH * 0.55,
-    Math.max(START_LINE_LENGTH * 0.66, init.minAltitude ?? 0),
-  )
+  const launch = launchState(init.anchorX, init.minAltitude ?? 0)
 
   return {
     side: init.side,
@@ -61,12 +96,12 @@ export function createFighter(init: FighterInit): FighterState {
     reelSpeed: init.reelSpeed,
 
     anchor,
-    position,
+    position: launch.position,
     velocity: V.vec2(0, 0),
     heading: 0,
     bank: 0,
 
-    lineLength: START_LINE_LENGTH,
+    lineLength: launch.lineLength,
     reelRate: 0,
     tension: 0,
     lineIntegrity: 1,
@@ -98,14 +133,15 @@ export function relaunchFighter(
   state.anchor.x = anchorX
   state.anchor.y = 0
 
-  state.position.x = anchorX + START_LINE_LENGTH * 0.55
-  state.position.y = Math.max(START_LINE_LENGTH * 0.66, minAltitude)
+  const launch = launchState(anchorX, minAltitude)
+  state.position.x = launch.position.x
+  state.position.y = launch.position.y
   state.velocity.x = 0
   state.velocity.y = 0
 
   state.heading = 0
   state.bank = 0
-  state.lineLength = START_LINE_LENGTH
+  state.lineLength = launch.lineLength
   state.reelRate = 0
   state.tension = 0
   state.lineIntegrity = 1
