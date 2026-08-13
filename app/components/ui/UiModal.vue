@@ -101,6 +101,10 @@ function onBackdropClick(event: MouseEvent): void {
 .modal {
   width: min(rem(560), calc(100vw - var(--sp-4) * 2));
   max-height: calc(100dvh - var(--sp-6));
+  // The UA centres a modal `<dialog>` with `margin: auto`, which the global
+  // `* { margin: 0 }` reset strips. Restore it explicitly, or the dialog pins
+  // itself to the top-left corner.
+  margin: auto;
   padding: 0;
   color: var(--c-text);
   border: 0;

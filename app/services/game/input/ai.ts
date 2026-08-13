@@ -37,7 +37,19 @@ interface AiPlan {
   blundering: boolean
 }
 
-export function createAiInput(profile: AiProfile, random: RandomSource): InputSource {
+export interface AiOptions {
+  profile: AiProfile
+  random: RandomSource
+  /**
+   * Height the AI must stay above, in metres — the tallest hazard between its
+   * anchor and its kite, plus a margin. Without this the reel controller happily
+   * hauls its own kite straight into a building, which is exactly what it used
+   * to do: an arena obstacle would end a round two seconds in.
+   */
+  clearance: (fromX: number, toX: number) => number
+}
+
+export function createAiInput({ profile, random, clearance }: AiOptions): InputSource {
   const command: FighterCommand = { reel: 0, walk: 0, snap: false }
 
   let plan: AiPlan = {
@@ -65,15 +77,23 @@ export function createAiInput(profile: AiProfile, random: RandomSource): InputSo
 
     // Height is the currency of a kite duel: get above the other line and your
     // own line presses down on theirs.
-    const desiredAltitude = shouldRetreat
+    const wanted = shouldRetreat
       ? Math.max(28, opponentAltitude - 18)
       : opponentAltitude + lerp(6, 26, profile.aggression)
+
+    // Never aim below the hazards in between. A careless flyer would clip them,
+    // but that is a mistake the mistake system should choose deliberately —
+    // not something the controller does on every single arena with a building.
+    const floor = clearance(self.anchor.x, self.position.x)
+    const desiredAltitude = Math.max(wanted, floor)
 
     // Approximate the line length needed to sit at that altitude, given the line
     // typically flies at 40–70° depending on wind.
     const targetLineLength = clamp(
       desiredAltitude / 0.72 + jitter(14),
-      MIN_LINE_LENGTH + 6,
+      // The lower bound has to respect the clearance too, or the reel controller
+      // undoes the altitude decision the moment it saturates.
+      Math.max(MIN_LINE_LENGTH + 6, floor / 0.72),
       MAX_LINE_LENGTH - 10,
     )
 
@@ -143,6 +163,13 @@ export function createAiInput(profile: AiProfile, random: RandomSource): InputSo
         // A real mistake: pay line out at the worst moment, or walk the wrong way.
         if (random.next() < 0.5) reel = -Math.abs(reel)
         else walk = -walk
+      }
+
+      // Hard floor: whatever the plan said, do not haul the kite down into a
+      // hazard. Paying out is still allowed — that is how it climbs away.
+      const floor = clearance(self.anchor.x, self.position.x)
+      if (floor > 0 && self.position.y < floor + 6) {
+        reel = Math.min(reel, 0)
       }
 
       command.reel = clamp(reel + jitter(0.08), -1, 1)

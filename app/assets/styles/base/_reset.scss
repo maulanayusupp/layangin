@@ -10,6 +10,16 @@
   margin: 0;
 }
 
+/**
+ * `<dialog>` is centred by the UA with `margin: auto`, which the rule above
+ * would strip — leaving every modal pinned to the top-left corner. Put it back
+ * here so a new dialog is centred by default rather than relying on each
+ * component to remember.
+ */
+dialog {
+  margin: auto;
+}
+
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;

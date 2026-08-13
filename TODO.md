@@ -44,8 +44,12 @@ What is left, in order:
 
 ## 3. Kites and cosmetics
 
-- [ ] More airframes. Real candidates with genuinely different aerodynamics:
-      *koang* (owl), *pethetan*, a rokkaku, a two-line steerable.
+- [x] Fifty airframes. Eight hand-authored plus 42 generated from outline
+      parameters, with stats derived from the polygon.
+- [ ] Outline kinds the generator still cannot express: a true multi-cell box, a
+      three-dimensional tetrahedral, a two-line steerable with two bridle points.
+- [ ] A second bridle point, which is what a steerable kite actually needs — the
+      current model holds the sail at one angle to one line.
 - [ ] More patterns. The renderer takes a `PatternKind`; new kinds are a switch
       arm in `render/kite.ts` plus a catalog entry.
 - [ ] Custom colourways — let a player pick the four paint roles themselves and
@@ -54,17 +58,17 @@ What is left, in order:
 
 ## 4. Game feel
 
-- [ ] **Sound.** Nothing is implemented. The `sound` field exists in the settings
-      schema and is deliberately not shown in the UI, because a toggle for a
-      feature that does not exist is a lie. Needed: wind bed that tracks speed,
-      the sawangan's hum, line-on-line rasp, the snap of a cut, crowd on a boss
-      win. Must respect the existing settings toggle and start muted until the
-      first interaction.
+- [x] **Sound.** Done: `services/audio/sfx.ts` synthesizes the line rasp, cable
+      zing, cut, crash, collision, yank, round and match cues from oscillators and
+      noise — no audio files. Still missing, and worth adding: a wind bed that
+      tracks wind speed, and the sawangan's hum when that airframe is equipped.
 - [ ] Haptics on mobile for a clash and a cut.
 - [ ] Replays. The engine already supports it — record the command stream and the
       seed, then feed it back through a `ReplayInputSource`. Also the cheapest
       possible bug-report format.
 - [ ] Practice mode: no opponent, adjustable wind, free flight.
+- [ ] Configurable lives (1 for a quick duel, 5 for a long one). `STARTING_HP` is
+      a constant today.
 - [ ] Slow-motion / extended-time accessibility mode. Listed as a known gap on
       `/compliance`; this is the fix.
 - [ ] Launch phase — walk the kite up rather than starting airborne.

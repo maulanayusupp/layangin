@@ -35,6 +35,10 @@
       "reducedEffects": {
         "label": "Reduced effects",
         "description": "Turns off match particles and heavy gradients. Helps on older or low-power devices. Also applied automatically if your system asks for reduced motion."
+      },
+      "sound": {
+        "label": "Sound",
+        "description": "Line rasp, the snap of a cut, crashes and round cues. All synthesized in the browser — no audio files are downloaded."
       }
     },
     "reset": {

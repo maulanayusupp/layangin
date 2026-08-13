@@ -151,6 +151,11 @@ const advice = computed(() => {
           />
           <UiStat
             as="row"
+            :label="t('game.result.stats.rounds')"
+            :value="`${stats.roundsWon} / ${stats.roundsLost}`"
+          />
+          <UiStat
+            as="row"
             :label="t('game.result.stats.snaps')"
             :value="String(stats.snapsUsed)"
           />

@@ -270,17 +270,26 @@ watch(() => route.fullPath, () => {
   }
 }
 
+/**
+ * Two columns on the mobile menu.
+ *
+ * A single 48px-tall column of five links left a tall band of empty space with
+ * one word per row. Pairing them halves the height while each cell still clears
+ * the 44px tap-target minimum.
+ */
 .header__panel-list {
   display: grid;
-  padding: var(--sp-2) var(--gutter);
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0 var(--sp-3);
+  padding: var(--sp-1) var(--gutter);
 }
 
 .header__panel-link {
   display: flex;
   align-items: center;
-  min-height: rem(48);
+  min-height: rem(44);
   font-family: var(--font-display);
-  font-size: var(--fs-md);
+  font-size: var(--fs-base);
   font-weight: 700;
   color: var(--c-text-soft);
   border-block-end: 1px solid var(--c-hairline);
@@ -292,12 +301,23 @@ watch(() => route.fullPath, () => {
   }
 }
 
+/// An odd link count leaves a gap in the last row; stretch that item across.
+/// The grid children are the `<li>` wrappers, not the links themselves.
+.header__panel-list > li:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
+
+.header__panel-list > li {
+  display: grid;
+}
+
 .header__panel-foot {
   display: flex;
   gap: var(--sp-3);
   align-items: center;
   justify-content: space-between;
-  padding: var(--sp-3) var(--gutter) var(--sp-4);
+  padding: var(--sp-3) var(--gutter);
+  padding-block-end: max(var(--sp-3), env(safe-area-inset-bottom));
 }
 
 .header__panel:not(.is-open) .header__panel-foot {

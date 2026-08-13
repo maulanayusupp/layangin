@@ -33,7 +33,10 @@
       "time": "Time",
       "overload": "Overloaded",
       "readouts": "Live readings",
-      "snagged": "Line on a cable"
+      "snagged": "Line on a cable",
+      "yourLives": "Your lives",
+      "rivalLives": "Their lives",
+      "round": "Round"
     },
     "controls": {
       "title": "Controls",
@@ -80,7 +83,8 @@
         "clashTime": "Time in contact",
         "peakTension": "Peak tension",
         "peakAltitude": "Peak altitude",
-        "snaps": "Yanks used"
+        "snaps": "Yanks used",
+        "rounds": "Rounds won / lost"
       },
       "unlocked": "Unlocked: {name}",
       "advice": {
@@ -138,6 +142,28 @@
           "name": "Viaduct",
           "lore": "Arches across the whole arena and a tram cable along the deck. Climb over, or thread the gap and hope."
         }
+      }
+    },
+    "round": {
+      "won": "Round won",
+      "lost": "Round lost",
+      "next": "Next round in {seconds}…",
+      "reason": {
+        "cut": "The line parted at the crossing.",
+        "cable": "The line was dragged across a cable.",
+        "crash": "The kite went into the ground.",
+        "obstacle": "The kite hit a structure."
+      }
+    },
+    "wizard": {
+      "title": "Get ready",
+      "lead": "Pick your kite, pick a field, then pick who to fly against. You can change any of it between matches.",
+      "next": "Next",
+      "fight": "Fly against {name}",
+      "steps": {
+        "kite": "Your kite",
+        "arena": "The field",
+        "opponent": "Opponent"
       }
     }
   },

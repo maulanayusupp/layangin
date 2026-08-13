@@ -38,6 +38,19 @@ const playerBreakingTension = computed(() => breakingTension(resolved.value.stat
 const resolvedPhase = computed(() => match.hud.value.phase)
 const showResult = computed(() => resolvedPhase.value === 'resolved')
 
+/** Verdict + cause for the between-rounds banner. */
+const roundBanner = computed(() => {
+  const last = match.hud.value.lastRound
+  if (!last) return null
+
+  const lostByPlayer = last.loser === 'player'
+  return {
+    lostByPlayer,
+    verdict: lostByPlayer ? t('game.round.lost') : t('game.round.won'),
+    reason: t(`game.round.reason.${last.reason}`, { side: lostByPlayer ? 'you' : 'them' }),
+  }
+})
+
 /**
  * Touch intent → control buffer. The buffer is deliberately plain (not reactive):
  * the simulation reads it 120 times a second and must not trigger re-renders.
@@ -115,6 +128,36 @@ function quit(): void {
           >
             {{ t('actions.skip') }}
           </UiButton>
+        </div>
+      </Transition>
+
+      <!--
+        Between rounds: name what just happened and show the lives left, so a
+        lost round reads as a setback rather than an unexplained reset.
+      -->
+      <Transition name="page">
+        <div
+          v-if="resolvedPhase === 'roundOver' && roundBanner"
+          class="arena__overlay"
+          role="status"
+        >
+          <p
+            class="arena__round-verdict"
+            :class="roundBanner.lostByPlayer ? 'is-loss' : 'is-win'"
+          >
+            {{ roundBanner.verdict }}
+          </p>
+          <p class="arena__round-reason">
+            {{ roundBanner.reason }}
+          </p>
+          <p class="arena__round-score t-num">
+            {{ t('game.hud.yourLives') }} {{ match.hud.value.playerHp }}
+            ·
+            {{ t('game.hud.rivalLives') }} {{ match.hud.value.rivalHp }}
+          </p>
+          <p class="arena__countdown-note">
+            {{ t('game.round.next', { seconds: Math.ceil(match.hud.value.roundBreak) }) }}
+          </p>
         </div>
       </Transition>
 
@@ -207,23 +250,33 @@ function quit(): void {
   gap: var(--sp-4);
 }
 
+/**
+ * The field is the game, so it spans the whole viewport.
+ *
+ * `100vw` plus a negative inline margin breaks it out of the page container
+ * without moving it in the DOM, which keeps the HUD's absolute positioning and
+ * the focus order intact. `calc(50% - 50vw)` is the container-agnostic way to do
+ * that — it works whatever gutter the parent has.
+ *
+ * Height is driven by viewport height rather than an aspect ratio, or a very wide
+ * monitor would make the arena taller than the screen.
+ */
 .arena__stage {
   position: relative;
   overflow: hidden;
-  // Tall enough to read the wind window on a phone, capped so a desktop match
-  // still fits above the fold with the readouts.
-  aspect-ratio: 4 / 5;
-  max-height: 68dvh;
-  border: 1px solid var(--c-border);
-  border-radius: var(--r-lg);
+  width: 100vw;
+  margin-inline: calc(50% - 50vw);
+  height: min(78dvh, 70vw);
+  min-height: rem(360);
+  border-block: 1px solid var(--c-border);
   background: var(--c-ink-900);
 
-  @include mq('sm') {
-    aspect-ratio: 16 / 10;
+  @include mq('md') {
+    height: min(74dvh, 46vw);
   }
 
   @include mq('lg') {
-    aspect-ratio: 16 / 9;
+    height: min(72dvh, 40vw);
   }
 }
 
@@ -258,6 +311,34 @@ function quit(): void {
   font-size: var(--fs-xs);
   letter-spacing: 0.2em;
   text-transform: uppercase;
+  color: var(--c-text-mute);
+}
+
+.arena__round-verdict {
+  font-family: var(--font-display);
+  font-size: fluid(28, 44);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.02em;
+
+  &.is-win {
+    color: var(--c-success);
+  }
+
+  &.is-loss {
+    color: var(--c-danger);
+  }
+}
+
+.arena__round-reason {
+  max-width: 32ch;
+  font-size: var(--fs-md);
+  color: var(--c-text-soft);
+}
+
+.arena__round-score {
+  font-size: var(--fs-sm);
+  letter-spacing: 0.04em;
   color: var(--c-text-mute);
 }
 

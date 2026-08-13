@@ -43,12 +43,13 @@ app/
   assets/styles/     design system — the only place raw colour/size literals live
   components/        <dir><Name>.vue, e.g. game/GameHud.vue → <GameHud>
   composables/       Vue-facing glue (useMatch, useKitePreview, usePageSeo)
-  data/              content catalogs: kites, patterns, palettes, effects,
-                     upgrades, opponents, arenas
+  data/              content catalogs: kites, airframes, patterns, palettes,
+                     effects, upgrades, opponents, arenas
   directives/        cssVars.ts — the v-css-vars directive
   services/          framework-free domain logic
+    audio/           synthesized sound effects (no audio files)
     economy/         rewards, purchase rules
-    game/            simulation: math, physics, render, input, engine
+    game/            simulation: math, geometry, physics, render, input, engine
     persistence/     versioned localStorage save + migrations
   stores/            Pinia (player, settings)
   utils/             auto-imported helpers (format, dom)
@@ -66,6 +67,47 @@ snapshot object at a fixed 120 Hz; `useMatch` copies the handful of scalars the
 HUD needs into refs once per animation frame. **Never make the snapshot
 reactive** — that pushes thousands of dependency notifications per second and
 the render will fight the simulation for the frame budget.
+
+### Rounds and lives
+
+A cut, a crash or a collision costs the fighter **one life** and relaunches the
+round; the match resolves when someone reaches 0. Two reasons this matters:
+
+- A single accident — an unlucky gust, one mistimed haul — must never decide a
+  duel. The engine used to end a match in two seconds when the AI flew into a
+  building; `tests/rounds.spec.ts` now asserts that no arena can resolve a match
+  in the first six seconds.
+- The line bars refill every round, so **the life pips are the only read of who is
+  winning the match**. Keep them prominent in any HUD change.
+
+`endRound` and `startNextRound` in `engine.ts` own the transition. Nothing else
+may write `hp`.
+
+### The airframe generator
+
+Fifty hand-drawn silhouettes with fifty hand-typed stat blocks would drift apart,
+so 42 of the 50 airframes are generated: `data/airframes.ts` holds outline
+*parameters*, `services/game/geometry/` turns them into geometry, and the
+aerodynamic stats are **derived from the resulting polygon** — area is the real
+polygon area, lift follows the aspect ratio, drag follows how blunt the shape is.
+
+A shape and its numbers therefore cannot disagree. When adding one, add the
+parameters only; never hand-write stats. The eight signature airframes in
+`kites.ts` stay hand-authored because their outlines carry detail the generator
+does not model.
+
+### Audio
+
+`services/audio/sfx.ts` synthesizes every sound from oscillators and one shared
+noise buffer — the project ships no audio assets. Two rules:
+
+- The context is created lazily, because browsers refuse one before a user
+  gesture. Nothing throws when audio is unavailable; the game is playable silent.
+- Continuous contacts (line rasp, cable zing) are **levels** driven every frame,
+  not repeated one-shots, or they machine-gun. Events are edge-triggered in
+  `useMatch`'s `updateAudio`, which is the single place a cue may fire.
+- No information may be conveyed by sound alone — every cue has a visible
+  counterpart. This is stated on `/compliance`.
 
 ### Determinism (do not break this)
 
@@ -165,7 +207,9 @@ Alongside the code change, update whichever of these it touches:
 | Changed | Also update |
 |---|---|
 | Any user-visible string | both locales, then `pnpm lint:i18n` |
-| A catalog entry (kite, pattern, palette, effect, arena, opponent) | `*.name`/`*.lore` in both locales |
+| A catalog entry (kite, airframe, pattern, palette, effect, arena, opponent) | `*.name`/`*.lore` in both locales |
+| An airframe outline or the derivation formulas | nothing by hand — but check `tests/airframes.spec.ts` still passes, especially the distinct-silhouette test |
+| A sound cue | `/compliance` accessibility section: confirm it still has a visible counterpart |
 | Save shape, storage keys, cookies | `/compliance`, `/legal/privacy`, `/legal/cookies` + the date in `shared/constants/legal.ts` |
 | Monetisation, randomised rewards, cosmetic↔gameplay boundary | `/compliance` money + fairness sections |
 | Anything a11y-relevant | `/compliance` accessibility section — move the item between "implemented" and "known gaps" honestly |

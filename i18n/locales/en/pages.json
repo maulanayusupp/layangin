@@ -19,7 +19,8 @@
         "Wind that increases with altitude following the standard power-law profile, with gusts generated as fractal noise.",
         "Thin-plate aerodynamics: lift and drag computed from the sail's angle of attack against the apparent wind.",
         "A flying line that sags as a shallow catenary when slack, goes straight under load, and parts if held past its breaking tension.",
-        "Abrasion at every crossing, weighted by sliding speed, contact pressure, crossing angle and which line is tauter."
+        "Abrasion at every crossing, weighted by sliding speed, contact pressure, crossing angle and which line is tauter.",
+        "Arena hazards: solid structures the kite collides with, steel cables that abrade a line without taking damage back, and wind shadows behind tall buildings where lift collapses."
       ]
     },
     "notSimulated": {
@@ -29,7 +30,8 @@
         "It is a 2D side-on view. Real kite duels happen in three dimensions and the wind window is a hemisphere, not an arc.",
         "The kite's attitude is set by the bridle geometry rather than solved as a full rigid body with rotational inertia.",
         "Line stretch, line weight distribution along its length, and line-on-line friction heating are approximated, not modelled.",
-        "The numbers are tuned for a readable 90-second match, not calibrated against measurements of real kites."
+        "The numbers are tuned for a readable 90-second match, not calibrated against measurements of real kites.",
+        "Lives are a game convention, not physics. A real cut line ends the flight; here it costs one of three lives so a duel is decided over several exchanges."
       ]
     },
     "cultural": {
@@ -46,7 +48,7 @@
         },
         "render": {
           "term": "Rendering",
-          "def": "The arena is a 2D canvas drawn from a fixed-timestep simulation running at 120 Hz."
+          "def": "The arena is a 2D canvas drawn from a fixed-timestep simulation running at 120 Hz. Sound is synthesized with the Web Audio API — there are no audio files."
         },
         "state": {
           "term": "State",
@@ -191,7 +193,9 @@
         "prefers-contrast: more strengthens borders and secondary text.",
         "forced-colors support: decorative layers are dropped so system colours win.",
         "Text and spacing sized in rem, so browser font-size settings scale the whole interface.",
-        "Touch targets of at least 44 px on the controls."
+        "Touch targets of at least 44 px on the controls.",
+        "Sound is optional and can be switched off, and no information is conveyed by sound alone — every audio cue has a visible counterpart in the HUD or the round banner.",
+        "A lost line costs one life rather than the match, so a single mistimed input or an unlucky gust never ends a duel outright."
       ],
       "gapsTitle": "Known gaps",
       "gaps": [
@@ -214,7 +218,7 @@
         },
         "assets": {
           "term": "Artwork",
-          "def": "All kite artwork is generated in code from the geometry in this repository. No third-party images are used."
+          "def": "All kite artwork is generated in code from the geometry in this repository, and every sound is synthesized in the browser from oscillators and noise. No third-party images or audio files are used, and none are downloaded."
         }
       }
     },

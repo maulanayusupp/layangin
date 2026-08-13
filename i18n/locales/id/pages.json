@@ -19,7 +19,8 @@
         "Angin yang menguat seiring ketinggian mengikuti profil hukum pangkat yang standar, dengan hentakan angin dibangkitkan sebagai derau fraktal.",
         "Aerodinamika pelat tipis: daya angkat dan hambat dihitung dari sudut serang layar terhadap angin semu.",
         "Benang yang melengkung sebagai katenari dangkal saat kendur, menegang lurus saat dibebani, dan putus kalau ditahan melewati tegangan patahnya.",
-        "Gerusan di setiap titik silang, dibobot oleh kecepatan gesekan, tekanan kontak, sudut persilangan, dan benang siapa yang lebih tegang."
+        "Gerusan di setiap titik silang, dibobot oleh kecepatan gesekan, tekanan kontak, sudut persilangan, dan benang siapa yang lebih tegang.",
+        "Bahaya arena: bangunan padat yang bisa ditabrak layangan, kabel baja yang menggerus benang tanpa rugi apa pun, dan area angin mati di belakang gedung tinggi tempat daya angkat runtuh."
       ]
     },
     "notSimulated": {
@@ -29,7 +30,8 @@
         "Ini tampilan 2D dari samping. Adu layangan sungguhan terjadi dalam tiga dimensi, dan jendela anginnya berbentuk setengah bola, bukan busur.",
         "Sikap layangan ditentukan oleh geometri tali kekang, bukan diselesaikan sebagai benda tegar penuh dengan inersia rotasi.",
         "Pemuluran benang, sebaran berat sepanjang benang, dan pemanasan akibat gesekan benang hanya didekati, bukan dimodelkan.",
-        "Angkanya ditala agar duel 90 detik terasa jelas, bukan dikalibrasi terhadap pengukuran layangan sungguhan."
+        "Angkanya ditala agar duel 90 detik terasa jelas, bukan dikalibrasi terhadap pengukuran layangan sungguhan.",
+        "Nyawa adalah konvensi permainan, bukan fisika. Benang yang putus sungguhan mengakhiri penerbangan; di sini ia menghabiskan satu dari tiga nyawa supaya duel ditentukan lewat beberapa pertukaran."
       ]
     },
     "cultural": {
@@ -46,7 +48,7 @@
         },
         "render": {
           "term": "Render",
-          "def": "Arena adalah kanvas 2D yang digambar dari simulasi langkah waktu tetap 120 Hz."
+          "def": "Arena adalah kanvas 2D yang digambar dari simulasi langkah waktu tetap 120 Hz. Suara dibangkitkan dengan Web Audio API — tidak ada berkas audio."
         },
         "state": {
           "term": "State",
@@ -191,7 +193,9 @@
         "prefers-contrast: more menguatkan garis batas dan teks sekunder.",
         "Dukungan forced-colors: lapisan dekoratif dihilangkan agar warna sistem yang berlaku.",
         "Teks dan spasi memakai satuan rem, jadi pengaturan ukuran font browser menskalakan seluruh antarmuka.",
-        "Target sentuh minimal 44 px pada kontrol."
+        "Target sentuh minimal 44 px pada kontrol.",
+        "Suara bersifat opsional dan bisa dimatikan, dan tidak ada informasi yang disampaikan hanya melalui suara — setiap penanda audio punya padanan yang terlihat di HUD atau banner ronde.",
+        "Benang yang putus hanya menghabiskan satu nyawa, bukan seluruh duel, jadi satu salah tekan atau hentakan angin yang sial tidak pernah langsung mengakhiri pertandingan."
       ],
       "gapsTitle": "Kekurangan yang diketahui",
       "gaps": [
@@ -214,7 +218,7 @@
         },
         "assets": {
           "term": "Karya visual",
-          "def": "Seluruh gambar layangan dihasilkan oleh kode dari geometri di repositori ini. Tidak ada gambar pihak ketiga yang dipakai."
+          "def": "Seluruh gambar layangan dihasilkan oleh kode dari geometri di repositori ini, dan setiap suara dibangkitkan di browser dari osilator dan derau. Tidak ada gambar atau berkas audio pihak ketiga yang dipakai maupun diunduh."
         }
       }
     },

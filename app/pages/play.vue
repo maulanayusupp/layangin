@@ -2,39 +2,72 @@
 import { OPPONENTS, isOpponentUnlocked } from '~/data/opponents'
 import { getKite } from '~/data/kites'
 import type { OpponentDefinition } from '~/services/game/types'
+import type { WizardStep } from '~/components/game/GameWizardSteps.vue'
 
 /**
  * Arena page.
  *
- * Two states, not two routes: a briefing where the opponent and loadout are
- * chosen, and the live match. Keeping them on one route means a rematch does not
- * re-run the router, and the canvas is created once.
+ * A three-step wizard — kite, field, opponent — then the match. All four states
+ * live on one route so a rematch never re-runs the router and the canvas is
+ * created once.
  *
- * Rendered client-only (see `routeRules` in nuxt.config) — the whole page depends
- * on the persisted save and a canvas, neither of which exists during prerender.
+ * Rendered client-only (see `routeRules` in nuxt.config) — every step depends on
+ * the persisted save, and the match needs a canvas.
  */
 const { t, locale } = useI18n()
 const localePath = useLocalePath()
 const player = usePlayerStore()
 
+type Stage = 0 | 1 | 2
+const stage = ref<Stage>(0)
 const selected = ref<OpponentDefinition | null>(null)
 
 const equippedKite = computed(() => getKite(player.save.loadout.kiteId))
 
+const steps = computed<WizardStep[]>(() => [
+  {
+    key: 'kite',
+    label: t('game.wizard.steps.kite'),
+    value: t(`kites.items.${equippedKite.value.i18nKey}.name`),
+  },
+  {
+    key: 'arena',
+    label: t('game.wizard.steps.arena'),
+    value: t(`game.arena.items.${player.activeArena.i18nKey}.name`),
+  },
+  {
+    key: 'opponent',
+    label: t('game.wizard.steps.opponent'),
+    value: selected.value ? t(`opponents.${selected.value.i18nKey}.name`) : undefined,
+  },
+])
+
 /** The rung after the currently selected one, if the player has unlocked it. */
 const nextOpponent = computed(() => {
   if (!selected.value) return null
-  const candidate = OPPONENTS.find(opponent => opponent.tier === selected.value!.tier + 1)
-  return candidate ?? null
+  return OPPONENTS.find(opponent => opponent.tier === selected.value!.tier + 1) ?? null
 })
 
-function pick(opponent: OpponentDefinition): void {
+const unlockedOpponents = computed(() =>
+  OPPONENTS.filter(opponent => isOpponentUnlocked(opponent, player.save.defeated)),
+)
+
+function fight(opponent: OpponentDefinition): void {
   selected.value = opponent
 }
 
 function advance(): void {
+  // Winning moves to the next rung; otherwise fall back to the opponent step.
   if (nextOpponent.value) selected.value = nextOpponent.value
-  else selected.value = null
+  else {
+    selected.value = null
+    stage.value = 2
+  }
+}
+
+function leaveMatch(): void {
+  selected.value = null
+  stage.value = 2
 }
 
 usePageSeo(() => ({
@@ -54,7 +87,8 @@ usePageSeo(() => ({
         <div class="play__bar">
           <div class="play__who">
             <p class="play__eyebrow">
-              {{ t('labels.tier') }} {{ selected.tier }}
+              {{ t('labels.tier') }} {{ selected.tier }} ·
+              {{ t(`game.arena.items.${player.activeArena.i18nKey}.name`) }}
             </p>
             <h1 class="play__title">
               {{ t(`opponents.${selected.i18nKey}.name`) }}
@@ -71,85 +105,90 @@ usePageSeo(() => ({
             <LayoutCoinBalance />
           </div>
         </div>
-
-        <GameArena
-          :opponent="selected"
-          :has-next="Boolean(nextOpponent)"
-          @quit="selected = null"
-          @next="advance"
-        />
       </div>
+
+      <GameArena
+        :opponent="selected"
+        :has-next="Boolean(nextOpponent)"
+        @quit="leaveMatch"
+        @next="advance"
+      />
     </section>
 
-    <!-- Briefing --------------------------------------------------------- -->
+    <!-- Wizard ----------------------------------------------------------- -->
     <template v-else>
       <header class="l-page-header bg-grain">
         <div
-          class="brief__glow bg-glow-brand"
+          class="wizard__glow bg-glow-brand"
           aria-hidden="true"
         />
         <div class="l-container--wide">
           <UiSectionHeading
             :level="1"
             :eyebrow="t('nav.play')"
-            :title="t('game.briefing.title')"
-            :lead="t('game.briefing.lead')"
+            :title="t('game.wizard.title')"
+            :lead="t('game.wizard.lead')"
           />
         </div>
       </header>
 
       <section class="l-section--tight">
-        <div class="l-container--wide brief">
+        <div class="l-container--wide wizard">
           <ClientOnly>
-            <UiPanel
-              tone="sunken"
-              class="brief__loadout"
-            >
-              <div class="brief__loadout-preview">
-                <KitePreview
-                  :kite-id="player.save.loadout.kiteId"
-                  :palette-id="player.save.loadout.paletteId"
-                  :pattern-id="player.save.loadout.patternId"
-                  :name="t(`kites.items.${equippedKite.i18nKey}.name`)"
-                  :tails="false"
-                  ratio="1"
-                />
-              </div>
+            <GameWizardSteps
+              :steps="steps"
+              :current="stage"
+              @go="stage = $event as Stage"
+            />
+          </ClientOnly>
 
-              <div class="brief__loadout-body">
-                <p class="brief__label">
-                  {{ t('game.briefing.loadout') }}
-                </p>
-                <h2 class="brief__kite">
-                  {{ t(`kites.items.${equippedKite.i18nKey}.name`) }}
-                </h2>
-
-                <dl class="brief__stats">
-                  <UiStat
-                    as="row"
-                    :label="t('kites.stat.lineStrength')"
-                    :value="player.resolved.stats.lineStrength.toFixed(2)"
-                    :tooltip="t('kites.tooltip.lineStrength')"
+          <!-- Step 1: airframe ------------------------------------------- -->
+          <ClientOnly v-if="stage === 0">
+            <div class="wizard__step">
+              <UiPanel
+                tone="sunken"
+                class="wizard__summary"
+              >
+                <div class="wizard__summary-preview">
+                  <KitePreview
+                    :kite-id="player.save.loadout.kiteId"
+                    :palette-id="player.save.loadout.paletteId"
+                    :pattern-id="player.save.loadout.patternId"
+                    :name="t(`kites.items.${equippedKite.i18nKey}.name`)"
+                    :tails="false"
+                    ratio="1"
                   />
-                  <UiStat
-                    as="row"
-                    :label="t('kites.stat.cutPower')"
-                    :value="player.resolved.stats.cutPower.toFixed(2)"
-                    :tooltip="t('kites.tooltip.cutPower')"
-                  />
-                  <UiStat
-                    as="row"
-                    :label="t('shop.upgrades.reel-speed.name')"
-                    :value="formatSpeed(player.resolved.reelSpeed, locale)"
-                  />
-                </dl>
+                </div>
 
-                <p class="brief__arena">
-                  {{ t('game.arena.current') }}:
-                  <strong>{{ t(`game.arena.items.${player.activeArena.i18nKey}.name`) }}</strong>
-                </p>
+                <div class="wizard__summary-body">
+                  <p class="wizard__label">
+                    {{ t('game.briefing.loadout') }}
+                  </p>
+                  <h2 class="wizard__kite">
+                    {{ t(`kites.items.${equippedKite.i18nKey}.name`) }}
+                  </h2>
 
-                <div class="brief__loadout-actions">
+                  <dl class="wizard__stats">
+                    <UiStat
+                      as="row"
+                      :label="t('kites.stat.lineStrength')"
+                      :value="player.resolved.stats.lineStrength.toFixed(2)"
+                      :tooltip="t('kites.tooltip.lineStrength')"
+                    />
+                    <UiStat
+                      as="row"
+                      :label="t('kites.stat.cutPower')"
+                      :value="player.resolved.stats.cutPower.toFixed(2)"
+                      :tooltip="t('kites.tooltip.cutPower')"
+                    />
+                    <UiStat
+                      as="row"
+                      :label="t('kites.stat.area')"
+                      :value="formatArea(player.resolved.stats.area, locale)"
+                      :tooltip="t('kites.tooltip.area')"
+                    />
+                  </dl>
+
                   <UiButton
                     size="sm"
                     variant="secondary"
@@ -157,70 +196,100 @@ usePageSeo(() => ({
                   >
                     {{ t('game.briefing.changeLoadout') }}
                   </UiButton>
-                  <LayoutCoinBalance />
                 </div>
+              </UiPanel>
 
-                <p
-                  v-if="player.save.ladderClears > 0"
-                  class="brief__difficulty"
-                >
-                  {{ t('game.briefing.difficultyNote', { count: player.save.ladderClears }) }}
-                </p>
-              </div>
-            </UiPanel>
-          </ClientOnly>
-
-          <UiHint hint-id="briefing-basics">
-            {{ t('howto.tactics.items.tension.body') }}
-          </UiHint>
-
-          <!-- Choose the kite, then the field, then the opponent. -->
-          <ClientOnly>
-            <UiPanel
-              tone="sunken"
-              notch="none"
-            >
-              <KitePicker />
-            </UiPanel>
-          </ClientOnly>
-
-          <ClientOnly>
-            <UiPanel
-              tone="sunken"
-              notch="none"
-            >
-              <GameArenaPicker />
-            </UiPanel>
-          </ClientOnly>
-
-          <UiHint hint-id="briefing-arena">
-            {{ t('game.arena.hint') }}
-          </UiHint>
-
-          <ClientOnly>
-            <ul class="l-grid l-grid--wide brief__grid">
-              <li
-                v-for="opponent in OPPONENTS"
-                :key="opponent.id"
+              <UiPanel
+                tone="sunken"
+                notch="none"
               >
-                <GameOpponentCard
-                  :opponent="opponent"
-                  :locked="!isOpponentUnlocked(opponent, player.save.defeated)"
-                  :defeated="player.hasDefeated(opponent.id)"
+                <KitePicker />
+              </UiPanel>
+            </div>
+          </ClientOnly>
+
+          <!-- Step 2: field ---------------------------------------------- -->
+          <ClientOnly v-else-if="stage === 1">
+            <div class="wizard__step">
+              <UiPanel
+                tone="sunken"
+                notch="none"
+              >
+                <GameArenaPicker />
+              </UiPanel>
+              <UiHint hint-id="wizard-arena">
+                {{ t('game.arena.hint') }}
+              </UiHint>
+            </div>
+          </ClientOnly>
+
+          <!-- Step 3: opponent ------------------------------------------- -->
+          <ClientOnly v-else>
+            <div class="wizard__step">
+              <UiHint hint-id="wizard-tension">
+                {{ t('howto.tactics.items.tension.body') }}
+              </UiHint>
+
+              <p
+                v-if="player.save.ladderClears > 0"
+                class="wizard__difficulty"
+              >
+                {{ t('game.briefing.difficultyNote', { count: player.save.ladderClears }) }}
+              </p>
+
+              <ul class="l-grid l-grid--wide">
+                <li
+                  v-for="opponent in OPPONENTS"
+                  :key="opponent.id"
                 >
-                  <template #action>
-                    <UiButton
-                      block
-                      size="sm"
-                      :disabled="!isOpponentUnlocked(opponent, player.save.defeated)"
-                      @click="pick(opponent)"
-                    >
-                      {{ t('actions.startMatch') }}
-                    </UiButton>
-                  </template>
-                </GameOpponentCard>
-              </li>
-            </ul>
+                  <GameOpponentCard
+                    :opponent="opponent"
+                    :locked="!isOpponentUnlocked(opponent, player.save.defeated)"
+                    :defeated="player.hasDefeated(opponent.id)"
+                  >
+                    <template #action>
+                      <UiButton
+                        block
+                        size="sm"
+                        :disabled="!isOpponentUnlocked(opponent, player.save.defeated)"
+                        @click="fight(opponent)"
+                      >
+                        {{ t('actions.startMatch') }}
+                      </UiButton>
+                    </template>
+                  </GameOpponentCard>
+                </li>
+              </ul>
+            </div>
+          </ClientOnly>
+
+          <!-- Wizard navigation ------------------------------------------ -->
+          <ClientOnly>
+            <div class="wizard__nav">
+              <UiButton
+                variant="ghost"
+                :disabled="stage === 0"
+                @click="stage = (stage - 1) as Stage"
+              >
+                {{ t('actions.back') }}
+              </UiButton>
+
+              <UiButton
+                v-if="stage < 2"
+                @click="stage = (stage + 1) as Stage"
+              >
+                {{ t('game.wizard.next') }}
+              </UiButton>
+              <UiButton
+                v-else-if="unlockedOpponents.length > 0"
+                pulse
+                @click="fight(player.nextOpponent)"
+              >
+                {{ t('game.wizard.fight', {
+                  name: t(`opponents.${player.nextOpponent.i18nKey}.name`),
+                }) }}
+              </UiButton>
+            </div>
           </ClientOnly>
         </div>
       </section>
@@ -256,36 +325,42 @@ usePageSeo(() => ({
   align-items: center;
 }
 
-.brief {
+.wizard {
   display: grid;
   gap: var(--sp-5);
 }
 
-.brief__glow {
+.wizard__glow {
   position: absolute;
   inset: 0;
 }
 
-.brief__loadout {
+.wizard__step {
+  display: grid;
+  gap: var(--sp-4);
+}
+
+.wizard__summary {
   display: grid;
   gap: var(--sp-4);
 
   @include mq('sm') {
-    grid-template-columns: rem(140) 1fr;
+    grid-template-columns: rem(130) 1fr;
     align-items: center;
   }
 }
 
-.brief__loadout-preview {
-  max-width: rem(180);
+.wizard__summary-preview {
+  max-width: rem(160);
 }
 
-.brief__loadout-body {
+.wizard__summary-body {
   display: grid;
   gap: var(--sp-3);
+  justify-items: start;
 }
 
-.brief__label {
+.wizard__label {
   font-family: var(--font-mono);
   font-size: rem(10);
   letter-spacing: 0.16em;
@@ -293,31 +368,29 @@ usePageSeo(() => ({
   color: var(--c-text-mute);
 }
 
-.brief__kite {
+.wizard__kite {
   font-size: var(--fs-lg);
 }
 
-.brief__stats {
+.wizard__stats {
   display: grid;
   grid-template-columns: 1fr auto;
   column-gap: var(--sp-4);
+  width: 100%;
   max-width: rem(420);
 }
 
-.brief__loadout-actions {
+.wizard__difficulty {
+  font-size: var(--fs-xs);
+  color: var(--c-warn);
+}
+
+.wizard__nav {
   display: flex;
   flex-wrap: wrap;
   gap: var(--sp-3);
-  align-items: center;
-}
-
-.brief__arena {
-  font-size: var(--fs-sm);
-  color: var(--c-text-soft);
-}
-
-.brief__difficulty {
-  font-size: var(--fs-xs);
-  color: var(--c-warn);
+  justify-content: space-between;
+  padding-block-start: var(--sp-4);
+  border-block-start: 1px solid var(--c-hairline);
 }
 </style>

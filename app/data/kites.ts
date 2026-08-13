@@ -1,13 +1,32 @@
 import type { Vec2 } from '~/services/game/math/vector'
-import type { KiteDefinition, KiteId } from '~/services/game/types'
+import {
+  buildAirframe,
+  priceFor,
+  unlockWinsFor,
+} from '~/services/game/geometry/airframe'
+import type { KiteDefinition, KiteId, Rarity } from '~/services/game/types'
+import { GENERATED_AIRFRAMES } from './airframes'
 
 /**
- * Kite catalog.
+ * Kite catalog — fifty airframes, from two sources.
  *
  * Each entry is a genuinely different **airframe**, not a recolour: the outline
  * polygons, spar layout and tail rig all differ, and so do the aerodynamic
  * stats that follow from that shape. A long-tailed *janggan* really does carry
  * far more tail drag than a bare delta, and the numbers below say so.
+ *
+ * ## Why two sources
+ * The eight **signature** airframes below are hand-authored, because their
+ * outlines carry detail no generator models — the box kite's twin cells, the
+ * janggan's crowned head, the naga's jagged flame edge.
+ *
+ * The other forty-two are **generated** from outline parameters in
+ * `airframes.ts`, with their stats derived from the resulting polygon. Fifty
+ * hand-drawn shapes would drift out of step with fifty hand-typed stat blocks;
+ * deriving the numbers from the geometry makes that impossible.
+ *
+ * Both end up as the same `KiteDefinition`, so nothing downstream knows or cares
+ * which list a kite came from.
  *
  * ## Local coordinate space
  * `x` spans −1 (left) to +1 (right), `y` spans −1 (bottom) to +1 (top).
@@ -21,7 +40,7 @@ import type { KiteDefinition, KiteId } from '~/services/game/types'
 /** Shorthand for readable polygon literals. */
 const p = (x: number, y: number): Vec2 => ({ x, y })
 
-export const KITES: readonly KiteDefinition[] = [
+const SIGNATURE_KITES: readonly KiteDefinition[] = [
   // -------------------------------------------------------------------------
   // Pecut — the plain Javanese fighting diamond every kid starts with.
   // -------------------------------------------------------------------------
@@ -407,6 +426,39 @@ export const KITES: readonly KiteDefinition[] = [
     },
   },
 ] as const
+
+/**
+ * Build the generated half of the catalog.
+ *
+ * Price and unlock threshold are computed from the derived stats and the tier, so
+ * a stronger airframe is always dearer and no hand-maintained price table can
+ * fall out of step with a shape change.
+ */
+const GENERATED_KITES: readonly KiteDefinition[] = (() => {
+  const tierCounts = new Map<Rarity, number>()
+
+  return GENERATED_AIRFRAMES.map((spec) => {
+    const { geometry, stats } = buildAirframe(spec)
+    const indexWithinTier = tierCounts.get(spec.rarity) ?? 0
+    tierCounts.set(spec.rarity, indexWithinTier + 1)
+
+    return {
+      id: spec.id,
+      i18nKey: spec.id,
+      rarity: spec.rarity,
+      // Never free: `pecut` is the one airframe granted in a fresh save, and a
+      // second free kite would be visible in the shop but unowned.
+      price: Math.max(40, priceFor(stats, spec.rarity)),
+      origin: spec.origin,
+      stats,
+      geometry,
+      size: spec.size,
+      unlockWins: unlockWinsFor(spec.rarity, indexWithinTier),
+    } satisfies KiteDefinition
+  })
+})()
+
+export const KITES: readonly KiteDefinition[] = [...SIGNATURE_KITES, ...GENERATED_KITES]
 
 const KITE_INDEX = new Map<KiteId, KiteDefinition>(KITES.map(kite => [kite.id, kite]))
 

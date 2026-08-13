@@ -34,6 +34,40 @@ const advantageLabel = computed(() => {
   <div class="hud">
     <div class="hud__row hud__row--top">
       <div class="hud__lines">
+        <!--
+          Lives first: the line bars refill every round, so the kite pips are the
+          only read of who is actually winning the match.
+        -->
+        <div class="hud__lives">
+          <p class="hud__lives-group">
+            <span class="visually-hidden">
+              {{ t('game.hud.yourLives') }}: {{ hud.playerHp }} / {{ hud.maxHp }}
+            </span>
+            <span
+              v-for="pip in hud.maxHp"
+              :key="`p${pip}`"
+              class="hud__pip hud__pip--player"
+              :class="{ 'is-lost': pip > hud.playerHp }"
+              aria-hidden="true"
+            />
+          </p>
+
+          <span class="hud__round t-num">{{ t('game.hud.round') }} {{ hud.round }}</span>
+
+          <p class="hud__lives-group hud__lives-group--end">
+            <span class="visually-hidden">
+              {{ t('game.hud.rivalLives') }}: {{ hud.rivalHp }} / {{ hud.maxHp }}
+            </span>
+            <span
+              v-for="pip in hud.maxHp"
+              :key="`r${pip}`"
+              class="hud__pip hud__pip--rival"
+              :class="{ 'is-lost': pip > hud.rivalHp }"
+              aria-hidden="true"
+            />
+          </p>
+        </div>
+
         <UiMeter
           :value="hud.playerIntegrity"
           :label="t('game.hud.yourLine')"
@@ -153,6 +187,53 @@ const advantageLabel = computed(() => {
 .hud__row--bottom {
   flex-wrap: wrap;
   align-items: end;
+}
+
+.hud__lives {
+  display: flex;
+  gap: var(--sp-2);
+  align-items: center;
+  justify-content: space-between;
+  padding-block-end: rem(2);
+  border-block-end: 1px solid var(--c-hairline);
+}
+
+.hud__lives-group {
+  display: flex;
+  gap: rem(3);
+}
+
+.hud__lives-group--end {
+  justify-content: flex-end;
+}
+
+/// A life is a small kite rhombus; losing one hollows it out.
+.hud__pip {
+  width: rem(11);
+  height: rem(11);
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+  transition: background-color var(--dur-base) var(--ease-out);
+}
+
+.hud__pip--player {
+  background: var(--c-sky);
+}
+
+.hud__pip--rival {
+  background: var(--c-danger);
+}
+
+.hud__pip.is-lost {
+  background: var(--c-ink-500);
+}
+
+.hud__round {
+  font-family: var(--font-mono);
+  font-size: rem(9.5);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--c-text-mute);
 }
 
 .hud__lines {

@@ -79,15 +79,181 @@
       "naga": {
         "name": "Naga Senja",
         "lore": "Rangka milik Naga Senja sendiri, bergerigi dan berekor tiga. Terbaik dari semua yang ada di koleksi, dan harganya sepadan."
+      },
+      "wajik": {
+        "name": "Wajik",
+        "lore": "Dinamai kue beras potong belah ketupat. Bentuk paling sederhana di koleksi dan paling murah dibangun ulang setelah sore yang buruk."
+      },
+      "ketupat": {
+        "name": "Ketupat",
+        "lore": "Belah ketupat yang lebih persegi dengan satu ribbon panjang. Lebih lambat merespons benang daripada pecut, dan karena itu lebih stabil."
+      },
+      "daun": {
+        "name": "Daun",
+        "lore": "Berbentuk daun, membulat di bagian bahu. Menahan udara dengan baik saat angin ringan dan tidak suka dipaksa cepat."
+      },
+      "panji": {
+        "name": "Panji",
+        "lore": "Layangan panji-panji: sempit, tinggi, dan menyeret ribbon panjang. Sangat stabil, sangat lambat."
+      },
+      "sirip": {
+        "name": "Sirip",
+        "lore": "Sirip polos tanpa ekor sama sekali. Cepat dan licin, dan langsung jatuh begitu Anda membuatnya stall."
+      },
+      "gapangan": {
+        "name": "Gapangan",
+        "lore": "Belah ketupat kampung dengan pinggang rendah. Massanya ada di bawah bilah, dan itulah yang membuatnya tetap menghadap ke atas."
+      },
+      "pethetan": {
+        "name": "Pethetan",
+        "lore": "Kecil, sempit, dan ringan. Hampir tidak ada apa-apanya, dan justru karena itu pemula bisa menerbangkannya."
+      },
+      "aduan": {
+        "name": "Aduan",
+        "lore": "Dipangkas untuk aduan: tanpa ekor, tanpa hiasan, tidak ada yang memperlambatnya menuju titik silang."
+      },
+      "koang": {
+        "name": "Koang",
+        "lore": "Burung hantu. Sayap menyapu dan ekor bercelah; ia berbelok lebih cepat daripada yang terlihat."
+      },
+      "kupu": {
+        "name": "Kupu",
+        "lore": "Sayap kupu-kupu, terjepit di pinggang. Lebar dan mencolok, dan ternyata sulit digoyahkan."
+      },
+      "capung": {
+        "name": "Capung",
+        "lore": "Capung: empat lengan tipis dan streamer panjang. Hampir semuanya bentang, hampir tanpa luas."
+      },
+      "rokkaku": {
+        "name": "Rokkaku",
+        "lore": "Layangan aduan Jepang bersisi enam, dibusur pada dua bilah. Stabil, tarikannya kuat, sulit digeser."
+      },
+      "bulan": {
+        "name": "Bulan",
+        "lore": "Bulan sabit dengan tanduk yang menjulur ke belakang melewati tengah. Tepi belakangnya yang cekung melepas udara tidak rata dan ia suka mengembara."
+      },
+      "tameng": {
+        "name": "Tameng",
+        "lore": "Bagian atas rata seperti perisai, dengan sisi lurus. Menyajikan banyak layar pada hentakan angin."
+      },
+      "lampion": {
+        "name": "Lampion",
+        "lore": "Berbentuk tong, rata di kedua ujungnya, diperkuat bilah tambahan. Kotak dan padat."
+      },
+      "terbang": {
+        "name": "Ikan Terbang",
+        "lore": "Ikan terbang: perut lebar dan ekor bercabang dalam yang mengalir di belakangnya."
+      },
+      "gasing": {
+        "name": "Gasing",
+        "lore": "Bersisi delapan seperti gasing. Ringkas, padat, dan mempertahankan sudut benang dengan baik."
+      },
+      "kembang": {
+        "name": "Kembang",
+        "lore": "Bunga enam kelopak. Semua ujung itu melepaskan pusaran, yang mengorbankan kecepatan demi kestabilan."
+      },
+      "pari": {
+        "name": "Pari",
+        "lore": "Ikan pari. Bentang sangat lebar dengan chord pendek — layar pengangkat paling efisien di koleksi."
+      },
+      "kelelawar": {
+        "name": "Kelelawar",
+        "lore": "Sayap kelelawar, menyapu jauh ke belakang dengan celah dalam. Cepat menuju titik silang dan gelisah begitu sampai."
+      },
+      "hiu": {
+        "name": "Hiu",
+        "lore": "Hiu: sempit, bertubuh dalam, satu ekor berat. Membelah udara dengan sangat rapi."
+      },
+      "keris": {
+        "name": "Keris",
+        "lore": "Berlekuk seperti bilahnya. Ujung yang melebar membuatnya menggigit titik silang dari sudut."
+      },
+      "tombak": {
+        "name": "Tombak",
+        "lore": "Tombak: hampir tanpa bentang, semuanya panjang. Menembus melawan angin lebih baik daripada apa pun di sini."
+      },
+      "sendaren": {
+        "name": "Sendaren",
+        "lore": "Membawa busur berdengung yang terdengar sebelum layangannya terlihat. Berat, dan menarik sepanjang sore."
+      },
+      "wau-bulan": {
+        "name": "Wau Bulan",
+        "lore": "Layangan bulan berbusur. Layar sabit besar dengan pendengung — nyaring dalam segala arti."
+      },
+      "dandang": {
+        "name": "Dandang",
+        "lore": "Tong besar berbusur dengan tiga bilah. Dibuat untuk menggantung di langit dan menolak bergerak."
+      },
+      "kepiting": {
+        "name": "Kepiting",
+        "lore": "Kepiting: empat lengan pendek dan dua jumbai samping. Jelek, lebar, dan sulit dijatuhkan."
+      },
+      "bintang-laut": {
+        "name": "Bintang Laut",
+        "lore": "Lima ujung tebal. Celah dalamnya membuatnya lambat, dan lambat kadang justru yang menang."
+      },
+      "merak": {
+        "name": "Merak",
+        "lore": "Merak: dua cuping di tiap sisi dan ekor sepanjang bermeter-meter. Spektakuler dan tak tergoyahkan."
+      },
+      "garuda": {
+        "name": "Garuda",
+        "lore": "Sayap lebar menyapu dan ekor bercabang. Rangka paling seimbang di atas tingkat langka."
+      },
+      "gurita": {
+        "name": "Gurita",
+        "lore": "Gurita: tepi belakang bergerigi dengan tiga lengan menjuntai. Semua hambatan itu membuatnya stabil sampai menyiksa."
+      },
+      "mahkota": {
+        "name": "Mahkota",
+        "lore": "Mahkota tujuh ujung dengan ribbon panjang. Lebih sering diterbangkan di festival daripada diadu — tapi ia bertarung dengan baik."
+      },
+      "kalajengking": {
+        "name": "Kalajengking",
+        "lore": "Kalajengking: layar berlekuk, satu ekor naga sepanjang empat meter. Ekornya adalah senjatanya."
+      },
+      "sayap": {
+        "name": "Sayap",
+        "lore": "Sayap murni. Bentang terlebar dan chord terpendek di sini — daya angkat luar biasa, tanpa ampun."
+      },
+      "wau-kucing": {
+        "name": "Wau Kucing",
+        "lore": "Layangan kucing berbusur, hampir dua meter lebarnya dengan ribbon yang sepadan."
+      },
+      "taring": {
+        "name": "Taring",
+        "lore": "Taring: sempit, bergerigi, dan dipasangi gelasan paling tajam yang bisa dibeli."
+      },
+      "matahari": {
+        "name": "Matahari",
+        "lore": "Dua belas ujung mengelilingi lingkaran penuh. Absurd, tak mungkin salah dikenali, dan sungguh sangat sulit diputus."
+      },
+      "puyuh": {
+        "name": "Angin Puyuh",
+        "lore": "Angin puyuh: sepuluh jilatan bergerigi dan ekor naga lima meter. Berbelok seperti tongkang, memutus seperti gergaji."
+      },
+      "jangkar": {
+        "name": "Jangkar",
+        "lore": "Jangkar: layar palang dengan tiga ekor. Dibangun sepenuhnya agar tidak bisa digeser."
+      },
+      "tapak": {
+        "name": "Tapak Naga",
+        "lore": "Berbusur, empat cuping, menyeret ekor empat setengah meter. Layangan festival yang bisa bertarung."
+      },
+      "kanggokan": {
+        "name": "Kanggokan",
+        "lore": "Tiga bilah, pendengung, dan tiga ekor. Benda terberat yang masih masuk akal untuk diterbangkan."
+      },
+      "sultan": {
+        "name": "Sultan Langit",
+        "lore": "Rangka terbesar di sini: sayap menyapu, busur, dan ekor naga lima setengah meter."
       }
     },
     "picker": {
       "title": "Pilih layangan",
-      "owned": "{owned} dari {total} kombinasi terbuka",
+      "owned": "{owned} dari {total} rangka dimiliki",
       "pages": "Halaman layangan",
-      "note": "Setiap kotak adalah satu rangka dengan satu corak. Beli rangka dan corak di toko; kombinasi warna berlaku untuk semuanya.",
-      "needKite": "Anda belum punya rangka {name}",
-      "needPattern": "Anda belum punya corak {name}"
+      "note": "Setiap kotak adalah rangka yang berbeda — bentuk berbeda dengan angka yang berbeda di belakangnya. Corak dan kombinasi warna diambil dari toko dan berlaku untuk bentuk apa pun yang Anda terbangkan."
     }
   }
 }

@@ -1,27 +1,27 @@
 <script setup lang="ts">
-import { KITES, getKite } from '~/data/kites'
-import { PATTERNS, getPattern } from '~/data/patterns'
-import type { KiteId, PatternId } from '~/services/game/types'
+import { kitesByRarity } from '~/data/kites'
+import type { KiteDefinition } from '~/services/game/types'
 
 /**
- * Paginated kite picker.
+ * Paginated airframe picker.
  *
- * Every cell is one **airframe wearing one livery** — the two halves of what a
- * player thinks of as "a kite". Eight airframes across twelve patterns gives 96
- * cells, paged so a screen never has to render more than twenty canvases at once.
+ * One cell per airframe, numbered and paged the way the arcade kite-fighting
+ * grids do — a number is how people actually refer to a kite in a grid. Fifty
+ * shapes across pages of twenty-five keeps each page to a manageable number of
+ * canvases while still filling the screen.
  *
- * A cell is selectable only when both halves are owned; otherwise it shows what
- * is missing, which turns the grid into a shopping list instead of a dead end.
+ * Each preview wears the player's equipped livery and colourway, so the grid
+ * shows the shape decision in isolation: the livery is chosen in the shop.
  *
- * Numbered like the reference kite-fighting games, because a number is how people
- * actually refer to a kite in a grid.
+ * Locked cells stay visible with their price, which turns the grid into a
+ * shopping list rather than a dead end.
  */
 const props = withDefaults(
   defineProps<{
     /** Cells per page. */
     pageSize?: number
   }>(),
-  { pageSize: 20 },
+  { pageSize: 25 },
 )
 
 const { t, locale } = useI18n()
@@ -29,54 +29,29 @@ const player = usePlayerStore()
 
 interface Cell {
   index: number
-  kiteId: KiteId
-  patternId: PatternId
-  ownsKite: boolean
-  ownsPattern: boolean
-  available: boolean
+  kite: KiteDefinition
+  owned: boolean
   equipped: boolean
-  label: string
+  name: string
 }
 
-/**
- * Airframe-major ordering: page 1 is the starter kite in every livery, so a new
- * player's owned combinations are all together instead of scattered.
- */
-const cells = computed<Cell[]>(() => {
-  const list: Cell[] = []
-  let index = 1
-
-  for (const kite of KITES) {
-    for (const pattern of PATTERNS) {
-      const ownsKite = player.owns('kite', kite.id)
-      const ownsPattern = player.owns('pattern', pattern.id)
-
-      list.push({
-        index,
-        kiteId: kite.id,
-        patternId: pattern.id,
-        ownsKite,
-        ownsPattern,
-        available: ownsKite && ownsPattern,
-        equipped:
-          player.save.loadout.kiteId === kite.id
-          && player.save.loadout.patternId === pattern.id,
-        label: `${t(`kites.items.${kite.i18nKey}.name`)} · ${t(`shop.patterns.${pattern.i18nKey}.name`)}`,
-      })
-
-      index += 1
-    }
-  }
-
-  return list
-})
+/** Cheapest first, so the ordering matches how a player will actually buy. */
+const cells = computed<Cell[]>(() =>
+  kitesByRarity().map((kite, index) => ({
+    index: index + 1,
+    kite,
+    owned: player.owns('kite', kite.id),
+    equipped: player.save.loadout.kiteId === kite.id,
+    name: t(`kites.items.${kite.i18nKey}.name`),
+  })),
+)
 
 const pageCount = computed(() => Math.max(1, Math.ceil(cells.value.length / props.pageSize)))
 const page = ref(1)
 
-/** Follow the equipped kite when it changes elsewhere (shop, briefing). */
+/** Follow the equipped airframe when it changes elsewhere (shop, wizard). */
 watch(
-  () => [player.save.loadout.kiteId, player.save.loadout.patternId] as const,
+  () => player.save.loadout.kiteId,
   () => {
     const equippedIndex = cells.value.findIndex(cell => cell.equipped)
     if (equippedIndex >= 0) page.value = Math.floor(equippedIndex / props.pageSize) + 1
@@ -89,21 +64,11 @@ const visible = computed(() => {
   return cells.value.slice(start, start + props.pageSize)
 })
 
-const ownedCount = computed(() => cells.value.filter(cell => cell.available).length)
+const ownedCount = computed(() => cells.value.filter(cell => cell.owned).length)
 
 function select(cell: Cell): void {
-  if (!cell.available) return
-  player.equipDesign(cell.kiteId, cell.patternId)
-}
-
-/** What a locked cell is missing, so the reason is on the cell itself. */
-function lockReason(cell: Cell): string {
-  if (!cell.ownsKite) {
-    return t('kites.picker.needKite', { name: t(`kites.items.${getKite(cell.kiteId).i18nKey}.name`) })
-  }
-  return t('kites.picker.needPattern', {
-    name: t(`shop.patterns.${getPattern(cell.patternId).i18nKey}.name`),
-  })
+  if (!cell.owned) return
+  player.equipKite(cell.kite.id)
 }
 </script>
 
@@ -144,15 +109,15 @@ function lockReason(cell: Cell): string {
     <ul class="picker__grid">
       <li
         v-for="cell in visible"
-        :key="`${cell.kiteId}-${cell.patternId}`"
+        :key="cell.kite.id"
       >
         <button
           type="button"
           class="picker__cell"
-          :class="{ 'is-equipped': cell.equipped, 'is-locked': !cell.available }"
-          :disabled="!cell.available"
+          :class="{ 'is-equipped': cell.equipped, 'is-locked': !cell.owned }"
+          :disabled="!cell.owned"
           :aria-pressed="cell.equipped"
-          :title="cell.available ? cell.label : `${cell.label} — ${lockReason(cell)}`"
+          :title="cell.owned ? cell.name : `${cell.name} — ${formatCoins(cell.kite.price, locale)}`"
           @click="select(cell)"
         >
           <span
@@ -161,21 +126,22 @@ function lockReason(cell: Cell): string {
           >{{ cell.index }}</span>
 
           <KitePreview
-            :kite-id="cell.kiteId"
-            :pattern-id="cell.patternId"
+            :kite-id="cell.kite.id"
+            :pattern-id="player.save.loadout.patternId"
             :palette-id="player.save.loadout.paletteId"
-            :name="cell.label"
+            :name="cell.name"
             :tails="false"
             :animate="false"
             ratio="1"
           />
 
+          <span class="picker__label">{{ cell.name }}</span>
+
+          <!-- Locked cells show the price, so the grid doubles as a shop list. -->
           <span
-            v-if="!cell.available"
-            class="picker__lock"
-            aria-hidden="true"
-          >🔒</span>
-          <span class="picker__label">{{ cell.label }}</span>
+            v-if="!cell.owned"
+            class="picker__price t-num"
+          >{{ formatCoins(cell.kite.price, locale) }}</span>
         </button>
       </li>
     </ul>
@@ -247,13 +213,20 @@ function lockReason(cell: Cell): string {
   }
 }
 
+/**
+ * Small cells, many per row.
+ *
+ * The grid is a browsing surface, not a showcase: bigger tiles meant fewer kites
+ * on screen and more scrolling. These sizes fit roughly four across on a phone
+ * and ten on a desktop while the sail is still recognisable.
+ */
 .picker__grid {
   display: grid;
   gap: var(--sp-2);
-  grid-template-columns: repeat(auto-fill, minmax(rem(84), 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(rem(72), 1fr));
 
   @include mq('md') {
-    grid-template-columns: repeat(auto-fill, minmax(rem(104), 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(rem(84), 1fr));
   }
 }
 
@@ -297,11 +270,9 @@ function lockReason(cell: Cell): string {
   color: var(--c-text-mute);
 }
 
-.picker__lock {
-  position: absolute;
-  inset-block-start: 38%;
-  inset-inline: 0;
-  font-size: rem(16);
+.picker__price {
+  font-size: rem(9);
+  color: var(--c-gold);
 }
 
 .picker__label {

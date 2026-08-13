@@ -35,6 +35,10 @@
       "reducedEffects": {
         "label": "Kurangi efek",
         "description": "Mematikan partikel duel dan gradien berat. Membantu pada perangkat lama atau berdaya rendah. Juga diterapkan otomatis kalau sistem Anda meminta pengurangan gerak."
+      },
+      "sound": {
+        "label": "Suara",
+        "description": "Gesekan benang, bunyi putus, jatuh, dan penanda ronde. Semuanya dibangkitkan di browser — tidak ada berkas audio yang diunduh."
       }
     },
     "reset": {

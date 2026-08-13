@@ -33,7 +33,10 @@
       "time": "Waktu",
       "overload": "Kelebihan beban",
       "readouts": "Angka langsung",
-      "snagged": "Benang kena kabel"
+      "snagged": "Benang kena kabel",
+      "yourLives": "Nyawa Anda",
+      "rivalLives": "Nyawa lawan",
+      "round": "Ronde"
     },
     "controls": {
       "title": "Kontrol",
@@ -80,7 +83,8 @@
         "clashTime": "Waktu bersinggungan",
         "peakTension": "Tegangan puncak",
         "peakAltitude": "Ketinggian puncak",
-        "snaps": "Sentakan dipakai"
+        "snaps": "Sentakan dipakai",
+        "rounds": "Ronde menang / kalah"
       },
       "unlocked": "Terbuka: {name}",
       "advice": {
@@ -138,6 +142,28 @@
           "name": "Viaduk",
           "lore": "Lengkungan melintang seluruh arena dan kabel trem di sepanjang dek. Naik melewatinya, atau selipkan lewat celah dan berharap."
         }
+      }
+    },
+    "round": {
+      "won": "Ronde dimenangkan",
+      "lost": "Ronde kalah",
+      "next": "Ronde berikutnya dalam {seconds}…",
+      "reason": {
+        "cut": "Benang putus di titik persilangan.",
+        "cable": "Benang terseret melewati kabel.",
+        "crash": "Layangan jatuh ke tanah.",
+        "obstacle": "Layangan menabrak bangunan."
+      }
+    },
+    "wizard": {
+      "title": "Persiapan",
+      "lead": "Pilih layangan, pilih lapangan, lalu pilih lawannya. Semuanya bisa diubah lagi antar duel.",
+      "next": "Lanjut",
+      "fight": "Lawan {name}",
+      "steps": {
+        "kite": "Layangan Anda",
+        "arena": "Lapangan",
+        "opponent": "Lawan"
       }
     }
   },

@@ -30,6 +30,12 @@ function reset(): void {
     <ClientOnly>
       <div class="settings__toggles">
         <UiToggle
+          :model-value="settings.state.sound"
+          :label="t('shop.settings.sound.label')"
+          :description="t('shop.settings.sound.description')"
+          @update:model-value="settings.setSound"
+        />
+        <UiToggle
           :model-value="settings.state.reducedEffects"
           :label="t('shop.settings.reducedEffects.label')"
           :description="t('shop.settings.reducedEffects.description')"

@@ -5,16 +5,25 @@ import {
   MAX_FRAME_TIME,
   PLAYER_ANCHOR_X,
   RIVAL_ANCHOR_X,
+  ROUND_BREAK,
+  START_LINE_LENGTH,
 } from './constants'
 import { getKite } from '~/data/kites'
 import { createRandom } from './math/random'
 import { resolveLoadout } from './loadout'
 import { applyAbrasion, detectClashes } from './physics/combat'
-import { createFighter, driftCutKite, hasCrashed, stepFighter } from './physics/fighter'
+import {
+  createFighter,
+  driftCutKite,
+  hasCrashed,
+  relaunchFighter,
+  stepFighter,
+} from './physics/fighter'
 import {
   applyCableWear,
   findCableContacts,
   findCollision,
+  hazardCeiling,
   windFactorAt,
   type CableContact,
 } from './physics/obstacles'
@@ -29,6 +38,7 @@ import {
   type MatchConfig,
   type MatchOutcome,
   type MatchSnapshot,
+  type RoundEndReason,
   type WindSample,
 } from './types'
 
@@ -93,6 +103,23 @@ export function createMatchEngine({
   const playerLoadout = resolveLoadout(config.player.kiteId, config.player.upgrades)
   const rivalLoadout = resolveLoadout(opponent.kiteId, opponent.upgrades)
 
+  /**
+   * Launch altitude that clears every hazard between the anchor and where the
+   * kite starts. Without this, an arena with a tall tower can begin a round with
+   * a kite already inside it.
+   */
+  const safeLaunchAltitude = (anchorX: number): number => {
+    const startX = anchorX + START_LINE_LENGTH * 0.55
+    const ceiling = hazardCeiling(arena, anchorX, startX)
+    return ceiling === 0 ? 0 : ceiling + 12
+  }
+
+  /** Clearance the AI must keep above arena hazards, in metres. */
+  const clearanceFor = (fromX: number, toX: number): number => {
+    const ceiling = hazardCeiling(arena, fromX, toX)
+    return ceiling === 0 ? 0 : ceiling + 10
+  }
+
   const player = createFighter({
     side: 'player',
     anchorX: PLAYER_ANCHOR_X,
@@ -103,6 +130,7 @@ export function createMatchEngine({
     paletteId: config.player.paletteId,
     patternId: config.player.patternId,
     effectId: config.player.effectId,
+    minAltitude: safeLaunchAltitude(PLAYER_ANCHOR_X),
   })
 
   const rival = createFighter({
@@ -115,11 +143,16 @@ export function createMatchEngine({
     paletteId: opponent.paletteId,
     patternId: opponent.patternId,
     effectId: opponent.effectId,
+    minAltitude: safeLaunchAltitude(RIVAL_ANCHOR_X),
   })
 
   const rivalSource
     = rivalInput
-      ?? createAiInput(scaleAiProfile(opponent.ai, config.difficultyScale), aiRandom)
+      ?? createAiInput({
+        profile: scaleAiProfile(opponent.ai, config.difficultyScale),
+        random: aiRandom,
+        clearance: clearanceFor,
+      })
 
   /** Collision margin: roughly the kite's own half-span. */
   const playerMargin = getKite(config.player.kiteId).size / 2
@@ -137,6 +170,9 @@ export function createMatchEngine({
     elapsed: 0,
     timeLimit: config.timeLimit,
     countdown: COUNTDOWN_SECONDS,
+    round: 1,
+    lastRound: null,
+    roundBreak: 0,
     player,
     rival,
     wind: wind.sample(player.position.y),
@@ -148,6 +184,8 @@ export function createMatchEngine({
       peakTension: 0,
       snapsUsed: 0,
       peakAltitude: 0,
+      roundsWon: 0,
+      roundsLost: 0,
     },
   }
 
@@ -155,6 +193,8 @@ export function createMatchEngine({
   let countdown = COUNTDOWN_SECONDS
   let stepCount = 0
   let playerSnapWasActive = false
+  /** Seconds since the current round launched, for the crash grace period. */
+  let roundAge = 0
 
   const resolve = (outcome: MatchOutcome): void => {
     if (snapshot.phase === 'resolved') return
@@ -196,6 +236,21 @@ export function createMatchEngine({
       return
     }
 
+    if (snapshot.phase === 'roundOver') {
+      // The cut kite tumbles away while the survivor keeps flying, so the pause
+      // shows the consequence instead of freezing the arena.
+      if (player.alive) stepFighter(player, NEUTRAL_COMMAND, playerWind, windDirection, dt)
+      else driftCutKite(player, playerWind, dt)
+
+      if (rival.alive) stepFighter(rival, NEUTRAL_COMMAND, rivalWind, windDirection, dt)
+      else driftCutKite(rival, rivalWind, dt)
+
+      // The match clock does not run during the break.
+      snapshot.roundBreak = Math.max(0, snapshot.roundBreak - dt)
+      if (snapshot.roundBreak === 0) startNextRound()
+      return
+    }
+
     const playerCommand = player.alive
       ? playerInput.sample({ self: player, opponent: rival, wind: playerWind, elapsed: snapshot.elapsed, dt })
       : NEUTRAL_COMMAND
@@ -223,6 +278,7 @@ export function createMatchEngine({
     applyCableWear(rival, rivalCables, dt, clashes)
 
     snapshot.elapsed += dt
+    roundAge += dt
 
     // --- Telemetry for the result screen ------------------------------------
     if (abrasion.engaged) snapshot.stats.clashSeconds += dt
@@ -233,53 +289,116 @@ export function createMatchEngine({
     if (player.snapActive > 0 && !playerSnapWasActive) snapshot.stats.snapsUsed += 1
     playerSnapWasActive = player.snapActive > 0
 
-    // --- Win conditions -----------------------------------------------------
-    // A cut line is checked first: it is the decisive outcome.
-    if (!player.alive && !rival.alive) {
-      resolve({ kind: 'timeout', winner: 'draw' })
-      return
-    }
-    if (!rival.alive) {
-      resolve({ kind: 'cut', winner: 'player' })
-      return
-    }
-    if (!player.alive) {
-      resolve({ kind: 'cut', winner: 'rival' })
+    // --- Round conditions ---------------------------------------------------
+    // Losing a line costs one life, not the match. Both going at once costs
+    // both a life, which is the fair reading of a simultaneous cut.
+    if (!player.alive || !rival.alive) {
+      const cableCut
+        = (!player.alive && playerCables.length > 0)
+          || (!rival.alive && rivalCables.length > 0)
+      endRound(!player.alive, !rival.alive, cableCut ? 'cable' : 'cut')
       return
     }
 
-    // Hitting a structure, or the ground, loses the round — but only after a
-    // grace period so the opening seconds cannot be lost to the launch attitude.
-    if (snapshot.elapsed > CRASH_GRACE) {
-      if (findCollision(arena, player.position, playerMargin)) {
-        player.alive = false
-        resolve({ kind: 'obstacle', winner: 'rival' })
+    // Hitting a structure or the ground also costs a life, but only after the
+    // grace period so a round is never lost to the launch attitude.
+    if (roundAge > CRASH_GRACE) {
+      const playerHitStructure = findCollision(arena, player.position, playerMargin) !== null
+      const rivalHitStructure = findCollision(arena, rival.position, rivalMargin) !== null
+
+      if (playerHitStructure || rivalHitStructure) {
+        endRound(playerHitStructure, rivalHitStructure, 'obstacle')
         return
       }
-      if (findCollision(arena, rival.position, rivalMargin)) {
-        rival.alive = false
-        resolve({ kind: 'obstacle', winner: 'player' })
-        return
-      }
-      if (hasCrashed(player)) {
-        player.alive = false
-        resolve({ kind: 'crash', winner: 'rival' })
-        return
-      }
-      if (hasCrashed(rival)) {
-        rival.alive = false
-        resolve({ kind: 'crash', winner: 'player' })
+
+      const playerDown = hasCrashed(player)
+      const rivalDown = hasCrashed(rival)
+      if (playerDown || rivalDown) {
+        endRound(playerDown, rivalDown, 'crash')
         return
       }
     }
 
     if (snapshot.elapsed >= snapshot.timeLimit) {
-      // Time out: the healthier line takes it. A dead heat is a draw.
-      const difference = player.lineIntegrity - rival.lineIntegrity
+      // Time out: more lives wins, then the healthier line. A dead heat draws.
+      const hpDifference = player.hp - rival.hp
+      const lineDifference = player.lineIntegrity - rival.lineIntegrity
       const winner: FighterSide | 'draw'
-        = Math.abs(difference) < 0.02 ? 'draw' : difference > 0 ? 'player' : 'rival'
+        = hpDifference !== 0
+          ? hpDifference > 0 ? 'player' : 'rival'
+          : Math.abs(lineDifference) < 0.02
+            ? 'draw'
+            : lineDifference > 0 ? 'player' : 'rival'
       resolve({ kind: 'timeout', winner })
     }
+  }
+
+  /**
+   * Score a lost round.
+   *
+   * Deducts a life from whoever went out, records what happened for the banner,
+   * and either resolves the match or opens the between-rounds pause. Nothing is
+   * relaunched here — that happens when the pause expires, so the cut kite has
+   * time to tumble away on screen.
+   */
+  const endRound = (playerOut: boolean, rivalOut: boolean, reason: RoundEndReason): void => {
+    if (playerOut) {
+      player.hp -= 1
+      player.alive = false
+      snapshot.stats.roundsLost += 1
+    }
+    if (rivalOut) {
+      rival.hp -= 1
+      rival.alive = false
+      snapshot.stats.roundsWon += 1
+    }
+
+    // The banner names one loser; when both go out, the player's own loss is the
+    // one they need to see.
+    snapshot.lastRound = {
+      loser: playerOut ? 'player' : 'rival',
+      reason,
+      round: snapshot.round,
+    }
+
+    if (player.hp <= 0 || rival.hp <= 0) {
+      const winner: FighterSide | 'draw'
+        = player.hp <= 0 && rival.hp <= 0
+          ? 'draw'
+          : player.hp <= 0 ? 'rival' : 'player'
+
+      // A draw has no single cause, so it is reported as a timeout-style result.
+      resolve(
+        winner === 'draw'
+          ? { kind: 'timeout', winner: 'draw' }
+          : reason === 'crash'
+            ? { kind: 'crash', winner }
+            : reason === 'obstacle'
+              ? { kind: 'obstacle', winner }
+              : { kind: 'cut', winner },
+      )
+      return
+    }
+
+    snapshot.phase = 'roundOver'
+    snapshot.roundBreak = ROUND_BREAK
+  }
+
+  /** Launch the next round after the pause. */
+  const startNextRound = (): void => {
+    snapshot.round += 1
+    snapshot.roundBreak = 0
+    snapshot.phase = 'flying'
+    roundAge = 0
+    playerSnapWasActive = false
+
+    relaunchFighter(player, PLAYER_ANCHOR_X, safeLaunchAltitude(PLAYER_ANCHOR_X))
+    relaunchFighter(rival, RIVAL_ANCHOR_X, safeLaunchAltitude(RIVAL_ANCHOR_X))
+
+    clashes.length = 0
+    lineClashes.length = 0
+    playerCables.length = 0
+    rivalCables.length = 0
   }
 
   return {

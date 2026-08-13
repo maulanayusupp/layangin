@@ -55,8 +55,14 @@ export const BASE_REEL_SPEED = 9
 /** Altitude below which the kite is considered crashed, metres. */
 export const CRASH_ALTITUDE = 1.2
 
-/** Seconds of grace at match start before a crash can be scored. */
-export const CRASH_GRACE = 2.5
+/**
+ * Seconds of grace after each launch before a crash or a collision counts.
+ *
+ * Generous on purpose: the kite starts already aloft and needs a moment to
+ * settle into trim, and losing a life to the launch attitude is never the
+ * player's mistake.
+ */
+export const CRASH_GRACE = 4
 
 // --- Line ------------------------------------------------------------------
 
@@ -105,5 +111,18 @@ export const EXHAUSTED_EFFECTIVENESS = 0.35
 
 // --- Match -----------------------------------------------------------------
 
-export const DEFAULT_TIME_LIMIT = 90
+export const DEFAULT_TIME_LIMIT = 180
 export const COUNTDOWN_SECONDS = 3
+
+/**
+ * Lives per fighter.
+ *
+ * A duel is not decided by one cut. Losing a line — to the opponent, to the
+ * ground, or to a cable — costs one life and relaunches the round; the match is
+ * over when someone runs out. Three makes a duel long enough to turn around
+ * after a bad opening without dragging.
+ */
+export const STARTING_HP = 3
+
+/** Seconds between a life being lost and the next round launching. */
+export const ROUND_BREAK = 2.2

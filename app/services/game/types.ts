@@ -28,6 +28,49 @@ export type KiteId
     | 'janggan'
     | 'elang'
     | 'naga'
+    // Generated airframes — see data/airframes.ts.
+    | 'wajik'
+    | 'ketupat'
+    | 'daun'
+    | 'panji'
+    | 'sirip'
+    | 'gapangan'
+    | 'pethetan'
+    | 'aduan'
+    | 'koang'
+    | 'kupu'
+    | 'capung'
+    | 'rokkaku'
+    | 'bulan'
+    | 'tameng'
+    | 'lampion'
+    | 'terbang'
+    | 'gasing'
+    | 'kembang'
+    | 'pari'
+    | 'kelelawar'
+    | 'hiu'
+    | 'keris'
+    | 'tombak'
+    | 'sendaren'
+    | 'wau-bulan'
+    | 'dandang'
+    | 'kepiting'
+    | 'bintang-laut'
+    | 'merak'
+    | 'garuda'
+    | 'gurita'
+    | 'mahkota'
+    | 'kalajengking'
+    | 'sayap'
+    | 'wau-kucing'
+    | 'taring'
+    | 'matahari'
+    | 'puyuh'
+    | 'jangkar'
+    | 'tapak'
+    | 'kanggokan'
+    | 'sultan'
 
 export type PaletteId
   = | 'senja'
@@ -418,6 +461,11 @@ export interface FighterState {
   tension: number
   /** 0..1 remaining line health. Reaching 0 means the line is cut. */
   lineIntegrity: number
+  /**
+   * Lives left. Losing a line costs one and relaunches the round; the match ends
+   * when a fighter reaches 0. See STARTING_HP.
+   */
+  hp: number
   /** 0..1 arm strength; drained by hauling and snapping. */
   stamina: number
   /** Divides stamina drain. Comes from the stamina upgrade. */
@@ -434,7 +482,23 @@ export interface FighterState {
   alive: boolean
 }
 
-export type MatchPhase = 'briefing' | 'countdown' | 'flying' | 'resolved'
+/**
+ * `roundOver` is the pause after a life is lost, before the next launch. It is a
+ * separate phase so the HUD can show what happened and the renderer can let the
+ * cut kite tumble away without the simulation scoring anything further.
+ */
+export type MatchPhase = 'briefing' | 'countdown' | 'flying' | 'roundOver' | 'resolved'
+
+/** Why a round ended. Drives the round banner and the sound cue. */
+export type RoundEndReason = 'cut' | 'crash' | 'obstacle' | 'cable'
+
+export interface RoundResult {
+  /** Which fighter lost the life. */
+  loser: FighterSide
+  reason: RoundEndReason
+  /** 1-based round number that just finished. */
+  round: number
+}
 
 export type MatchOutcome
   = | { kind: 'pending' }
@@ -477,6 +541,9 @@ export interface MatchStats {
   snapsUsed: number
   /** Highest altitude the player's kite reached, in metres. */
   peakAltitude: number
+  /** Rounds won and lost, for the result screen. */
+  roundsWon: number
+  roundsLost: number
 }
 
 export interface MatchSnapshot {
@@ -488,6 +555,12 @@ export interface MatchSnapshot {
   timeLimit: number
   /** Seconds left on the pre-match countdown; 0 once flying. */
   countdown: number
+  /** 1-based round currently being fought. */
+  round: number
+  /** How the previous round ended; null before the first one finishes. */
+  lastRound: RoundResult | null
+  /** Seconds left on the between-rounds pause; 0 outside `roundOver`. */
+  roundBreak: number
   player: FighterState
   rival: FighterState
   wind: WindSample

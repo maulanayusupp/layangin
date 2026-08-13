@@ -99,6 +99,34 @@ export function windFactorAt(arena: ArenaDefinition, position: V.Vec2): number {
   return factor
 }
 
+/**
+ * Height of the tallest hazard a kite would meet flying between `fromX` and
+ * `toX`, in metres. Cables count — flying a line across one is as bad as hitting
+ * a wall, just slower.
+ *
+ * The AI uses this to pick a target altitude with real clearance instead of
+ * hauling its own kite into a building, and the launch code uses it to make sure
+ * a round never starts inside a structure.
+ */
+export function hazardCeiling(arena: ArenaDefinition, fromX: number, toX: number): number {
+  const minX = Math.min(fromX, toX)
+  const maxX = Math.max(fromX, toX)
+  let ceiling = 0
+
+  for (const obstacle of arena.obstacles) {
+    const halfWidth = obstacle.width / 2
+    if (obstacle.x + halfWidth < minX || obstacle.x - halfWidth > maxX) continue
+
+    const top = obstacle.span
+      ? Math.max(obstacle.span.y1, obstacle.span.y2)
+      : obstacle.y + obstacle.height
+
+    if (top > ceiling) ceiling = top
+  }
+
+  return ceiling
+}
+
 export interface CableContact {
   obstacle: ArenaObstacle
   point: V.Vec2

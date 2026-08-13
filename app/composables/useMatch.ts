@@ -2,7 +2,7 @@ import { createMatchEngine, type MatchEngine } from '~/services/game/engine'
 import { createControlState, createLocalInput, type ControlState } from '~/services/game/input/local'
 import { createArenaRenderer, type ArenaRenderer } from '~/services/game/render/renderer'
 import { createMatchSeed } from '~/services/game/math/random'
-import { DEFAULT_TIME_LIMIT } from '~/services/game/constants'
+import { DEFAULT_TIME_LIMIT, STARTING_HP } from '~/services/game/constants'
 import { exchangeAdvantage } from '~/services/game/physics/combat'
 import { breakingTension } from '~/services/game/physics/fighter'
 import { describeWind } from '~/services/game/physics/wind'
@@ -13,8 +13,10 @@ import type {
   MatchReward,
   MatchStats,
   OpponentDefinition,
+  RoundResult,
 } from '~/services/game/types'
 import { clamp01 } from '~/services/game/math/scalar'
+import { createSfxEngine, type SfxEngine } from '~/services/audio/sfx'
 
 /**
  * Bridges the non-reactive simulation to Vue.
@@ -50,6 +52,16 @@ export interface MatchHud {
   clashing: boolean
   /** True while the line is dragging over an arena cable. */
   snagged: boolean
+  /** Lives left. The match ends when one side reaches 0. */
+  playerHp: number
+  rivalHp: number
+  maxHp: number
+  /** 1-based round being fought. */
+  round: number
+  /** Seconds left on the between-rounds pause; 0 while flying. */
+  roundBreak: number
+  /** How the previous round ended, for the banner. */
+  lastRound: RoundResult | null
   snapReady: boolean
   snapCooldown: number
 }
@@ -73,6 +85,12 @@ function emptyHud(): MatchHud {
     advantage: 0.5,
     clashing: false,
     snagged: false,
+    playerHp: STARTING_HP,
+    rivalHp: STARTING_HP,
+    maxHp: STARTING_HP,
+    round: 1,
+    roundBreak: 0,
+    lastRound: null,
     snapReady: true,
     snapCooldown: 0,
   }
@@ -106,6 +124,17 @@ export function useMatch({ canvas, container }: UseMatchOptions) {
   let resizeObserver: ResizeObserver | null = null
   let resultBanked = false
 
+  /**
+   * Sound is driven from the render loop rather than from watchers, because the
+   * events it reacts to live on the non-reactive snapshot. Each cue below is
+   * edge-triggered off a remembered previous value.
+   */
+  let sfx: SfxEngine | null = null
+  let lastRoundNumber = 1
+  let lastRoundLossCount = 0
+  let lastSnapActive = false
+  let announcedResult = false
+
   const syncHud = (): void => {
     if (!engine) return
     const snapshot = engine.snapshot
@@ -129,9 +158,77 @@ export function useMatch({ canvas, container }: UseMatchOptions) {
       advantage: exchangeAdvantage(self, rival),
       clashing: snapshot.clashes.some(clash => clash.kind === 'line'),
       snagged: self.snagged,
+      playerHp: self.hp,
+      rivalHp: rival.hp,
+      maxHp: STARTING_HP,
+      round: snapshot.round,
+      roundBreak: snapshot.roundBreak,
+      lastRound: snapshot.lastRound,
       snapReady: self.snapCooldown === 0 && self.stamina > 0.22,
       snapCooldown: self.snapCooldown,
     }
+  }
+
+  /**
+   * Translate this frame's simulation state into sound.
+   *
+   * Continuous contacts (line rasp, cable zing) are levels; everything else is
+   * an edge. Kept in one place so a new cue cannot end up firing twice.
+   */
+  const updateAudio = (): void => {
+    if (!engine || !sfx) return
+    const snapshot = engine.snapshot
+    const { player: self, rival } = snapshot
+
+    // Line-on-line rasp: loudest at the strongest crossing.
+    let clashIntensity = 0
+    let cableIntensity = 0
+    for (const clash of snapshot.clashes) {
+      if (clash.kind === 'obstacle') cableIntensity = Math.max(cableIntensity, clash.intensity)
+      else clashIntensity = Math.max(clashIntensity, clash.intensity)
+    }
+
+    const flying = snapshot.phase === 'flying'
+    sfx.setClash(flying ? clashIntensity : 0)
+    sfx.setCable(flying ? cableIntensity : 0)
+
+    // The player's own yank.
+    const snapping = self.snapActive > 0
+    if (snapping && !lastSnapActive) sfx.play('yank')
+    lastSnapActive = snapping
+
+    // A round just ended: name the cause, then who lost it.
+    const roundsLost = snapshot.stats.roundsLost + snapshot.stats.roundsWon
+    if (roundsLost > lastRoundLossCount) {
+      lastRoundLossCount = roundsLost
+      const reason = snapshot.lastRound?.reason
+      if (reason === 'crash') sfx.play('crash')
+      else if (reason === 'obstacle') sfx.play('obstacle')
+      else sfx.play('cut')
+
+      if (snapshot.phase !== 'resolved') {
+        sfx.play(snapshot.lastRound?.loser === 'player' ? 'roundLost' : 'roundWon', 0.8)
+      }
+    }
+
+    // A new round launched.
+    if (snapshot.round > lastRoundNumber) {
+      lastRoundNumber = snapshot.round
+      sfx.play('roundStart', 0.7)
+    }
+
+    // The match is over.
+    if (snapshot.phase === 'resolved' && !announcedResult) {
+      announcedResult = true
+      sfx.stopAll()
+      const won = isPlayerWin(snapshot.outcome)
+      sfx.play(won ? 'win' : 'lose')
+      if (won) sfx.play('coin', 0.6)
+    }
+
+    // Keep the rival referenced: its state feeds the clash intensity above via
+    // the snapshot, and reading it here documents that this is a two-sided cue.
+    void rival
   }
 
   /** Bank the result exactly once, the moment the match resolves. */
@@ -194,6 +291,9 @@ export function useMatch({ canvas, container }: UseMatchOptions) {
     renderer.render(engine.snapshot, paused.value ? 0 : dt)
     syncHud()
 
+    if (paused.value) sfx?.stopAll()
+    else updateAudio()
+
     if (engine.snapshot.phase === 'resolved') {
       bankResult()
     }
@@ -216,6 +316,14 @@ export function useMatch({ canvas, container }: UseMatchOptions) {
     stats.value = null
     coinsGranted.value = 0
     resultBanked = false
+    lastRoundNumber = 1
+    lastRoundLossCount = 0
+    lastSnapActive = false
+    announcedResult = false
+
+    if (!sfx) sfx = createSfxEngine(!settings.sound)
+    sfx.setMuted(!settings.sound)
+
     controls.walk = 0
     controls.reel = 0
     controls.snap = false
@@ -259,6 +367,7 @@ export function useMatch({ canvas, container }: UseMatchOptions) {
   function stop(): void {
     if (frame) cancelAnimationFrame(frame)
     frame = 0
+    sfx?.stopAll()
     engine?.dispose()
     engine = null
     renderer = null
@@ -282,9 +391,20 @@ export function useMatch({ canvas, container }: UseMatchOptions) {
 
   onBeforeUnmount(() => {
     stop()
+    sfx?.dispose()
+    sfx = null
     resizeObserver?.disconnect()
     resizeObserver = null
   })
+
+  // Toggling sound in the shop must take effect on a match already in progress.
+  watch(
+    () => settings.sound,
+    (enabled) => {
+      sfx?.setMuted(!enabled)
+      if (!enabled) sfx?.stopAll()
+    },
+  )
 
   // Backgrounding a tab should not mean losing a match in progress.
   if (import.meta.client) {

@@ -79,15 +79,181 @@
       "naga": {
         "name": "Naga Senja",
         "lore": "The dusk dragon's own rig, jagged and triple-tailed. The best of everything on the rack, and priced accordingly."
+      },
+      "wajik": {
+        "name": "Wajik",
+        "lore": "Named for the diamond-cut rice cake. The plainest shape on the rack and the cheapest to rebuild after a bad afternoon."
+      },
+      "ketupat": {
+        "name": "Ketupat",
+        "lore": "A squarer diamond with one long ribbon. Slower to answer the line than a pecut, and steadier for it."
+      },
+      "daun": {
+        "name": "Daun",
+        "lore": "Leaf-shaped, rounded at the shoulders. Holds air well in a light breeze and dislikes being hurried."
+      },
+      "panji": {
+        "name": "Panji",
+        "lore": "A banner kite: narrow, tall, and dragging a long ribbon. Very stable, very slow."
+      },
+      "sirip": {
+        "name": "Sirip",
+        "lore": "A bare fin with no tail at all. Quick and slippery, and it will drop the moment you stall it."
+      },
+      "gapangan": {
+        "name": "Gapangan",
+        "lore": "The low-waisted village diamond. The bulk sits below the spar, which is what keeps it pointing up."
+      },
+      "pethetan": {
+        "name": "Pethetan",
+        "lore": "Small, narrow and light. Almost nothing to it, which is exactly why beginners can fly one."
+      },
+      "aduan": {
+        "name": "Aduan",
+        "lore": "Stripped for fighting: no tails, no decoration, nothing to slow it into a crossing."
+      },
+      "koang": {
+        "name": "Koang",
+        "lore": "The owl. Swept wings and a notched tail; it turns faster than it looks like it should."
+      },
+      "kupu": {
+        "name": "Kupu",
+        "lore": "Butterfly wings, pinched at the waist. Wide and showy, and surprisingly hard to upset."
+      },
+      "capung": {
+        "name": "Capung",
+        "lore": "Dragonfly: four thin arms and a long streamer. Almost all span, almost no area."
+      },
+      "rokkaku": {
+        "name": "Rokkaku",
+        "lore": "The six-sided Japanese fighter, bowed across two spars. Steady, strong-pulling, hard to move."
+      },
+      "bulan": {
+        "name": "Bulan",
+        "lore": "A crescent with horns reaching back past the middle. The concave trailing edge sheds air unevenly and it wanders."
+      },
+      "tameng": {
+        "name": "Tameng",
+        "lore": "Flat-topped like a shield, with straight flanks. Presents a lot of sail to a gust."
+      },
+      "lampion": {
+        "name": "Lampion",
+        "lore": "Barrel-shaped, flat at both ends, braced with extra spars. Boxy and solid."
+      },
+      "terbang": {
+        "name": "Ikan Terbang",
+        "lore": "Flying fish: a broad belly and a deeply forked tail that streams behind it."
+      },
+      "gasing": {
+        "name": "Gasing",
+        "lore": "Eight-sided like a spinning top. Compact, dense, and it holds a line angle well."
+      },
+      "kembang": {
+        "name": "Kembang",
+        "lore": "A six-petal flower. All those points shed vortices, which costs speed and buys stability."
+      },
+      "pari": {
+        "name": "Pari",
+        "lore": "Manta ray. An enormous span on a shallow chord — the most efficient lifting sail on the rack."
+      },
+      "kelelawar": {
+        "name": "Kelelawar",
+        "lore": "Bat wings, swept hard back with a deep notch. Fast into a crossing and twitchy once there."
+      },
+      "hiu": {
+        "name": "Hiu",
+        "lore": "Shark: narrow, deep-bodied, one heavy tail. Cuts a very clean line through the air."
+      },
+      "keris": {
+        "name": "Keris",
+        "lore": "Barbed like the blade. The flared tips make it bite into a crossing at an angle."
+      },
+      "tombak": {
+        "name": "Tombak",
+        "lore": "A spear: almost no span, all length. Slices upwind better than anything else here."
+      },
+      "sendaren": {
+        "name": "Sendaren",
+        "lore": "Carries a humming bow that you hear before you see the kite. Heavy, and it pulls all afternoon."
+      },
+      "wau-bulan": {
+        "name": "Wau Bulan",
+        "lore": "The bowed moon kite. A huge crescent sail on a hummer — loud in every sense."
+      },
+      "dandang": {
+        "name": "Dandang",
+        "lore": "A big bowed barrel with three spars. Built to hang in the sky and refuse to move."
+      },
+      "kepiting": {
+        "name": "Kepiting",
+        "lore": "Crab: four stubby arms and two side tassels. Ugly, wide, and hard to knock down."
+      },
+      "bintang-laut": {
+        "name": "Bintang Laut",
+        "lore": "Five thick points. The deep notches make it slow, and slow is sometimes what wins."
+      },
+      "merak": {
+        "name": "Merak",
+        "lore": "Peacock: two lobes each side and a tail that runs for metres. Spectacular and immovable."
+      },
+      "garuda": {
+        "name": "Garuda",
+        "lore": "Broad swept wings and a forked tail. The most balanced airframe above the rare tier."
+      },
+      "gurita": {
+        "name": "Gurita",
+        "lore": "Octopus: a ragged trailing edge trailing three arms. All that drag makes it painfully steady."
+      },
+      "mahkota": {
+        "name": "Mahkota",
+        "lore": "A seven-point crown with a long ribbon. Flown at festivals more than in duels — but it duels well."
+      },
+      "kalajengking": {
+        "name": "Kalajengking",
+        "lore": "Scorpion: barbed sail, single dragon tail four metres long. The tail is the weapon."
+      },
+      "sayap": {
+        "name": "Sayap",
+        "lore": "Pure wing. The widest span and the shallowest chord here — enormous lift, no forgiveness."
+      },
+      "wau-kucing": {
+        "name": "Wau Kucing",
+        "lore": "The bowed cat kite, nearly two metres across with a ribbon to match."
+      },
+      "taring": {
+        "name": "Taring",
+        "lore": "Fang: narrow, jagged, and fitted with the sharpest gelasan money buys."
+      },
+      "matahari": {
+        "name": "Matahari",
+        "lore": "Twelve points around a full circle. Absurd, unmistakable, and genuinely very hard to cut."
+      },
+      "puyuh": {
+        "name": "Angin Puyuh",
+        "lore": "Whirlwind: ten ragged tongues and a five-metre dragon tail. Turns like a barge, cuts like a saw."
+      },
+      "jangkar": {
+        "name": "Jangkar",
+        "lore": "Anchor: a cross sail with three tails. Built entirely around not being moved."
+      },
+      "tapak": {
+        "name": "Tapak Naga",
+        "lore": "Bowed, four-lobed, dragging four and a half metres of tail. A festival kite that fights."
+      },
+      "kanggokan": {
+        "name": "Kanggokan",
+        "lore": "Three spars, a hummer, and three tails. The heaviest thing anyone sensibly flies."
+      },
+      "sultan": {
+        "name": "Sultan Langit",
+        "lore": "The largest airframe here: swept wings, a bow, and five and a half metres of dragon tail."
       }
     },
     "picker": {
       "title": "Pick your kite",
-      "owned": "{owned} of {total} combinations unlocked",
+      "owned": "{owned} of {total} airframes owned",
       "pages": "Kite pages",
-      "note": "Each cell is one airframe wearing one livery. Buy airframes and liveries in the shop; the colourway applies to all of them.",
-      "needKite": "You do not own the {name} airframe yet",
-      "needPattern": "You do not own the {name} livery yet"
+      "note": "Each cell is a different airframe — a different shape with different numbers behind it. The livery and colourway come from the shop and apply to whichever shape you fly."
     }
   }
 }

@@ -15,6 +15,7 @@ import {
   SNAP_STAMINA_COST,
   STAMINA_DRAIN_RATE,
   STAMINA_RECOVERY_RATE,
+  STARTING_HP,
   START_LINE_LENGTH,
   WALK_BOUND,
   WALK_SPEED,
@@ -37,13 +38,18 @@ export interface FighterInit {
   effectId: FighterState['effectId']
   /** Divides stamina drain. Comes from the stamina upgrade. */
   staminaEfficiency: number
+  /** Minimum launch altitude, so a match never opens inside a structure. */
+  minAltitude?: number
 }
 
 export function createFighter(init: FighterInit): FighterState {
   const anchor = V.vec2(init.anchorX, 0)
   // Start already aloft and downwind, at a plausible launch attitude, so a
   // match opens in flight rather than with a launch minigame.
-  const position = V.vec2(init.anchorX + START_LINE_LENGTH * 0.55, START_LINE_LENGTH * 0.66)
+  const position = V.vec2(
+    init.anchorX + START_LINE_LENGTH * 0.55,
+    Math.max(START_LINE_LENGTH * 0.66, init.minAltitude ?? 0),
+  )
 
   return {
     side: init.side,
@@ -64,6 +70,7 @@ export function createFighter(init: FighterInit): FighterState {
     reelRate: 0,
     tension: 0,
     lineIntegrity: 1,
+    hp: STARTING_HP,
     stamina: 1,
     staminaEfficiency: Math.max(0.1, init.staminaEfficiency),
     snapCooldown: 0,
@@ -73,6 +80,41 @@ export function createFighter(init: FighterInit): FighterState {
     snagged: false,
     alive: true,
   }
+}
+
+/**
+ * Put a fighter back in the air for a new round.
+ *
+ * Restores the line and the launch attitude but deliberately **keeps `hp`** — the
+ * lives are the match score, not per-round state. Stamina is refilled too: a
+ * round loss should not also hand the winner a tired opponent, which would snowball.
+ */
+export function relaunchFighter(
+  state: FighterState,
+  anchorX: number,
+  /** Minimum launch altitude, so a round never begins inside a structure. */
+  minAltitude = 0,
+): void {
+  state.anchor.x = anchorX
+  state.anchor.y = 0
+
+  state.position.x = anchorX + START_LINE_LENGTH * 0.55
+  state.position.y = Math.max(START_LINE_LENGTH * 0.66, minAltitude)
+  state.velocity.x = 0
+  state.velocity.y = 0
+
+  state.heading = 0
+  state.bank = 0
+  state.lineLength = START_LINE_LENGTH
+  state.reelRate = 0
+  state.tension = 0
+  state.lineIntegrity = 1
+  state.stamina = 1
+  state.snapCooldown = 0
+  state.snapActive = 0
+  state.linePoints.length = 0
+  state.snagged = false
+  state.alive = true
 }
 
 /** Peak tension this fighter's line survives, in newtons. */
