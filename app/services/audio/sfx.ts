@@ -96,9 +96,18 @@ export function createSfxEngine(initiallyMuted = false): SfxEngine {
     active: boolean
   }
   let clashLoop: Loop | null = null
+  /**
+   * Second band for the rasp. Glass-coated line sawing on glass-coated line is not
+   * one noise band — there is a body to it and a sizzle on top, and the sizzle is
+   * what makes it read as *abrasive* rather than as static. Its share grows with
+   * intensity, so a light brush is dull and a hard crossing is harsh.
+   */
+  let clashSizzleLoop: Loop | null = null
   let cableLoop: Loop | null = null
   let windLoop: Loop | null = null
   let reelLoop: Loop | null = null
+  /** Low body of the spool: the drum turning, under the line hiss. */
+  let reelBodyLoop: Loop | null = null
   /** The reel loop's filter, retuned as the direction changes. */
   let reelFilter: BiquadFilterNode | null = null
 
@@ -345,21 +354,34 @@ export function createSfxEngine(initiallyMuted = false): SfxEngine {
 
     setClash(intensity: number): void {
       if (muted || intensity <= 0.001) {
-        if (clashLoop) rampLoop(clashLoop, ctx!, 0)
+        if (ctx) {
+          rampLoop(clashLoop, ctx, 0)
+          rampLoop(clashSizzleLoop, ctx, 0)
+        }
         return
       }
 
       const context = ensureContext()
       if (!context) return
 
+      const level = Math.min(1, intensity)
+
       // Dry mid-band rasp: two abrasive lines sawing across each other.
       clashLoop = ensureLoop(clashLoop, context, { type: 'bandpass', frequency: 2400, q: 1.4 })
-      rampLoop(clashLoop, context, Math.min(1, intensity) * 0.34)
+      rampLoop(clashLoop, context, level * 0.42)
+
+      // Bright grit on top, weighted so it only really arrives on a hard crossing.
+      clashSizzleLoop = ensureLoop(
+        clashSizzleLoop,
+        context,
+        { type: 'highpass', frequency: 4200, q: 0.7 },
+      )
+      rampLoop(clashSizzleLoop, context, level * level * 0.26)
     },
 
     setCable(intensity: number): void {
       if (muted || intensity <= 0.001) {
-        if (cableLoop) rampLoop(cableLoop, ctx!, 0)
+        if (ctx) rampLoop(cableLoop, ctx, 0)
         return
       }
 
@@ -375,8 +397,13 @@ export function createSfxEngine(initiallyMuted = false): SfxEngine {
     setReel(rate: number): void {
       const speed = Math.abs(rate)
 
-      if (muted || speed < 0.4) {
-        if (reelLoop && ctx) rampLoop(reelLoop, ctx, 0)
+      // Gate low enough that easing the spool is audible, high enough that numerical
+      // dither on a held-neutral line does not whisper.
+      if (muted || speed < 0.2) {
+        if (ctx) {
+          rampLoop(reelLoop, ctx, 0)
+          rampLoop(reelBodyLoop, ctx, 0)
+        }
         return
       }
 
@@ -392,6 +419,14 @@ export function createSfxEngine(initiallyMuted = false): SfxEngine {
         },
       )
 
+      // The spool itself: a low, dull turn under the line hiss. Without it the reel
+      // was a thin band of noise that disappeared under the wind bed.
+      reelBodyLoop = ensureLoop(
+        reelBodyLoop,
+        context,
+        { type: 'lowpass', frequency: 300, q: 0.9 },
+      )
+
       if (reelFilter) {
         // Hauling under load is brighter and tighter; a free-running spool is
         // lower and broader. Ramped, so a direction change does not click.
@@ -399,13 +434,22 @@ export function createSfxEngine(initiallyMuted = false): SfxEngine {
         reelFilter.frequency.setTargetAtTime(target, context.currentTime, 0.08)
       }
 
-      // Level tracks how fast line is moving, capped at the base reel speed.
-      rampLoop(reelLoop, context, Math.min(1, speed / 9) * 0.15)
+      /**
+       * Level tracks how fast line is moving. Measured reel rates run 6.8–9 m/s at
+       * full input, so the old `speed / 9 × 0.15` peaked at an absolute gain of about
+       * 0.048 through the mixer — present on a spectrogram, inaudible over the wind
+       * bed. Paying out is given slightly more than hauling: a free-running spool is
+       * genuinely the louder of the two.
+       */
+      const level = Math.min(1, speed / 7)
+      const payingOut = rate < 0
+      rampLoop(reelLoop, context, level * (payingOut ? 0.34 : 0.28))
+      rampLoop(reelBodyLoop, context, level * (payingOut ? 0.24 : 0.16))
     },
 
     setWind(level: number): void {
       if (muted || level <= 0.001) {
-        if (windLoop && ctx) rampLoop(windLoop, ctx, 0)
+        if (ctx) rampLoop(windLoop, ctx, 0)
         return
       }
 
@@ -427,21 +471,27 @@ export function createSfxEngine(initiallyMuted = false): SfxEngine {
     stopAll(): void {
       if (!ctx) return
       rampLoop(clashLoop, ctx, 0)
+      rampLoop(clashSizzleLoop, ctx, 0)
       rampLoop(cableLoop, ctx, 0)
       rampLoop(windLoop, ctx, 0)
       rampLoop(reelLoop, ctx, 0)
+      rampLoop(reelBodyLoop, ctx, 0)
     },
 
     dispose(): void {
       disposed = true
       stopLoop(clashLoop)
+      stopLoop(clashSizzleLoop)
       stopLoop(cableLoop)
       stopLoop(windLoop)
       stopLoop(reelLoop)
+      stopLoop(reelBodyLoop)
       clashLoop = null
+      clashSizzleLoop = null
       cableLoop = null
       windLoop = null
       reelLoop = null
+      reelBodyLoop = null
       reelFilter = null
       void ctx?.close()
       ctx = null

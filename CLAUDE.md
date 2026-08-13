@@ -142,7 +142,22 @@ noise buffer — the project ships no audio assets. Two rules:
   not repeated one-shots, or they machine-gun. Events are edge-triggered in
   `useMatch`'s `updateAudio`, which is the single place a cue may fire.
 - No information may be conveyed by sound alone — every cue has a visible
-  counterpart. This is stated on `/compliance`.
+  counterpart. This is stated on `/compliance`. Note that the clash glow, the
+  friction scrapes and the particles are all behind `reducedEffects`, so the
+  counterpart that actually carries the load there is the `game.hud.clashing`
+  readout — do not remove it.
+- **Contact intensity is a presentation figure, not a force.** `clashIntensity`
+  in `physics/combat.ts` feeds the mixer and the renderer, and it is compressed
+  with square roots *and* given a floor, because raw `pressure × slip` spans about
+  twenty-sevenfold across the ladder. Uncompressed, tier 1 measured a mean of
+  0.027 against tier 4's 0.509 — an absolute gain near 0.003, which is why the
+  first fight in the game sounded silent. Damage does **not** go through it;
+  `applyAbrasion` reads pressure and slip directly, so changing the presentation
+  cannot change a result. `tests/combat.spec.ts` pins the range.
+- **Calibrate loudness against measured levels.** Both times a sound was reported
+  missing it was present in the graph and simply too quiet: the reel peaked at an
+  absolute gain of 0.048 and vanished under the wind bed. Measure the values the
+  mixer actually receives before retuning anything.
 
 ### Flight model — four traps
 

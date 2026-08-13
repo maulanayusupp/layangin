@@ -36,12 +36,45 @@ import type { ClashPoint, FighterState } from '../types'
 const CLASH_MERGE_DISTANCE_SQ = 4
 
 /**
- * Divisor turning `pressure × bite × slip` into the 0..1 intensity the renderer
- * and the sound engine use. Calibrated so an ordinary exchange sits around half
- * volume: the old value was scaled for absolute newtons, which left the line-rasp
- * sound at roughly a hundredth of audible.
+ * Divisor turning the compressed contact figure into the 0..1 intensity the
+ * renderer and the sound engine use. See `clashIntensity`.
  */
-const CLASH_INTENSITY_SCALE = 1.2
+const CLASH_INTENSITY_SCALE = 0.95
+
+/**
+ * Floor for a contact that is actually happening.
+ *
+ * Sliding line makes a noise the moment it slides, and it throws visible dust.
+ * Whether the flyers happen to be holding 2% or 15% of breaking tension changes
+ * *how loud*, not *whether*. Without a floor the presentation inherited the raw
+ * force spread and the first fight in the game was effectively silent — measured
+ * mean intensity 0.027 at tier 1 against 0.509 at tier 4, which is an absolute
+ * gain of about 0.003 once the mixer has had its say.
+ *
+ * This is a presentation decision and deliberately not a physical claim. Damage
+ * still comes from `applyAbrasion`, which reads pressure and slip directly.
+ */
+const CLASH_PRESENCE_FLOOR = 0.28
+
+/** Below this sliding speed there is no contact sound at all, in m/s. */
+const SILENT_SLIP = 0.05
+
+/**
+ * 0..1 figure the renderer and the mixer use for one crossing.
+ *
+ * Compressed with square roots for the same reason `applyAbrasion` is: the raw
+ * product `pressure × slip` spans about twenty-seven times across the ladder,
+ * because tension goes as the square of wind speed and the boss fights are windy.
+ * Linear response therefore meant tier 1 was inaudible and invisible while tier 4
+ * saturated. Measured after compression the mean sits between 0.41 and 0.70 at
+ * every tier — see TODO.md.
+ */
+export function clashIntensity(pressure: number, slip: number, bite: number): number {
+  if (slip < SILENT_SLIP) return 0
+
+  const compressed = (Math.sqrt(pressure) * Math.sqrt(slip) * bite) / CLASH_INTENSITY_SCALE
+  return clamp01(CLASH_PRESENCE_FLOOR + (1 - CLASH_PRESENCE_FLOOR) * compressed)
+}
 
 /**
  * How hard the two lines press together, as a 0..1-ish figure.
@@ -158,7 +191,7 @@ export function detectPairClashes(
         position: hit.point,
         angle,
         slip,
-        intensity: clamp01((pressure * bite * slip) / CLASH_INTENSITY_SCALE),
+        intensity: clashIntensity(pressure, slip, bite),
         kind: 'line',
         a: player.index,
         b: rival.index,

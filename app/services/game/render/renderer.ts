@@ -236,6 +236,65 @@ export function createArenaRenderer({
     ctx.globalAlpha = 1
   }
 
+  /**
+   * Friction at a crossing — the visible half of the rasp.
+   *
+   * Draws a short bright scrape *along each of the two lines* through the contact
+   * point, plus a hot core. The glow alone reads as a lamp hanging in the sky; what
+   * says "these two lines are sawing" is seeing the light lie along their direction
+   * and pulse as the contact loads up.
+   *
+   * The line direction is taken as anchor→kite, which is the line's true bearing
+   * near the crossing (the catenary sag only matters at the ends).
+   */
+  const drawFriction = (snapshot: MatchSnapshot): void => {
+    for (const clash of snapshot.clashes) {
+      if (clash.intensity <= 0.02) continue
+
+      const x = camera.x(clash.position.x)
+      const y = camera.y(clash.position.y)
+
+      // Scrape length grows with intensity, floored so a light contact still shows.
+      const reach = Math.max(5, camera.m(1.1 + clash.intensity * 2.4))
+      // A cable is steel and glows cold; a duel throws warm sparks.
+      const tint = clash.kind === 'obstacle' ? '214, 240, 255' : '255, 236, 190'
+
+      ctx.lineCap = 'round'
+
+      for (const index of [clash.a, clash.b]) {
+        // A cable is fighter -1: it has no bearing of its own, so it is skipped and
+        // only the victim's line is scraped.
+        const fighter = snapshot.fighters[index]
+        if (!fighter) continue
+
+        const dx = fighter.position.x - fighter.anchor.x
+        const dy = fighter.position.y - fighter.anchor.y
+        const length = Math.hypot(dx, dy) || 1
+        // Canvas y grows downward, so the world's +y becomes -y on screen.
+        const ux = dx / length
+        const uy = -dy / length
+
+        // Wide soft pass, then a tight bright core: cheaper than a blur and reads
+        // as heat at any zoom.
+        ctx.strokeStyle = `rgba(${tint}, ${(0.14 + clash.intensity * 0.3).toFixed(2)})`
+        ctx.lineWidth = Math.max(2, camera.m(0.5) * (1 + clash.intensity))
+        ctx.beginPath()
+        ctx.moveTo(x - ux * reach, y - uy * reach)
+        ctx.lineTo(x + ux * reach, y + uy * reach)
+        ctx.stroke()
+
+        ctx.strokeStyle = `rgba(255, 255, 255, ${(0.2 + clash.intensity * 0.45).toFixed(2)})`
+        ctx.lineWidth = Math.max(1, camera.m(0.16))
+        ctx.beginPath()
+        ctx.moveTo(x - ux * reach * 0.55, y - uy * reach * 0.55)
+        ctx.lineTo(x + ux * reach * 0.55, y + uy * reach * 0.55)
+        ctx.stroke()
+      }
+
+      ctx.lineCap = 'butt'
+    }
+  }
+
   const drawClashGlow = (snapshot: MatchSnapshot): void => {
     for (const clash of snapshot.clashes) {
       const x = camera.x(clash.position.x)
@@ -288,9 +347,11 @@ export function createArenaRenderer({
 
       if (!reducedEffects) {
         drawClashGlow(snapshot)
+        drawFriction(snapshot)
 
         for (const clash of snapshot.clashes) {
           particles.emitSparks(clash.position, clash.intensity, dt)
+          particles.emitDust(clash.position, clash.intensity, dt)
         }
 
         for (const fighter of snapshot.fighters) {

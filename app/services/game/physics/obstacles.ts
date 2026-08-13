@@ -1,4 +1,5 @@
 import { clamp01 } from '../math/scalar'
+import { clashIntensity } from './combat'
 import { breakingTension } from './fighter'
 import * as V from '../math/vector'
 import type { ArenaDefinition, ArenaObstacle, ClashPoint, FighterState } from '../types'
@@ -216,7 +217,10 @@ export function applyCableWear(
       position: contact.point,
       angle: contact.angle,
       slip,
-      intensity: clamp01(slip * bite * 0.12),
+      // Same compression as a line-on-line crossing, so the steel zing does not
+      // pin at full volume the moment a hauling player brushes a cable — measured
+      // at 0.86–0.99 mean before, which masked the duel's own rasp entirely.
+      intensity: clashIntensity(Math.min(1, pressure), slip, bite),
       kind: 'obstacle',
       // The cable is A and does all the cutting; nothing flows back the other way.
       a: -1,

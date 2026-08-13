@@ -62,6 +62,23 @@ What is left, in order:
       zing, cut, crash, collision, yank, round and match cues from oscillators and
       noise — no audio files. Still missing, and worth adding: a wind bed that
       tracks wind speed, and the sawangan's hum when that airframe is equipped.
+- [x] **Friction, audible and visible.** Reported missing twice, and both times the
+      cause was calibration rather than a missing feature. Measured contact intensity
+      before the fix: mean 0.027 at tier 1, 0.509 at tier 4, 0.285 at tier 8 — the
+      raw `pressure × slip` product spans 27× across the ladder, so the first fight
+      was inaudible while the mid ladder saturated. After the sqrt compression and
+      presence floor: 0.386 / 0.658 / 0.524. The rasp is now two bands (body plus a
+      sizzle weighted by intensity²), the reel has a low spool body under the line
+      hiss and roughly twice the level, and a crossing draws scrape streaks along
+      both lines plus glass dust. Duel pace measured identical to the second
+      afterwards, which is the check that it stayed presentation-only.
+- [ ] The cable zing still runs louder than the duel rasp when a hauling player is
+      dragging a line across steel (measured mean 0.90 at tier 8 against 0.52 for
+      line-on-line). Arguably correct — steel should alarm — but worth a listen.
+- [ ] A player who holds haul for a whole match never makes contact at all in the
+      neighbourhood arena (measured: zero line clashes across tiers 1, 4 and 8).
+      Hauling shortens the line and keeps the kite on your own side of the field.
+      Probably a real tactical hole rather than a bug, but it deserves a look.
 - [ ] Haptics on mobile for a clash and a cut.
 - [ ] Replays. The engine already supports it — record the command stream and the
       seed, then feed it back through a `ReplayInputSource`. Also the cheapest

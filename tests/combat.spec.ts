@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   applyAbrasion,
+  clashIntensity,
   detectClashes,
   detectPairClashes,
   exchangeAdvantage,
@@ -208,5 +209,48 @@ describe('exchange advantage', () => {
     player.stats = { ...player.stats, cutPower: player.stats.cutPower * 2 }
 
     expect(exchangeAdvantage(player, rival)).toBeGreaterThan(0.5)
+  })
+})
+
+/**
+ * Contact intensity drives the rasp sound and the friction visuals, and it used to
+ * inherit the raw force spread across the ladder: measured mean 0.027 at tier 1
+ * against 0.509 at tier 4, which made the first fight in the game silent and
+ * effectively invisible. These pin the compression that fixed it.
+ */
+describe('clash intensity', () => {
+  /** Measured means at tiers 1, 4 and 8 for a passive player, open field. */
+  const TIER_1 = { pressure: 0.023, slip: 2.885, bite: 0.674 }
+  const TIER_4 = { pressure: 0.121, slip: 14.681, bite: 0.412 }
+  const TIER_8 = { pressure: 0.067, slip: 13.821, bite: 0.395 }
+
+  const measure = (m: typeof TIER_1): number => clashIntensity(m.pressure, m.slip, m.bite)
+
+  it('is audible at every tier, not just the windy ones', () => {
+    for (const tier of [TIER_1, TIER_4, TIER_8]) {
+      expect(measure(tier)).toBeGreaterThan(0.3)
+    }
+  })
+
+  it('keeps the ladder inside a usable range rather than spanning twentyfold', () => {
+    const values = [measure(TIER_1), measure(TIER_4), measure(TIER_8)]
+    const spread = Math.max(...values) / Math.min(...values)
+
+    // Raw `pressure × slip` spans about 27×; compressed it must stay well under 3×.
+    expect(spread).toBeLessThan(3)
+  })
+
+  it('still ranks a harder crossing above a lighter one', () => {
+    expect(clashIntensity(0.3, 12, 1)).toBeGreaterThan(clashIntensity(0.05, 4, 1))
+    expect(clashIntensity(0.2, 10, 1)).toBeGreaterThan(clashIntensity(0.2, 10, 0.2))
+  })
+
+  it('is silent when the lines are not sliding', () => {
+    // Two lines resting on each other in dead air make no sound and shed no dust.
+    expect(clashIntensity(0.5, 0, 1)).toBe(0)
+  })
+
+  it('never exceeds one, however hard the crossing', () => {
+    expect(clashIntensity(1, 60, 1)).toBeLessThanOrEqual(1)
   })
 })

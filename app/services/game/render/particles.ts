@@ -42,6 +42,15 @@ export interface ParticleSystem {
   ): void
   /** Burst of sparks where two lines saw against each other. */
   emitSparks(position: Vec2, intensity: number, dt: number): void
+  /**
+   * Glass dust shed from the contact point.
+   *
+   * Separate from sparks on purpose: a spark is a hot fragment that flies off and
+   * falls, dust is powdered glass off the *gelasan* coating that hangs in the air
+   * and drifts downwind. Having both is what makes a crossing read as grinding
+   * rather than as a light show.
+   */
+  emitDust(position: Vec2, intensity: number, dt: number): void
   update(dt: number, windX: number): void
   clear(): void
 }
@@ -62,7 +71,7 @@ export function createParticleSystem(random: RandomSource): ParticleSystem {
   let cursor = 0
   // Fractional emission carried between frames, per emitter, so a 14/second
   // effect still emits at 14/second when the frame rate is 60.
-  const carry = { player: 0, rival: 0, sparks: 0 }
+  const carry = { player: 0, rival: 0, sparks: 0, dust: 0 }
 
   const spawn = (): Particle => {
     // Round-robin: the oldest slot is overwritten when the pool is saturated.
@@ -119,6 +128,32 @@ export function createParticleSystem(random: RandomSource): ParticleSystem {
       }
     },
 
+    emitDust(position, intensity, dt): void {
+      if (intensity <= 0.02) return
+
+      carry.dust += intensity * 34 * dt
+      const count = Math.floor(carry.dust)
+      carry.dust -= count
+
+      for (let i = 0; i < count; i += 1) {
+        const particle = spawn()
+        const angle = random.range(0, Math.PI * 2)
+        // Much slower than a spark: this is powder falling out of a contact, not
+        // metal being thrown from it.
+        const speed = random.range(0.2, 1.6)
+        particle.x = position.x
+        particle.y = position.y
+        particle.vx = Math.cos(angle) * speed
+        particle.vy = Math.sin(angle) * speed
+        particle.life = random.range(0.5, 1.3)
+        particle.maxLife = particle.life
+        particle.size = random.range(0.4, 1.1)
+        particle.color = random.chance(0.5) ? '#e8edf5' : '#c9d4e4'
+        // Not a spark: the wind owns it and it lingers.
+        particle.spark = false
+      }
+    },
+
     update(dt: number, windX: number): void {
       for (const particle of particles) {
         if (particle.life <= 0) continue
@@ -144,6 +179,7 @@ export function createParticleSystem(random: RandomSource): ParticleSystem {
       carry.player = 0
       carry.rival = 0
       carry.sparks = 0
+      carry.dust = 0
     },
   }
 }
