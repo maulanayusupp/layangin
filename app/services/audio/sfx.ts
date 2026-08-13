@@ -309,7 +309,7 @@ export function createSfxEngine(initiallyMuted = false): SfxEngine {
 
       // Dry mid-band rasp: two abrasive lines sawing across each other.
       clashLoop = ensureLoop(clashLoop, context, { type: 'bandpass', frequency: 2400, q: 1.4 })
-      rampLoop(clashLoop, context, Math.min(1, intensity) * 0.22)
+      rampLoop(clashLoop, context, Math.min(1, intensity) * 0.34)
     },
 
     setCable(intensity: number): void {
@@ -324,7 +324,7 @@ export function createSfxEngine(initiallyMuted = false): SfxEngine {
       // Higher and more resonant than the rasp: this is steel, and it should
       // sound like a warning rather than like a fair fight.
       cableLoop = ensureLoop(cableLoop, context, { type: 'bandpass', frequency: 5200, q: 9 })
-      rampLoop(cableLoop, context, Math.min(1, intensity) * 0.2)
+      rampLoop(cableLoop, context, Math.min(1, intensity) * 0.3)
     },
 
     setMuted(next: boolean): void {

@@ -24,7 +24,11 @@ const player = usePlayerStore()
 const canvas = ref<HTMLCanvasElement | null>(null)
 const stage = ref<HTMLElement | null>(null)
 
-const match = useMatch({ canvas, container: stage })
+/** The HUD's bottom row, whose height the camera reserves. */
+const hud = ref<{ footer: HTMLElement | null } | null>(null)
+const hudFooter = computed(() => hud.value?.footer ?? null)
+
+const match = useMatch({ canvas, container: stage, hudFooter })
 
 const inputEnabled = computed(() => match.running.value && !match.paused.value)
 const { flags } = useMatchControls(match.controls, inputEnabled)
@@ -105,6 +109,7 @@ function quit(): void {
       />
 
       <GameHud
+        ref="hud"
         :hud="match.hud.value"
         :opponent="opponent"
       />

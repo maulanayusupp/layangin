@@ -1,7 +1,6 @@
 import { LINE_MASS_DENSITY, LINE_SEGMENTS } from '../constants'
 import * as V from '../math/vector'
 import type { Vec2 } from '../math/vector'
-import { clamp } from '../math/scalar'
 
 /**
  * The flying line.
@@ -17,7 +16,8 @@ import { clamp } from '../math/scalar'
  *
  * - **Constraint**: the kite may never sit further from the anchor than the
  *   deployed length. Excess distance is projected away and the outward part of
- *   the velocity is cancelled; the impulse that took is reported as tension.
+ *   the velocity is cancelled. The reported tension is the physical steady-state
+ *   load, not the impulse that cancellation took — see `applyLineConstraint`.
  *
  * Both matter for combat: the sampled polyline is what the clash detector
  * intersects, so a slack, sagging line presents a different target than a taut
@@ -96,7 +96,6 @@ export function applyLineConstraint(
   deployedLength: number,
   mass: number,
   externalForce: Vec2,
-  dt: number,
 ): TensionResult {
   const offset = V.subtract(position, anchor)
   const distance = V.length(offset)
@@ -121,12 +120,9 @@ export function applyLineConstraint(
 
   // Cancel the outward component of velocity; the impulse is the tension.
   const radialSpeed = V.dot(velocity, direction)
-  let impulseTension = 0
-
   if (radialSpeed > 0) {
     velocity.x -= direction.x * radialSpeed
     velocity.y -= direction.y * radialSpeed
-    impulseTension = (mass * radialSpeed) / Math.max(dt, 1e-6)
   }
 
   // Steady-state tension: the outward part of the applied force plus the
@@ -135,10 +131,24 @@ export function applyLineConstraint(
   const tangentialSpeed = Math.abs(V.cross(direction, velocity))
   const centripetal = (mass * tangentialSpeed * tangentialSpeed) / deployedLength
 
+  /**
+   * The reported tension is the physical one: the line's own weight, the part of
+   * the applied force pulling along it, and the centripetal term from the kite
+   * swinging on it.
+   *
+   * The constraint impulse is deliberately **excluded**. It measures how much
+   * radial velocity a single discrete step had to cancel, which is an artefact of
+   * the integrator rather than a force in the world — a 0.24 kg kite cannot pull
+   * hundreds of newtons when the air is only pushing it with thirty. Including it
+   * made peak tension read 600 N against a hard opponent, which in turn made the
+   * HUD load bar, the overload rule and the abrasion rate all meaningless.
+   *
+   * Nothing is lost by dropping it: a hard haul still raises tension through the
+   * physical path, because dragging the kite inward raises its apparent wind and
+   * therefore the aerodynamic force along the line.
+   */
   return {
-    // Cap the impulse contribution: a single stiff step must not spike the
-    // reading into the thousands and trigger a spurious overload break.
-    tension: lineWeight + forceAlongLine + centripetal + clamp(impulseTension, 0, 400),
+    tension: lineWeight + forceAlongLine + centripetal,
     taut: true,
   }
 }

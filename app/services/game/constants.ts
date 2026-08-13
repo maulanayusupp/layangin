@@ -100,11 +100,33 @@ export const CRASH_GRACE = 4
 /** Line segments used for sag sampling and clash detection. */
 export const LINE_SEGMENTS = 24
 
-/** Base breaking tension of the flying line, newtons. */
-export const LINE_BREAK_TENSION = 190
+/**
+ * Base breaking tension of the flying line, newtons.
+ *
+ * Real fighting line parts somewhere around 5–25 kgf, so this sits at the strong
+ * end of plausible. Calibrated against measured peaks: a first-tier fight in light
+ * air loads the line to roughly a third of this, and the final boss's windy
+ * afternoon takes it close to the limit — so overload risk grows with tier instead
+ * of being either unreachable or automatic.
+ */
+export const LINE_BREAK_TENSION = 150
 
-/** Abrasion coefficient: tuned so a clean duel lasts roughly 10–25 seconds. */
-export const ABRASION_COEFFICIENT = 0.0009
+/**
+ * How fast the reported tension follows the raw constraint value. This is the
+ * fraction of the gap remaining after one second, so it is frame-rate independent.
+ */
+export const TENSION_SMOOTHING = 0.0001
+
+/**
+ * Abrasion coefficient.
+ *
+ * Multiplies `√slip × √(relative contact pressure) × crossing bite` — see the
+ * note in `applyAbrasion` for why the response is compressed rather than linear.
+ *
+ * Calibrated from measured averages so a life takes roughly 12–20 seconds of
+ * contact at the easiest tier and stays in the same ballpark at the hardest.
+ */
+export const ABRASION_COEFFICIENT = 0.85
 
 /** Integrity lost per second per newton above the breaking tension. */
 export const OVERLOAD_COEFFICIENT = 0.0022
@@ -149,7 +171,15 @@ export const EXHAUSTED_EFFECTIVENESS = 0.35
 
 // --- Match -----------------------------------------------------------------
 
-export const DEFAULT_TIME_LIMIT = 180
+/**
+ * Match length cap, seconds.
+ *
+ * Measured duels now resolve in 30–120 s of real fighting, so this is the ceiling
+ * on a stalemate rather than the normal path to a result. A player who refuses
+ * contact by hauling hard can still run the clock down — the limit keeps that from
+ * being a three-minute wait.
+ */
+export const DEFAULT_TIME_LIMIT = 120
 export const COUNTDOWN_SECONDS = 3
 
 /**

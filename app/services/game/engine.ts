@@ -251,12 +251,22 @@ export function createMatchEngine({
       return
     }
 
+    // Contact from the previous step: this step's clashes are not known until the
+    // fighters have moved, and one step of latency is imperceptible.
+    const inContact = clashes.some(clash => clash.kind === 'line')
+
     const playerCommand = player.alive
-      ? playerInput.sample({ self: player, opponent: rival, wind: playerWind, elapsed: snapshot.elapsed, dt })
+      ? playerInput.sample({
+          self: player, opponent: rival, wind: playerWind,
+          contact: inContact, elapsed: snapshot.elapsed, dt,
+        })
       : NEUTRAL_COMMAND
 
     const rivalCommand = rival.alive
-      ? rivalSource.sample({ self: rival, opponent: player, wind: rivalWind, elapsed: snapshot.elapsed, dt })
+      ? rivalSource.sample({
+          self: rival, opponent: player, wind: rivalWind,
+          contact: inContact, elapsed: snapshot.elapsed, dt,
+        })
       : NEUTRAL_COMMAND
 
     stepFighter(player, playerCommand, playerWind, windDirection, dt)

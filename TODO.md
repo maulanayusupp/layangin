@@ -76,7 +76,43 @@ What is left, in order:
       readable; collision still uses the true size. A zoom control, or drawing at
       true scale with a picture-in-picture inset, would remove the discrepancy.
 
-## 5. Progression
+## 5. Ladder balance — measured, and not right yet
+
+Measured over 5 seeds per opponent on the open field, starter kite, no upgrades
+(win rate / match length / seconds of line contact):
+
+```
+                 fly steep & hold    haul constantly
+T1 bocah-sawah   2/5  116s  c=82s    4/5  120s  c=26s
+T2 anak-kampung  2/5  120s  c=54s    0/5  120s  c=12s
+T3 juara-lorong  0/5  120s  c=24s    0/5  120s  c= 1s
+T4 bos-pasar     0/5  120s  c=43s    0/5  120s  c= 1s
+T6 sultan-angin  0/5  120s  c=22s    0/5  120s  c= 1s
+T8 naga-senja    0/5   20s  c= 7s    0/5  120s  c= 3s
+```
+
+Two problems the numbers show:
+
+- [ ] **Contact collapses when the player hauls** — 1 s against most tiers, against
+      24–83 s for a player who holds steep. Hauling flattens your own line, and the
+      AI mirrors your line length, so both end up at a similar elevation and the
+      lines run parallel. The AI's `contestSpan` multipliers (0.95 / 1.15) are too
+      close to 1 to force a difference. Needs the AI to target an *elevation*
+      difference directly rather than a line-length ratio.
+- [ ] **Almost every match ends on the time limit**, and a timeout is decided by
+      line condition — which the better-geared fighter always wins. So gear decides
+      more than play does above tier 2. Either contact has to become reliable
+      (above) or the timeout tiebreak needs to stop favouring gear.
+- [ ] Nothing above tier 2 is winnable with the starter kite. Maxed gear beats
+      tier 5 (5/5) but still loses 6–8, so the upgrade curve is not carrying enough.
+- [ ] Once the above is fixed, add a balance test that asserts the ladder is
+      *ordered* — win rate should fall monotonically with tier.
+
+Verified working: nobody sinks unprompted, the AI never flies into the ground, and
+crossings do happen (50–90%) for a player who is not hauling. The remaining problem
+is specifically that the player's own best-looking action destroys the engagement.
+
+## 6. Progression
 
 - [ ] Daily or weekly challenges ("win without yanking", "win on the cabled
       field"). Must stay offline-only and never time-limited in a way that
@@ -86,7 +122,7 @@ What is left, in order:
 - [ ] Export/import save as a JSON string, so progress can move between devices
       without a server. Would need a note on `/legal/privacy`.
 
-## 6. Platform
+## 7. Platform
 
 - [ ] **Offline support.** Currently the page must load from the network; the FAQ
       says so. A service worker would make it genuinely playable offline, which
@@ -97,7 +133,7 @@ What is left, in order:
 - [ ] Nuxt Image for the OG card if more raster assets ever appear. Not needed
       today: every visual except the icons is drawn in code.
 
-## 7. Technical debt and upgrades
+## 8. Technical debt and upgrades
 
 - [ ] **Nuxt 4.5+.** Requires Node ≥ 22.19; `.nvmrc` currently pins 22.14.0
       because that is what was installed. Bump both together.
@@ -113,7 +149,7 @@ What is left, in order:
 - [ ] The kite picker renders one canvas per cell. Twenty per page is fine; if the
       page size grows, draw the grid into a single canvas instead.
 
-## 8. Content
+## 9. Content
 
 - [ ] Have the Indonesian copy read by a fluent kite flyer. The terminology is
       researched but not reviewed, and `/about` invites corrections.

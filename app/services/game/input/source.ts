@@ -17,6 +17,12 @@ export interface InputContext {
   /** The other fighter, as visible on screen. AI gets nothing extra. */
   opponent: FighterState
   wind: WindSample
+  /**
+   * True while the two flying lines are crossed. A fighter on the field can see
+   * and feel this plainly, so the AI is given it too — withholding it would be a
+   * handicap of the wrong kind.
+   */
+  contact: boolean
   /** Seconds since the flying phase began. */
   elapsed: number
   /** Fixed simulation step, seconds. */

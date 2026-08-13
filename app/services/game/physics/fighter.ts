@@ -1,4 +1,5 @@
 import {
+  AIR_DENSITY,
   BASE_TRIM_ANGLE,
   CRASH_ALTITUDE,
   EXHAUSTED_EFFECTIVENESS,
@@ -18,6 +19,7 @@ import {
   STAMINA_RECOVERY_RATE,
   STARTING_HP,
   START_LINE_LENGTH,
+  TENSION_SMOOTHING,
   WALK_BOUND,
   WALK_SPEED,
 } from '../constants'
@@ -250,9 +252,30 @@ export function stepFighter(
     state.lineLength,
     state.stats.mass,
     force,
-    dt,
   )
-  state.tension = constraint.tension
+  /**
+   * The pull the fighter is adding by hauling.
+   *
+   * Dragging the kite in at `r` metres per second pushes it through the air at
+   * that speed, and the sail resists with `½ρAC_d r²`. That force is carried by
+   * the line, so it is felt as extra tension — which is why hauling in is how you
+   * win a tension exchange.
+   *
+   * Without this term the model had hauling *reduce* tension, because a shorter
+   * line means a lower kite and weaker wind. That inverted the game's central
+   * skill: a player who did nothing always held the tauter line and beat every
+   * opponent, since the AI has to reel to reach a crossing at all.
+   */
+  const haulDrag = haul > 0
+    ? 0.5 * AIR_DENSITY * state.stats.area
+    * (state.stats.dragCoefficient + state.stats.tailDrag)
+    * state.reelRate * state.reelRate
+    : 0
+
+  // Smoothed, because tension is read by the HUD, the overload rule and the
+  // abrasion model. A single stiff step should not spike any of the three; what
+  // they all want is the load the line is actually carrying.
+  state.tension = damp(state.tension, constraint.tension + haulDrag, TENSION_SMOOTHING, dt)
 
   sampleLine(state.anchor, state.position, state.lineLength, windDirection, state.linePoints)
 

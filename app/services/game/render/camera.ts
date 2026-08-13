@@ -19,7 +19,12 @@ export interface Camera {
   centerY: number
   readonly width: number
   readonly height: number
-  resize(width: number, height: number, devicePixelRatio: number): void
+  /**
+   * `insetBottom` reserves pixels at the foot of the canvas for the HUD, so the
+   * ground line and the two fighters standing on it are drawn above the overlay
+   * instead of underneath it.
+   */
+  resize(width: number, height: number, devicePixelRatio: number, insetBottom?: number): void
   follow(snapshot: MatchSnapshot, dt: number): void
   x(worldX: number): number
   y(worldY: number): number
@@ -39,6 +44,7 @@ export function createCamera(): Camera {
   let width = 1
   let height = 1
   let dpr = 1
+  let insetBottom = 0
 
   const camera: Camera = {
     scale: 4,
@@ -53,10 +59,17 @@ export function createCamera(): Camera {
       return height
     },
 
-    resize(nextWidth: number, nextHeight: number, devicePixelRatio: number): void {
+    resize(
+      nextWidth: number,
+      nextHeight: number,
+      devicePixelRatio: number,
+      nextInsetBottom = 0,
+    ): void {
       width = Math.max(1, nextWidth)
       height = Math.max(1, nextHeight)
       dpr = devicePixelRatio
+      // Never reserve so much that there is no sky left to fly in.
+      insetBottom = Math.max(0, Math.min(nextInsetBottom, height * 0.4))
     },
 
     follow(snapshot: MatchSnapshot, dt: number): void {
@@ -70,8 +83,11 @@ export function createCamera(): Camera {
       const spanX = maxX - minX + PADDING * 2
       const spanY = maxY + PADDING
 
+      // The world has to fit in the canvas *minus* the band reserved for the HUD.
+      const usableHeight = Math.max(1, height - insetBottom)
+
       const targetScale = clamp(
-        Math.min(width / spanX, height / spanY),
+        Math.min(width / spanX, usableHeight / spanY),
         MIN_SCALE,
         MAX_SCALE,
       )
@@ -80,7 +96,19 @@ export function createCamera(): Camera {
       // second — fast enough to keep up, slow enough not to feel jittery.
       camera.scale = damp(camera.scale, targetScale, 0.0002, dt)
       camera.centerX = damp(camera.centerX, (minX + maxX) / 2, 0.0002, dt)
-      camera.centerY = damp(camera.centerY, spanY / 2 - PADDING * 0.25, 0.0002, dt)
+
+      /**
+       * Place the ground line just above the reserved band.
+       *
+       * `y(0)` must land at `height − insetBottom`. Since
+       * `y(w) = height/2 − (w − centerY)·scale`, that gives
+       * `centerY = (height/2 − insetBottom) / scale`.
+       *
+       * Set directly rather than damped: the target already moves smoothly because
+       * the scale it depends on is damped, and damping it twice made the horizon lag
+       * behind the kites during a fast zoom.
+       */
+      camera.centerY = (height / 2 - insetBottom) / camera.scale
     },
 
     x(worldX: number): number {

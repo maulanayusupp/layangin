@@ -1,6 +1,7 @@
 import { ABRASION_COEFFICIENT, SNAP_FORCE_MULTIPLIER } from '../constants'
 import { clamp01 } from '../math/scalar'
 import * as V from '../math/vector'
+import { breakingTension } from './fighter'
 import type { ClashPoint, FighterState } from '../types'
 
 /**
@@ -29,6 +30,38 @@ import type { ClashPoint, FighterState } from '../types'
 
 /** Squared distance beyond which two crossings are treated as the same contact. */
 const CLASH_MERGE_DISTANCE_SQ = 4
+
+/**
+ * Divisor turning `pressure × bite × slip` into the 0..1 intensity the renderer
+ * and the sound engine use. Calibrated so an ordinary exchange sits around half
+ * volume: the old value was scaled for absolute newtons, which left the line-rasp
+ * sound at roughly a hundredth of audible.
+ */
+const CLASH_INTENSITY_SCALE = 1.2
+
+/**
+ * How hard the two lines press together, as a 0..1-ish figure.
+ *
+ * Deliberately expressed as each line's load **relative to its own breaking
+ * tension**, not in newtons. Absolute tension scales with the square of wind
+ * speed and with sail area, so it runs about eleven times higher in the final
+ * boss's windy afternoon than in the first fight. Calibrating abrasion against
+ * newtons therefore made a first-tier duel take longer than the three-minute time
+ * limit while a top-tier one was decided in seconds.
+ *
+ * Using relative load keeps a duel the same length at every tier, and keeps the
+ * thing that decides it the same too: whoever holds the tauter line for their
+ * gear. Physically it is also the better measure — what frays a line is the force
+ * it carries compared to what it can take.
+ */
+export function contactPressure(player: FighterState, rival: FighterState): number {
+  const playerLoad = player.tension / breakingTension(player.stats)
+  const rivalLoad = rival.tension / breakingTension(rival.stats)
+
+  // Harmonic-style mean: two taut lines press hard, one slack line does not.
+  const total = playerLoad + rivalLoad
+  return total < 1e-6 ? 0 : (2 * playerLoad * rivalLoad) / total
+}
 
 export interface AbrasionResult {
   /** Integrity removed from the player this step. */
@@ -71,8 +104,7 @@ export function detectClashes(
   const totalTension = player.tension + rival.tension
   const playerShare = totalTension < 1e-3 ? 0.5 : clamp01(player.tension / totalTension)
 
-  // Hertzian-style contact: two taut lines press hard, one slack line does not.
-  const pressure = (2 * player.tension * rival.tension) / (totalTension + 1)
+  const pressure = contactPressure(player, rival)
 
   for (let i = 0; i < a.length - 1; i += 1) {
     const a1 = a[i] as V.Vec2
@@ -116,7 +148,7 @@ export function detectClashes(
         angle,
         slip,
         playerShare,
-        intensity: clamp01((pressure * bite * slip) / 4000),
+        intensity: clamp01((pressure * bite * slip) / CLASH_INTENSITY_SCALE),
         kind: 'line',
       })
     }
@@ -143,15 +175,32 @@ export function applyAbrasion(
     return { playerDamage: 0, rivalDamage: 0, engaged: false }
   }
 
-  const totalTension = player.tension + rival.tension
-  const pressure = (2 * player.tension * rival.tension) / (totalTension + 1)
+  const pressure = contactPressure(player, rival)
 
   let playerDamage = 0
   let rivalDamage = 0
 
   for (const clash of duelClashes) {
     const bite = Math.abs(Math.sin(clash.angle))
-    const base = ABRASION_COEFFICIENT * clash.slip * pressure * bite * dt
+
+    /**
+     * Compressed response to pressure and slip.
+     *
+     * Abrasion is linear in contact force and sliding distance in principle, and
+     * the model keeps that ordering — more tension and more slip always cut faster.
+     * But the *inputs* span an order of magnitude across the ladder, because
+     * tension goes as the square of wind speed and the boss fights are windy: the
+     * measured damage rate ran 0.005/s in the first fight against 0.045/s in the
+     * last. Linear response meant a first-tier duel could not finish inside the
+     * three-minute limit while a top-tier one was over in seconds.
+     *
+     * Taking the square root of each is a deliberate gameplay compression, not a
+     * physical claim. It keeps a duel roughly comparable in length at every tier
+     * while leaving the skill that decides it untouched — `playerShare` below is
+     * still the tension ratio, so holding the tauter line still wins the exchange.
+     */
+    const base
+      = ABRASION_COEFFICIENT * Math.sqrt(clash.slip) * Math.sqrt(pressure) * bite * dt
 
     rivalDamage += (base * player.stats.cutPower * clash.playerShare) / rival.stats.lineStrength
     playerDamage

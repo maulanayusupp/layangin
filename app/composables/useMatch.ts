@@ -101,9 +101,14 @@ export interface UseMatchOptions {
   canvas: Ref<HTMLCanvasElement | null>
   /** Element whose size the canvas should track. Defaults to the canvas parent. */
   container?: Ref<HTMLElement | null>
+  /**
+   * The HUD's bottom row. Its height is reserved at the foot of the canvas so the
+   * ground line and the fighters standing on it are never drawn underneath it.
+   */
+  hudFooter?: Ref<HTMLElement | null>
 }
 
-export function useMatch({ canvas, container }: UseMatchOptions) {
+export function useMatch({ canvas, container, hudFooter }: UseMatchOptions) {
   const player = usePlayerStore()
   const settings = useSettingsStore()
 
@@ -273,7 +278,12 @@ export function useMatch({ canvas, container }: UseMatchOptions) {
     const ctx = element.getContext('2d')
     // Draw in CSS pixels; the transform handles the device ratio.
     ctx?.setTransform(ratio, 0, 0, ratio, 0, 0)
-    renderer.resize(width, height, ratio)
+
+    // Measured rather than hardcoded: the HUD wraps differently at every width.
+    const footer = hudFooter?.value
+    const insetBottom = footer ? footer.getBoundingClientRect().height : 0
+
+    renderer.resize(width, height, ratio, insetBottom)
   }
 
   const tick = (timestamp: number): void => {

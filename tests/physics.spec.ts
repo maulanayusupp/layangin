@@ -107,7 +107,6 @@ describe('tether', () => {
       100,
       0.25,
       V.vec2(0, 0),
-      1 / 120,
     )
 
     expect(result.taut).toBe(false)
@@ -128,7 +127,6 @@ describe('tether', () => {
       40,
       0.25,
       V.vec2(0, 0),
-      1 / 120,
     )
 
     expect(result.taut).toBe(true)
@@ -144,7 +142,7 @@ describe('tether', () => {
     // Purely tangential motion: no radial component to remove.
     const velocity = V.vec2(0, 6)
 
-    applyLineConstraint(anchor, position, velocity, 40, 0.25, V.vec2(0, 0), 1 / 120)
+    applyLineConstraint(anchor, position, velocity, 40, 0.25, V.vec2(0, 0))
 
     expect(velocity.y).toBeCloseTo(6, 6)
   })

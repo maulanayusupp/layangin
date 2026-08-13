@@ -21,6 +21,10 @@ const props = defineProps<{
 
 const { t, locale } = useI18n()
 
+/** Exposed so the arena can hand it to the camera as a reserved band. */
+const footer = ref<HTMLElement | null>(null)
+defineExpose({ footer })
+
 /** Fraction of the load bar at which the line starts wearing itself out. */
 const OVERLOAD_MARK = 1
 const advantageLabel = computed(() => {
@@ -88,7 +92,15 @@ const advantageLabel = computed(() => {
       </div>
     </div>
 
-    <div class="hud__row hud__row--bottom">
+    <!--
+      The bottom row's height is measured by `useMatch` and reserved at the foot of
+      the canvas, so the ground line and the fighters standing on it are never
+      drawn behind these panels.
+    -->
+    <div
+      ref="footer"
+      class="hud__row hud__row--bottom"
+    >
       <div class="hud__gauges">
         <UiMeter
           :value="hud.playerLoad"

@@ -39,6 +39,20 @@ const RETREAT_OFFSET = 20
  */
 const RECOVERY_ALTITUDE = 16
 
+/**
+ * How long the AI commits to a chosen side before reconsidering, seconds.
+ *
+ * The side decision compares its own line's elevation against the opponent's —
+ * but acting on that decision *changes* its own elevation, so re-deciding every
+ * reaction interval made the AI oscillate between sides and never settle into a
+ * geometry where the lines actually cross. The sharper the fighter, the tighter
+ * the oscillation: contact time collapsed to a second or two at the top tiers.
+ *
+ * Committing for several seconds is both the fix and the more human behaviour —
+ * a flyer picks a side and works it.
+ */
+const SIDE_COMMITMENT = 5.5
+
 interface AiPlan {
   /** Line length the AI is trying to settle at, metres. */
   targetLineLength: number
@@ -78,6 +92,8 @@ export function createAiInput({ profile, random, clearance }: AiOptions): InputS
     blundering: false,
   }
   let timeUntilRethink = 0
+  /** Seconds left on the current side commitment. */
+  let sideCommitment = 0
 
   /** Noise scaled by how imprecise this fighter is. */
   const jitter = (magnitude: number): number =>
@@ -121,9 +137,18 @@ export function createAiInput({ profile, random, clearance }: AiOptions): InputS
     const opponentElevation = elevationOf(opponent)
     const selfElevation = elevationOf(self)
 
-    // Play to the hand we have: if we are already the flatter line, take the
-    // upwind side; if we are the steeper one, take the downwind side.
-    const flyShallower = selfElevation <= opponentElevation
+    /**
+     * Play to the hand we have: if we are already the flatter line, take the
+     * upwind side; if we are the steeper one, take the downwind side.
+     *
+     * Held for `SIDE_COMMITMENT` once chosen — see the note there. Retreating
+     * always re-decides, because the point of retreating is to change the plan.
+     */
+    const flyShallower = sideCommitment > 0 && !shouldRetreat
+      ? plan.flyShallower
+      : selfElevation <= opponentElevation
+
+    if (sideCommitment <= 0 || shouldRetreat) sideCommitment = SIDE_COMMITMENT
     const attackAnchor = opponent.anchor.x + (flyShallower ? -CONTEST_OFFSET : CONTEST_OFFSET)
 
     // Shallower wants a longer line and active reeling; steeper wants to be left
@@ -184,6 +209,7 @@ export function createAiInput({ profile, random, clearance }: AiOptions): InputS
 
     sample(context: InputContext): FighterCommand {
       timeUntilRethink -= context.dt
+      sideCommitment -= context.dt
 
       if (timeUntilRethink <= 0) {
         plan = decide(context)
@@ -203,6 +229,19 @@ export function createAiInput({ profile, random, clearance }: AiOptions): InputS
        */
       if (plan.engaging && plan.flyShallower) {
         reel = Math.min(reel, -lerp(0.15, 0.5, profile.aggression))
+      }
+
+      /**
+       * Once the lines are touching, geometry no longer matters — tension does.
+       *
+       * Hauling is what wins an exchange, because the taut line is the blade. So
+       * on contact the AI abandons its positioning plan and pulls, exactly as a
+       * flyer does the moment they feel the other line. Without this the AI spent
+       * every exchange as the slacker line and could not win a single one: a player
+       * who did nothing at all beat every opponent.
+       */
+      if (context.contact) {
+        reel = Math.max(reel, lerp(0.2, 0.65, profile.aggression))
       }
 
       // Out of breath: ease off rather than hauling ineffectively.

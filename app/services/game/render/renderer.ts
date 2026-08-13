@@ -25,8 +25,12 @@ import { createParticleSystem, particleAlpha, type ParticleSystem } from './part
  */
 export interface ArenaRenderer {
   readonly camera: Camera
-  /** Match the backing store to the element's CSS size and the device DPR. */
-  resize(cssWidth: number, cssHeight: number, devicePixelRatio: number): void
+  /**
+   * Match the backing store to the element's CSS size and the device DPR.
+   * `insetBottom` is the height of the HUD band at the foot of the canvas, so the
+   * ground is drawn above it rather than behind it.
+   */
+  resize(cssWidth: number, cssHeight: number, devicePixelRatio: number, insetBottom?: number): void
   /** Draw one frame. `dt` is real seconds since the previous frame. */
   render(snapshot: MatchSnapshot, dt: number): void
   /** Reset transient visual state between matches. */
@@ -229,8 +233,13 @@ export function createArenaRenderer({
   return {
     camera,
 
-    resize(cssWidth: number, cssHeight: number, devicePixelRatio: number): void {
-      camera.resize(cssWidth, cssHeight, devicePixelRatio)
+    resize(
+      cssWidth: number,
+      cssHeight: number,
+      devicePixelRatio: number,
+      insetBottom = 0,
+    ): void {
+      camera.resize(cssWidth, cssHeight, devicePixelRatio, insetBottom)
     },
 
     render(snapshot: MatchSnapshot, dt: number): void {

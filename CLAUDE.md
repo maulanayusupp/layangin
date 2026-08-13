@@ -127,6 +127,28 @@ you change the flight model and that file goes red, read this section first.
 4. **Reeling costs elevation, in either direction.** Both hauling and paying out
    drag the kite off its equilibrium arc, so a fighter holding neutral flies the
    steepest line available. The AI's crossing tactics depend on this.
+5. **Tension must include the haul.** Dragging the kite in at `r` pushes it through
+   the air, and the sail resists with `½ρAC_d r²`, carried by the line. Without that
+   term hauling *lowered* tension (shorter line → lower kite → weaker wind), which
+   inverted the game's central skill: a player who did nothing held the tauter line
+   and beat every opponent.
+
+### Calibrate against measurements, not intuition
+
+Tension scales with wind speed squared, so it runs about eleven times higher in the
+last fight than the first. Anything calibrated in absolute newtons therefore works
+at one tier and not the others — this went wrong three times over:
+
+- abrasion was so slow a first-tier duel could not finish inside the time limit;
+- the line-rasp sound sat at roughly a hundredth of audible;
+- peak tension read 600 N for a 0.24 kg kite, because the constraint impulse (an
+  integrator artefact) was being counted as force.
+
+So `contactPressure` and cable wear both work in **load relative to breaking
+tension**, and the abrasion response is deliberately compressed with square roots.
+When touching any of it, measure first: instrument the engine headlessly, print
+averages over several seeds, and calibrate from the numbers. TODO.md records the
+current measured balance table.
 
 ### Why the two lines cross
 

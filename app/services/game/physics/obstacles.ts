@@ -1,4 +1,5 @@
 import { clamp01 } from '../math/scalar'
+import { breakingTension } from './fighter'
 import * as V from '../math/vector'
 import type { ArenaDefinition, ArenaObstacle, ClashPoint, FighterState } from '../types'
 
@@ -202,8 +203,10 @@ export function applyCableWear(
 
   for (const contact of contacts) {
     const bite = Math.abs(Math.sin(contact.angle))
-    // Tension presses the line into the cable; steel does not yield.
-    const pressure = Math.min(1, fighter.tension / 140)
+    // Tension presses the line into the cable; steel does not yield. Measured
+    // relative to what this line can take, for the same reason line-on-line
+    // abrasion is — absolute newtons vary elevenfold across the tiers.
+    const pressure = Math.min(1, fighter.tension / breakingTension(fighter.stats))
     const wear
       = (CABLE_ABRASION * slip * bite * (0.35 + pressure) * dt) / fighter.stats.lineStrength
 
