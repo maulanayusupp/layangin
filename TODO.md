@@ -78,39 +78,46 @@ What is left, in order:
 
 ## 5. Ladder balance — measured, and not right yet
 
-Measured over 5 seeds per opponent on the open field, starter kite, no upgrades
-(win rate / match length / seconds of line contact):
+Measured over 6 seeds per opponent on the open field, starter kite, no upgrades,
+after the pace recalibration (win rate / match length / seconds of line contact):
 
 ```
-                 fly steep & hold    haul constantly
-T1 bocah-sawah   2/5  116s  c=82s    4/5  120s  c=26s
-T2 anak-kampung  2/5  120s  c=54s    0/5  120s  c=12s
-T3 juara-lorong  0/5  120s  c=24s    0/5  120s  c= 1s
-T4 bos-pasar     0/5  120s  c=43s    0/5  120s  c= 1s
-T6 sultan-angin  0/5  120s  c=22s    0/5  120s  c= 1s
-T8 naga-senja    0/5   20s  c= 7s    0/5  120s  c= 3s
+                 fly steep & hold      haul on contact
+T1 bocah-sawah   0/6  22s  c= 6s       1/6  22s  c= 3s
+T2 anak-kampung  0/6  27s  c=11s       0/6  25s  c= 5s
+T3 juara-lorong  0/6  45s  c= 8s       2/6  45s  c= 5s   ← hits the cap
+T4 bos-pasar     0/6  14s  c= 4s       0/6  18s  c= 3s
+T5 si-gelasan    0/6  11s  c= 2s       0/6  10s  c= 1s
+T6 sultan-angin  0/6  39s  c= 7s       0/6  39s  c= 3s   ← hits the cap
+T7 raja-sawangan 0/6  11s  c= 2s       0/6   9s  c= 1s
+T8 naga-senja    0/6  10s  c= 1s       0/6   9s  c= 1s
 ```
 
-Two problems the numbers show:
+Pace is now where it should be: 9–27 s against 120 s (or never) before. What is
+left is win rate.
 
-- [ ] **Contact collapses when the player hauls** — 1 s against most tiers, against
-      24–83 s for a player who holds steep. Hauling flattens your own line, and the
-      AI mirrors your line length, so both end up at a similar elevation and the
-      lines run parallel. The AI's `contestSpan` multipliers (0.95 / 1.15) are too
-      close to 1 to force a difference. Needs the AI to target an *elevation*
-      difference directly rather than a line-length ratio.
-- [ ] **Almost every match ends on the time limit**, and a timeout is decided by
-      line condition — which the better-geared fighter always wins. So gear decides
-      more than play does above tier 2. Either contact has to become reliable
-      (above) or the timeout tiebreak needs to stop favouring gear.
-- [ ] Nothing above tier 2 is winnable with the starter kite. Maxed gear beats
-      tier 5 (5/5) but still loses 6–8, so the upgrade curve is not carrying enough.
-- [ ] Once the above is fixed, add a balance test that asserts the ladder is
-      *ordered* — win rate should fall monotonically with tier.
+- [ ] **The player loses almost everything in the harness.** Note the caveat: the
+      scripted players above never *walk*, and walking is how a human contests the
+      side and the crossing angle — the two things the AI actively uses. So these
+      numbers are a floor, not a verdict, and the first thing to do is watch a human
+      play before tuning further.
+- [ ] **Tiers 3 and 6 reach the time cap** because they hold contact down to a few
+      seconds. Both fly agile airframes (delta, elang) and reposition constantly.
+      The AI should be willing to *stay* in a losing-looking crossing rather than
+      always breaking off.
+- [ ] **Raising abrasion further will not help.** Swept 2.0 → 3.5 → 5.0: match
+      length barely moved below 3.5, because what remains is the time the two lines
+      spend finding each other, not the time they spend cutting. Shortening a duel
+      further means making contact more reliable, not damage faster.
+- [ ] Tried and rejected: launching the two fighters at different elevations so the
+      lines cross immediately. It made matches *longer* (22 s → 42 s at tier 1) and
+      the flat-launched fighter lost instantly at tier 8, because a flatter line sits
+      lower in weaker air. Symmetric launch is worth the manoeuvring seconds.
+- [ ] Once win rate is right, add a test asserting the ladder is *ordered* — win
+      rate should fall monotonically with tier.
 
 Verified working: nobody sinks unprompted, the AI never flies into the ground, and
-crossings do happen (50–90%) for a player who is not hauling. The remaining problem
-is specifically that the player's own best-looking action destroys the engagement.
+crossings do happen (50–90%) for a player who is not hauling.
 
 ## 6. Progression
 

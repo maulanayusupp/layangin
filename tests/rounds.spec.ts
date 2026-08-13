@@ -6,6 +6,7 @@ import { emptyUpgradeLevels } from '~/data/upgrades'
 import {
   CRASH_GRACE,
   DEFAULT_TIME_LIMIT,
+  FALL_TIMEOUT,
   FIXED_TIMESTEP,
   ROUND_BREAK,
   STARTING_HP,
@@ -145,11 +146,12 @@ describe('lives', () => {
     const engine = makeEngine('sawah', 6)
     engine.skipCountdown()
 
+    // Burn every life but the last; each should open a round break, not a result.
     for (let life = STARTING_HP; life > 1; life -= 1) {
       engine.snapshot.player.lineIntegrity = 0
       engine.advance(FIXED_TIMESTEP)
       expect(engine.snapshot.phase).toBe('roundOver')
-      run(engine, 3)
+      run(engine, ROUND_BREAK + 0.2)
     }
 
     expect(engine.snapshot.player.hp).toBe(1)
@@ -157,6 +159,10 @@ describe('lives', () => {
 
     engine.snapshot.player.lineIntegrity = 0
     engine.advance(FIXED_TIMESTEP)
+
+    // The last life goes into `falling` first, so the kite can be seen coming down.
+    expect(engine.snapshot.phase).toBe('falling')
+    run(engine, FALL_TIMEOUT + 1)
 
     expect(engine.snapshot.phase).toBe('resolved')
     expect(engine.snapshot.outcome).toEqual({ kind: 'cut', winner: 'rival' })
@@ -188,7 +194,9 @@ describe('lives', () => {
     engine.advance(FIXED_TIMESTEP)
     const elapsedAtBreak = engine.snapshot.elapsed
 
-    run(engine, 2)
+    // Stop short of the break expiring, or the next round starts and the clock
+    // legitimately runs again.
+    run(engine, ROUND_BREAK - 0.2)
     expect(engine.snapshot.elapsed).toBeCloseTo(elapsedAtBreak, 5)
   })
 
@@ -228,5 +236,84 @@ describe('AI obstacle awareness', () => {
     }
 
     expect(violations / steps).toBeLessThan(0.2)
+  })
+})
+
+describe('the falling phase', () => {
+  /**
+   * The result is held back until the cut kite is on the ground. Watching it come
+   * down is the payoff for winning, and a modal thrown over it steals that moment.
+   */
+  it('does not resolve the instant the last life goes', () => {
+    const engine = makeEngine('sawah', 11)
+    engine.skipCountdown()
+    run(engine, 6)
+
+    engine.snapshot.rival.hp = 1
+    engine.snapshot.rival.lineIntegrity = 0
+    engine.advance(FIXED_TIMESTEP)
+
+    expect(engine.snapshot.phase).toBe('falling')
+    expect(engine.snapshot.outcome.kind).toBe('pending')
+    expect(engine.snapshot.rival.alive).toBe(false)
+  })
+
+  it('keeps the cut kite moving downward while it falls', () => {
+    const engine = makeEngine('sawah', 12)
+    engine.skipCountdown()
+    run(engine, 6)
+
+    engine.snapshot.rival.hp = 1
+    engine.snapshot.rival.lineIntegrity = 0
+    engine.advance(FIXED_TIMESTEP)
+
+    const startAltitude = engine.snapshot.rival.position.y
+    run(engine, 1.5)
+
+    expect(engine.snapshot.rival.position.y).toBeLessThan(startAltitude)
+  })
+
+  it('resolves once the kite reaches the ground', () => {
+    const engine = makeEngine('sawah', 13)
+    engine.skipCountdown()
+    run(engine, 6)
+
+    engine.snapshot.rival.hp = 1
+    engine.snapshot.rival.lineIntegrity = 0
+    engine.advance(FIXED_TIMESTEP)
+    expect(engine.snapshot.phase).toBe('falling')
+
+    // Long enough for any fall, and past the safety timeout either way.
+    run(engine, FALL_TIMEOUT + 1)
+
+    expect(engine.snapshot.phase).toBe('resolved')
+    expect(engine.snapshot.outcome).toEqual({ kind: 'cut', winner: 'player' })
+  })
+
+  it('always resolves eventually, even if the wind carries the kite sideways', () => {
+    const engine = makeEngine('pantai', 14)
+    engine.skipCountdown()
+    run(engine, 6)
+
+    engine.snapshot.player.hp = 1
+    engine.snapshot.player.lineIntegrity = 0
+    engine.advance(FIXED_TIMESTEP)
+
+    // The timeout is the guarantee: no match may hang in `falling`.
+    run(engine, FALL_TIMEOUT + 1)
+    expect(engine.snapshot.phase).toBe('resolved')
+  })
+
+  it('does not use the falling phase for a round that is not the last', () => {
+    const engine = makeEngine('sawah', 15)
+    engine.skipCountdown()
+    run(engine, 6)
+
+    // Two lives, so losing one still leaves a round to play.
+    expect(engine.snapshot.player.hp).toBeGreaterThan(1)
+    engine.snapshot.player.lineIntegrity = 0
+    engine.advance(FIXED_TIMESTEP)
+
+    expect(engine.snapshot.phase).toBe('roundOver')
   })
 })

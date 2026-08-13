@@ -139,6 +139,9 @@ export function useMatch({ canvas, container, hudFooter }: UseMatchOptions) {
   let lastRoundLossCount = 0
   let lastSnapActive = false
   let announcedResult = false
+  let announcedFall = false
+  /** Carry for the sparse spark ticks laid over the rasp. */
+  let sparkCarry = 0
 
   const syncHud = (): void => {
     if (!engine) return
@@ -180,6 +183,9 @@ export function useMatch({ canvas, container, hudFooter }: UseMatchOptions) {
    * Continuous contacts (line rasp, cable zing) are levels; everything else is
    * an edge. Kept in one place so a new cue cannot end up firing twice.
    */
+  /** Seconds of the last rendered frame, for rate-based audio cues. */
+  let lastFrameSeconds = 0
+
   const updateAudio = (): void => {
     if (!engine || !sfx) return
     const snapshot = engine.snapshot
@@ -196,6 +202,34 @@ export function useMatch({ canvas, container, hudFooter }: UseMatchOptions) {
     const flying = snapshot.phase === 'flying'
     sfx.setClash(flying ? clashIntensity : 0)
     sfx.setCable(flying ? cableIntensity : 0)
+
+    /**
+     * Wind bed. Mapped from the reference speed across the range the arenas use
+     * (roughly 4–11 m/s), so a gusty afternoon is audibly windier than a calm one.
+     */
+    const windLevel = snapshot.phase === 'resolved'
+      ? 0
+      : clamp01((snapshot.windSpeed - 3) / 9)
+    sfx.setWind(windLevel)
+
+    // Sparse ticks over the rasp: a flat noise band alone reads as static, and
+    // glass-coated line grinding is granular. Rate follows contact intensity.
+    if (flying && clashIntensity > 0.05) {
+      sparkCarry += clashIntensity * 14 * lastFrameSeconds
+      while (sparkCarry >= 1) {
+        sparkCarry -= 1
+        sfx.play('spark', 0.5 + clashIntensity * 0.5)
+      }
+    }
+    else {
+      sparkCarry = 0
+    }
+
+    // The deciding kite is on its way down.
+    if (snapshot.phase === 'falling' && !announcedFall) {
+      announcedFall = true
+      sfx.play('fall')
+    }
 
     // The player's own yank.
     const snapping = self.snapActive > 0
@@ -220,6 +254,7 @@ export function useMatch({ canvas, container, hudFooter }: UseMatchOptions) {
     if (snapshot.round > lastRoundNumber) {
       lastRoundNumber = snapshot.round
       sfx.play('roundStart', 0.7)
+      sfx.play('launch', 0.6)
     }
 
     // The match is over.
@@ -301,6 +336,7 @@ export function useMatch({ canvas, container, hudFooter }: UseMatchOptions) {
     renderer.render(engine.snapshot, paused.value ? 0 : dt)
     syncHud()
 
+    lastFrameSeconds = Math.min(dt, 0.05)
     if (paused.value) sfx?.stopAll()
     else updateAudio()
 
@@ -330,6 +366,8 @@ export function useMatch({ canvas, container, hudFooter }: UseMatchOptions) {
     lastRoundLossCount = 0
     lastSnapActive = false
     announcedResult = false
+    announcedFall = false
+    sparkCarry = 0
 
     if (!sfx) sfx = createSfxEngine(!settings.sound)
     sfx.setMuted(!settings.sound)

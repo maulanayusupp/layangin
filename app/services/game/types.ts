@@ -483,11 +483,22 @@ export interface FighterState {
 }
 
 /**
- * `roundOver` is the pause after a life is lost, before the next launch. It is a
- * separate phase so the HUD can show what happened and the renderer can let the
- * cut kite tumble away without the simulation scoring anything further.
+ * Match phases.
+ *
+ * - `roundOver` — the pause after a life is lost, before the next launch. Separate
+ *   so the HUD can say what happened and the cut kite can tumble away without the
+ *   simulation scoring anything further.
+ * - `falling` — the last life has gone, but the result is **not shown yet**: the
+ *   cut kite is still coming down. Watching it fall is the payoff for winning (or
+ *   the sting of losing), and a modal appearing over it steals that moment.
  */
-export type MatchPhase = 'briefing' | 'countdown' | 'flying' | 'roundOver' | 'resolved'
+export type MatchPhase
+  = | 'briefing'
+    | 'countdown'
+    | 'flying'
+    | 'roundOver'
+    | 'falling'
+    | 'resolved'
 
 /** Why a round ended. Drives the round banner and the sound cue. */
 export type RoundEndReason = 'cut' | 'crash' | 'obstacle' | 'cable'

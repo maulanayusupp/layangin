@@ -1,6 +1,8 @@
 import {
   COUNTDOWN_SECONDS,
+  CRASH_ALTITUDE,
   CRASH_GRACE,
+  FALL_TIMEOUT,
   FIXED_TIMESTEP,
   MAX_FRAME_TIME,
   PLAYER_ANCHOR_X,
@@ -195,6 +197,9 @@ export function createMatchEngine({
   let playerSnapWasActive = false
   /** Seconds since the current round launched, for the crash grace period. */
   let roundAge = 0
+  /** Outcome held back while the deciding kite is still falling. */
+  let pendingOutcome: MatchOutcome | null = null
+  let fallTimer = 0
 
   const resolve = (outcome: MatchOutcome): void => {
     if (snapshot.phase === 'resolved') return
@@ -233,6 +238,29 @@ export function createMatchEngine({
       // Let the losing kite tumble away downwind so the result reads visually.
       if (!player.alive) driftCutKite(player, playerWind, dt)
       if (!rival.alive) driftCutKite(rival, rivalWind, dt)
+      return
+    }
+
+    if (snapshot.phase === 'falling') {
+      // Everything keeps moving: the cut kite tumbles down, the survivor flies on.
+      if (player.alive) stepFighter(player, NEUTRAL_COMMAND, playerWind, windDirection, dt)
+      else driftCutKite(player, playerWind, dt)
+
+      if (rival.alive) stepFighter(rival, NEUTRAL_COMMAND, rivalWind, windDirection, dt)
+      else driftCutKite(rival, rivalWind, dt)
+
+      fallTimer -= dt
+
+      // Resolve once every cut kite has reached the ground, or the wind has carried
+      // one sideways for long enough that waiting stops being interesting.
+      const grounded
+        = (player.alive || player.position.y <= CRASH_ALTITUDE)
+          && (rival.alive || rival.position.y <= CRASH_ALTITUDE)
+
+      if ((grounded || fallTimer <= 0) && pendingOutcome) {
+        resolve(pendingOutcome)
+        pendingOutcome = null
+      }
       return
     }
 
@@ -378,15 +406,18 @@ export function createMatchEngine({
           : player.hp <= 0 ? 'rival' : 'player'
 
       // A draw has no single cause, so it is reported as a timeout-style result.
-      resolve(
-        winner === 'draw'
+      pendingOutcome
+        = winner === 'draw'
           ? { kind: 'timeout', winner: 'draw' }
           : reason === 'crash'
             ? { kind: 'crash', winner }
             : reason === 'obstacle'
               ? { kind: 'obstacle', winner }
-              : { kind: 'cut', winner },
-      )
+              : { kind: 'cut', winner }
+
+      // Hold the result back until the kite is down — see the `falling` phase.
+      snapshot.phase = 'falling'
+      fallTimer = FALL_TIMEOUT
       return
     }
 

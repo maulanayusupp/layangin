@@ -62,6 +62,14 @@ function launchState(anchorX: number, minAltitude: number): Launch {
   /** Never launch past the lift reversal at 90° − trim, or the sail has no lift. */
   const steepest = Math.PI / 2 - BASE_TRIM_ANGLE - 0.05
 
+  /**
+   * Both sides launch at the same elevation.
+   *
+   * Spreading them apart so the lines cross immediately was tried and measured
+   * worse: the flatter kite sits lower in weaker air, so the fighter given the flat
+   * launch lost every opening exchange — against the last boss the match was over in
+   * a single second. A fair launch is worth the few seconds of manoeuvring.
+   */
   const elevation = minAltitude > 0
     ? Math.min(steepest, Math.max(LAUNCH_ELEVATION, Math.asin(Math.min(1, minAltitude / START_LINE_LENGTH))))
     : LAUNCH_ELEVATION

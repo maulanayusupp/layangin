@@ -137,13 +137,18 @@ function quit(): void {
       </Transition>
 
       <!--
-        Between rounds: name what just happened and show the lives left, so a
-        lost round reads as a setback rather than an unexplained reset.
+        Between rounds, and while the deciding kite is still falling: name what
+        happened and show the lives left, so a lost round reads as a setback rather
+        than an unexplained reset.
+
+        During `falling` the overlay is deliberately transparent — the whole point
+        of that phase is to watch the kite come down, so nothing may cover it.
       -->
       <Transition name="page">
         <div
-          v-if="resolvedPhase === 'roundOver' && roundBanner"
+          v-if="(resolvedPhase === 'roundOver' || resolvedPhase === 'falling') && roundBanner"
           class="arena__overlay"
+          :class="{ 'arena__overlay--clear': resolvedPhase === 'falling' }"
           role="status"
         >
           <p
@@ -160,7 +165,10 @@ function quit(): void {
             ·
             {{ t('game.hud.rivalLives') }} {{ match.hud.value.rivalHp }}
           </p>
-          <p class="arena__countdown-note">
+          <p
+            v-if="resolvedPhase === 'roundOver'"
+            class="arena__countdown-note"
+          >
             {{ t('game.round.next', { seconds: Math.ceil(match.hud.value.roundBreak) }) }}
           </p>
         </div>
@@ -318,6 +326,17 @@ function quit(): void {
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--c-text-mute);
+}
+
+/**
+ * The falling variant sits over the arena without obscuring it: no wash, no blur,
+ * and pinned to the top so the kite has the rest of the frame to fall through.
+ */
+.arena__overlay--clear {
+  place-content: start center;
+  padding-block-start: var(--sp-6);
+  background: none;
+  backdrop-filter: none;
 }
 
 .arena__round-verdict {

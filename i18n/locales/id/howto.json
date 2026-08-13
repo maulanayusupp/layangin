@@ -11,7 +11,7 @@
     },
     "goal": {
       "title": "Tujuannya",
-      "body": "Kedua layangan terbang searah angin dari penerbangnya, jadi kedua benang bersilangan di tengah lapangan. Di mana pun keduanya bersentuhan, masing-masing menggerus yang lain. Benang yang putus pertama kalah. Kalau dalam 90 detik tidak ada yang putus, benang yang kondisinya lebih baik yang menang."
+      "body": "Kedua layangan terbang searah angin dari penerbangnya, jadi kedua benang bersilangan di tengah lapangan. Di mana pun keduanya bersentuhan, masing-masing menggerus yang lain. Benang Anda putus berarti kehilangan satu dari dua nyawa dan ronde dimulai lagi; habis keduanya, duel berakhir. Kalau dalam 45 detik belum ada yang habis, yang nyawanya lebih banyak — atau benangnya lebih utuh, kalau sama — yang menang."
     },
     "controls": {
       "title": "Kontrol",
@@ -95,15 +95,42 @@
       "title": "Istilah yang dipakai di game",
       "lead": "Ini istilah yang dipakai penerbang layangan di Indonesia. Semuanya muncul di seluruh antarmuka.",
       "items": {
-        "layangan": { "term": "Layangan", "def": "Layang-layang." },
-        "sangkutan": { "term": "Sangkutan", "def": "Saat dua benang saling tersangkut — inti duelnya." },
-        "gelasan": { "term": "Gelasan", "def": "Benang pengikis, tradisionalnya dilapisi kaca yang dihaluskan dan direkat dengan lem." },
-        "narik": { "term": "Narik", "def": "Menarik benang masuk." },
-        "ngulur": { "term": "Ngulur", "def": "Mengulurkan benang keluar." },
-        "sentak": { "term": "Sentak", "def": "Tarikan mendadak yang keras pada benang." },
-        "putus": { "term": "Putus", "def": "Benangnya sudah terputus." },
-        "sawangan": { "term": "Sawangan", "def": "Layangan besar yang membawa busur berdengung di angin." },
-        "janggan": { "term": "Janggan", "def": "Layangan Bali berkepala mahkota dengan ekor yang sangat panjang." }
+        "layangan": {
+          "term": "Layangan",
+          "def": "Layang-layang."
+        },
+        "sangkutan": {
+          "term": "Sangkutan",
+          "def": "Saat dua benang saling tersangkut — inti duelnya."
+        },
+        "gelasan": {
+          "term": "Gelasan",
+          "def": "Benang pengikis, tradisionalnya dilapisi kaca yang dihaluskan dan direkat dengan lem."
+        },
+        "narik": {
+          "term": "Narik",
+          "def": "Menarik benang masuk."
+        },
+        "ngulur": {
+          "term": "Ngulur",
+          "def": "Mengulurkan benang keluar."
+        },
+        "sentak": {
+          "term": "Sentak",
+          "def": "Tarikan mendadak yang keras pada benang."
+        },
+        "putus": {
+          "term": "Putus",
+          "def": "Benangnya sudah terputus."
+        },
+        "sawangan": {
+          "term": "Sawangan",
+          "def": "Layangan besar yang membawa busur berdengung di angin."
+        },
+        "janggan": {
+          "term": "Janggan",
+          "def": "Layangan Bali berkepala mahkota dengan ekor yang sangat panjang."
+        }
       }
     },
     "safety": {

@@ -123,10 +123,12 @@ export const TENSION_SMOOTHING = 0.0001
  * Multiplies `√slip × √(relative contact pressure) × crossing bite` — see the
  * note in `applyAbrasion` for why the response is compressed rather than linear.
  *
- * Calibrated from measured averages so a life takes roughly 12–20 seconds of
- * contact at the easiest tier and stays in the same ballpark at the hardest.
+ * Calibrated by sweeping it against measured match length across all eight
+ * opponents: at this value a duel lands in 9–27 s, against 120 s (or never) before.
+ * Raising it further stops helping, because what is left is the time the two lines
+ * spend finding each other rather than the time they spend cutting.
  */
-export const ABRASION_COEFFICIENT = 0.85
+export const ABRASION_COEFFICIENT = 3.5
 
 /** Integrity lost per second per newton above the breaking tension. */
 export const OVERLOAD_COEFFICIENT = 0.0022
@@ -174,12 +176,11 @@ export const EXHAUSTED_EFFECTIVENESS = 0.35
 /**
  * Match length cap, seconds.
  *
- * Measured duels now resolve in 30–120 s of real fighting, so this is the ceiling
- * on a stalemate rather than the normal path to a result. A player who refuses
- * contact by hauling hard can still run the clock down — the limit keeps that from
- * being a three-minute wait.
+ * Measured duels resolve in 9–27 s, so this is the ceiling on a stalemate rather
+ * than the normal path to a result. Two opponents (tiers 3 and 6) still reach it
+ * regularly because they hold contact down to a few seconds — see TODO.md.
  */
-export const DEFAULT_TIME_LIMIT = 120
+export const DEFAULT_TIME_LIMIT = 45
 export const COUNTDOWN_SECONDS = 3
 
 /**
@@ -187,10 +188,23 @@ export const COUNTDOWN_SECONDS = 3
  *
  * A duel is not decided by one cut. Losing a line — to the opponent, to the
  * ground, or to a cable — costs one life and relaunches the round; the match is
- * over when someone runs out. Three makes a duel long enough to turn around
- * after a bad opening without dragging.
+ * over when someone runs out.
+ *
+ * Two, not three: measured match length is dominated by the time the two lines
+ * take to find each other, not by how fast they cut, so each extra life adds
+ * roughly ten seconds of manoeuvring. Two keeps a duel around twenty seconds while
+ * still meaning a single mistimed haul never ends it.
  */
-export const STARTING_HP = 3
+export const STARTING_HP = 2
 
 /** Seconds between a life being lost and the next round launching. */
-export const ROUND_BREAK = 2.2
+export const ROUND_BREAK = 1.4
+
+/**
+ * Longest the result screen waits for a cut kite to reach the ground, seconds.
+ *
+ * The match is already decided at this point; the delay exists so the player gets
+ * to watch the kite come down instead of having a modal thrown over it. Capped in
+ * case the wind carries the kite sideways for a long time rather than down.
+ */
+export const FALL_TIMEOUT = 4.5

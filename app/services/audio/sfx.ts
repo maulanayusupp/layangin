@@ -15,9 +15,11 @@
  * playable in silence.
  *
  * ## The two continuous sounds
- * `clash` (line-on-line rasp) and `cable` (steel zing) are *states*, not events:
- * they last as long as the contact does. They run as gated loops whose gain
- * tracks intensity, rather than as repeated one-shots, which would machine-gun.
+ * ## The continuous sounds
+ * `clash` (line-on-line rasp), `cable` (steel zing) and `wind` (the field itself)
+ * are *states*, not events: they last as long as the condition does. They run as
+ * gated loops whose gain tracks a level, rather than as repeated one-shots, which
+ * would machine-gun.
  */
 
 export type SfxName
@@ -32,6 +34,9 @@ export type SfxName
     | 'lose'
     | 'coin'
     | 'select'
+    | 'fall'
+    | 'spark'
+    | 'launch'
 
 export interface SfxEngine {
   /** Fire a one-shot. Silently ignored when muted or unavailable. */
@@ -43,6 +48,12 @@ export interface SfxEngine {
   setClash(intensity: number): void
   /** Set the intensity of the cable-contact zing, 0..1. 0 stops it. */
   setCable(intensity: number): void
+  /**
+   * Wind bed level, 0..1, from the current wind speed. A constant presence rather
+   * than an event: the arena sounds like an open field, and a gust is audible
+   * before it is visible in the HUD.
+   */
+  setWind(level: number): void
   /** Mute/unmute everything, including the loops. */
   setMuted(muted: boolean): void
   readonly muted: boolean
@@ -77,6 +88,7 @@ export function createSfxEngine(initiallyMuted = false): SfxEngine {
   }
   let clashLoop: Loop | null = null
   let cableLoop: Loop | null = null
+  let windLoop: Loop | null = null
 
   const ensureContext = (): AudioContext | null => {
     if (disposed) return null
@@ -295,6 +307,22 @@ export function createSfxEngine(initiallyMuted = false): SfxEngine {
         case 'select':
           tone(context, 'triangle', 880, 880, 0.05, 0.09 * level)
           break
+
+        case 'fall':
+          // A cut kite tumbling away: falling pitch, air rushing over the sail.
+          noiseBurst(context, 1.1, { type: 'bandpass', from: 1800, to: 180, q: 1.6 }, 0.3 * level)
+          tone(context, 'sine', 520, 90, 1.2, 0.12 * level)
+          break
+
+        case 'spark':
+          // A single glass-on-glass tick, fired sparingly during a clash so the
+          // rasp has texture instead of being a flat band of noise.
+          noiseBurst(context, 0.05, { type: 'bandpass', from: 6200, to: 3800, q: 6 }, 0.2 * level)
+          break
+
+        case 'launch':
+          noiseBurst(context, 0.4, { type: 'bandpass', from: 300, to: 1500, q: 1.2 }, 0.18 * level)
+          break
       }
     },
 
@@ -327,6 +355,20 @@ export function createSfxEngine(initiallyMuted = false): SfxEngine {
       rampLoop(cableLoop, context, Math.min(1, intensity) * 0.3)
     },
 
+    setWind(level: number): void {
+      if (muted || level <= 0.001) {
+        if (windLoop && ctx) rampLoop(windLoop, ctx, 0)
+        return
+      }
+
+      const context = ensureContext()
+      if (!context) return
+
+      // Low, wide band: moving air rather than a whistle.
+      windLoop = ensureLoop(windLoop, context, { type: 'lowpass', frequency: 620, q: 0.8 })
+      rampLoop(windLoop, context, Math.min(1, level) * 0.16)
+    },
+
     setMuted(next: boolean): void {
       muted = next
       if (master && ctx) {
@@ -338,14 +380,17 @@ export function createSfxEngine(initiallyMuted = false): SfxEngine {
       if (!ctx) return
       rampLoop(clashLoop, ctx, 0)
       rampLoop(cableLoop, ctx, 0)
+      rampLoop(windLoop, ctx, 0)
     },
 
     dispose(): void {
       disposed = true
       stopLoop(clashLoop)
       stopLoop(cableLoop)
+      stopLoop(windLoop)
       clashLoop = null
       cableLoop = null
+      windLoop = null
       void ctx?.close()
       ctx = null
       master = null

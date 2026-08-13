@@ -11,7 +11,7 @@
     },
     "goal": {
       "title": "The goal",
-      "body": "Both kites fly downwind of their flyer, so the two lines cross in the middle of the field. Wherever they touch, each line abrades the other. The first line to part loses. If nobody is cut inside 90 seconds, the line in better condition wins."
+      "body": "Both kites fly downwind of their flyer, so the two lines cross in the middle of the field. Wherever they touch, each line abrades the other. Losing your line costs one of your two lives and the round restarts; lose both and the match is over. If nobody has run out inside 45 seconds, whoever has more lives left — or the better line, if that is level — takes it."
     },
     "controls": {
       "title": "Controls",
@@ -95,15 +95,42 @@
       "title": "Words used in the game",
       "lead": "These are the terms Indonesian kite flyers use. They appear throughout the interface.",
       "items": {
-        "layangan": { "term": "Layangan", "def": "A kite." },
-        "sangkutan": { "term": "Sangkutan", "def": "The moment two lines catch on each other — the duel proper." },
-        "gelasan": { "term": "Gelasan", "def": "Abrasive line, traditionally coated with finely crushed glass bound in glue." },
-        "narik": { "term": "Narik", "def": "To haul the line in." },
-        "ngulur": { "term": "Ngulur", "def": "To pay the line out." },
-        "sentak": { "term": "Sentak", "def": "A sharp yank on the line." },
-        "putus": { "term": "Putus", "def": "Cut — the line has parted." },
-        "sawangan": { "term": "Sawangan", "def": "A large kite carrying a bow that hums in the wind." },
-        "janggan": { "term": "Janggan", "def": "A Balinese kite with a crowned head and an extremely long tail." }
+        "layangan": {
+          "term": "Layangan",
+          "def": "A kite."
+        },
+        "sangkutan": {
+          "term": "Sangkutan",
+          "def": "The moment two lines catch on each other — the duel proper."
+        },
+        "gelasan": {
+          "term": "Gelasan",
+          "def": "Abrasive line, traditionally coated with finely crushed glass bound in glue."
+        },
+        "narik": {
+          "term": "Narik",
+          "def": "To haul the line in."
+        },
+        "ngulur": {
+          "term": "Ngulur",
+          "def": "To pay the line out."
+        },
+        "sentak": {
+          "term": "Sentak",
+          "def": "A sharp yank on the line."
+        },
+        "putus": {
+          "term": "Putus",
+          "def": "Cut — the line has parted."
+        },
+        "sawangan": {
+          "term": "Sawangan",
+          "def": "A large kite carrying a bow that hums in the wind."
+        },
+        "janggan": {
+          "term": "Janggan",
+          "def": "A Balinese kite with a crowned head and an extremely long tail."
+        }
       }
     },
     "safety": {

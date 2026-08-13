@@ -83,6 +83,16 @@ round; the match resolves when someone reaches 0. Two reasons this matters:
 `endRound` and `startNextRound` in `engine.ts` own the transition. Nothing else
 may write `hp`.
 
+The **last** life is different: it goes to a `falling` phase rather than straight to
+`resolved`, so the player watches the kite come down before the result appears. The
+overlay during that phase is deliberately transparent, and `FALL_TIMEOUT` guarantees
+the match cannot hang there if the wind carries the kite sideways instead of down.
+
+Match length is dominated by how long the two lines take to *find* each other, not
+by how fast they cut — a sweep of the abrasion coefficient barely moved it past a
+point. If a duel needs to be shorter, make contact more reliable or remove a life;
+do not keep raising damage.
+
 ### The airframe generator
 
 Fifty hand-drawn silhouettes with fifty hand-typed stat blocks would drift apart,
