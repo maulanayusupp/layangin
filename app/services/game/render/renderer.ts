@@ -39,8 +39,17 @@ export interface ArenaRenderer {
  */
 const KITE_RENDER_SCALE = 4.5
 
-/** Floor on the drawn half-extent, so a kite stays readable when zoomed out. */
-const MIN_KITE_PIXELS = 13
+/**
+ * Floor on the pixels-per-metre used for kites only, so they stay readable when
+ * the camera zooms out on a small screen.
+ *
+ * Deliberately a floor on the *scale* rather than on the finished pixel size. A
+ * flat pixel floor made every small airframe come out the same size — a 0.95 m
+ * sail and a 1.6 m one both landed on the floor and drew at 26 px, erasing the
+ * difference the player is choosing between. Flooring the scale keeps every kite
+ * in proportion to every other.
+ */
+const MIN_KITE_PX_PER_METRE = 6
 
 export interface RendererOptions {
   ctx: CanvasRenderingContext2D
@@ -157,7 +166,8 @@ export function createArenaRenderer({
       // at true scale — accurate, and useless: you cannot tell which kite you are
       // flying, let alone read its livery. Collision and aerodynamics still use
       // the real `kite.size`; only the drawing is exaggerated.
-      size: Math.max(MIN_KITE_PIXELS, camera.m((kite.size / 2) * KITE_RENDER_SCALE)),
+      size:
+        Math.max(MIN_KITE_PX_PER_METRE, camera.scale) * (kite.size / 2) * KITE_RENDER_SCALE,
       angle,
       time,
       sway: clamp01(fighter.tension / 140),
