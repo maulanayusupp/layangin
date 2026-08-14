@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Layangin — an Indonesian kite-fighting game built with Nuxt.",
+  "description": "Layangin \u2014 an Indonesian kite-fighting game built with Nuxt.",
   "packageManager": "pnpm@9.15.0",
   "engines": {
     "node": "^22.12.0 || ^24.11.0 || >=26.0.0"
@@ -22,6 +22,7 @@
     "typecheck": "nuxt typecheck",
     "test": "vitest run",
     "test:watch": "vitest",
+    "replay": "vitest run --config vitest.tools.config.ts",
     "verify": "pnpm lint && pnpm lint:styles && pnpm lint:i18n && pnpm typecheck && pnpm test"
   },
   "dependencies": {

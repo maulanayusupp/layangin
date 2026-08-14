@@ -225,7 +225,30 @@ A match is a pure function of `(seed, arena, loadout, command stream)`:
   drains it in whole steps.
 
 This is what makes replays possible and what the planned lockstep netcode
-depends on (`input/network.ts`). `tests/engine.spec.ts` asserts it.
+depends on (`input/network.ts`). `tests/engine.spec.ts` asserts it, and
+`tests/replay.spec.ts` asserts it end to end: a recorded command stream replayed
+through a fresh engine must reproduce the same outcome, duration and final kite
+position. If anything starts reading the clock or `Math.random()` inside a step,
+that test is where it shows up.
+
+### Replays
+
+`services/game/replay.ts`. A replay stores **no state** — only the seed, the
+setup and a run-length command stream — because the simulation reconstructs
+everything else. Three rules:
+
+- **Commands are indexed by how many times the input source has been sampled**,
+  not by the engine's step counter. The engine only samples during `flying`, so
+  the two differ; a recorder and a player wrapped around the same seam align by
+  construction and neither needs to know how phases are scheduled.
+- **A playback pays nothing.** `useMatch` skips the reward path when replaying. A
+  replay is a shareable string, so granting its coins again would be a coin
+  printer anyone could pass around.
+- **A recording carries the result it produced.** Playback compares against it and
+  reports a mismatch, because a replay whose value is "the same match" must say so
+  loudly when the simulation has changed underneath it.
+
+To read one headlessly: `REPLAY='LYG1|…' pnpm replay`.
 
 ---
 
@@ -350,6 +373,7 @@ Alongside the code change, update whichever of these it touches:
 | Monetisation, randomised rewards, cosmetic↔gameplay boundary | `/compliance` money + fairness sections |
 | Anything a11y-relevant | `/compliance` accessibility section — move the item between "implemented" and "known gaps" honestly |
 | AI difficulty mechanism | `/compliance` fairness section |
+| The command stream, input seam or anything a replay stores | `tests/replay.spec.ts`, and bump `REPLAY_VERSION` — old strings must be refused, never misread |
 | A code rule | this file |
 | `brand/*.svg` | run `pnpm icons`, commit the output |
 | A new feature or a deferred idea | `TODO.md` |

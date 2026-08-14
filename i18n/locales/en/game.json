@@ -229,6 +229,25 @@
           "gear": "Line strength to the top, then stamina. You cannot out-cut it; you can outlast the exchanges long enough to win them."
         }
       }
+    },
+    "replay": {
+      "title": "This match, as a string",
+      "body": "Everything needed to run this exact duel again: the seed, the field, the loadout and every command you gave. Paste it back on the setup screen to watch it, or send it to someone who can look at what happened.",
+      "copy": "Copy replay",
+      "copied": "Copied",
+      "copyFailed": "Copy refused — select the text instead",
+      "watching": "Watching a replay",
+      "watchTitle": "Watch a replay",
+      "watchBody": "Paste a replay string here. It runs the recorded match exactly as it happened, against the opponents it was recorded with. Nothing is scored — a replay never pays coins.",
+      "placeholder": "LYG1|…",
+      "watchAction": "Watch it",
+      "error": {
+        "not-a-replay": "That is not a replay string.",
+        "wrong-version": "That replay is from a different version of the game and cannot be read.",
+        "malformed": "That replay string is incomplete or damaged.",
+        "unknown-opponent": "That replay features an opponent this version does not have."
+      },
+      "mismatch": "This replay did not come out the same way it was recorded. The simulation has changed since — what you just watched is no longer the match that was saved."
     }
   },
   "opponents": {

@@ -97,9 +97,12 @@ What is left, in order:
       beat eight shallow ones — but tiers 3, 5 and 6 are the other places players
       stall, so they may earn one.
 - [ ] Haptics on mobile for a clash and a cut.
-- [ ] Replays. The engine already supports it — record the command stream and the
-      seed, then feed it back through a `ReplayInputSource`. Also the cheapest
-      possible bug-report format.
+- [x] **Replays.** Every match records itself: seed, field, loadout, opponents and
+      the run-length command stream, encoded as a ~250-byte line the player can copy
+      off the result screen. Paste it back on the setup screen to watch it, or run
+      `REPLAY='…' pnpm replay` to replay it headlessly and print what happened second
+      by second. A playback never pays coins, and a recording carries the result it
+      originally produced so a divergence is reported rather than passing silently.
 - [ ] Practice mode: no opponent, adjustable wind, free flight.
 - [ ] Configurable lives (1 for a quick duel, 5 for a long one). `STARTING_HP` is
       a constant today.
@@ -116,6 +119,33 @@ What is left, in order:
 - [ ] Kites are drawn ~4.5× larger than life so the airframe and livery are
       readable; collision still uses the true size. A zoom control, or drawing at
       true scale with a picture-in-picture inset, would remove the discrepancy.
+
+### Cables in kampung and viaduk are permanent, not avoidable
+
+Found within minutes of the replay inspector existing, which is the argument for
+having built it. A player giving **no input at all** flies with their line on a
+cable **100% of the time** in two of the six arenas:
+
+```
+sawah     snagged=0%      pantai   snagged=0%
+kampung   snagged=100%    kota     snagged=0%
+monumen   snagged=0%      viaduk   snagged=100%
+```
+
+In a recorded tier-4 match on kampung the line went from full to cut in about six
+seconds, twice, with **zero** opponent contact in the entire duel — both lives
+went to the cable. Higher tiers are worse because cable wear scales with tension.
+
+This looks like a defect rather than the design. CLAUDE.md describes a cable as
+"the arena hazard players have to actively fly around", which means avoidable; a
+hazard that is on from the launch attitude and never lets go is a flat tax. It
+also breaks the `snagged` HUD warning, which is meaningless when it is permanently
+lit.
+
+- [ ] Decide the intent, then move the cable spans in `data/arenas.ts` so the
+      default flying arc clears them, or accept it and rewrite the arena's brief to
+      say the field is unflyable without deliberate avoidance. Do not just soften
+      `CABLE_ABRASION` — that hides the geometry problem instead of fixing it.
 
 ## 5. Ladder balance — measured, and not right yet
 

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { breakingTension } from '~/services/game/physics/fighter'
 import { resolveLoadout } from '~/services/game/loadout'
+import type { Replay } from '~/services/game/replay'
 import type { OpponentDefinition } from '~/services/game/types'
 
 /**
@@ -18,6 +19,11 @@ const props = defineProps<{
   opponents: OpponentDefinition[]
   /** Next rung on the ladder, if there is one. */
   hasNext: boolean
+  /**
+   * A recording to watch instead of a live match. The seed, field, loadout and
+   * commands all come from it, so the same duel runs again rather than a new one.
+   */
+  replay?: Replay | null
 }>()
 
 const emit = defineEmits<{ quit: [], next: [] }>()
@@ -76,13 +82,16 @@ function onTouchSnap(): void {
 }
 
 function begin(): void {
-  match.start(props.opponents)
+  match.start(props.opponents, props.replay ?? null)
 }
 
 onMounted(begin)
 
-// Switching opponents from the briefing restarts the match cleanly.
-watch(() => props.opponents.map(entry => entry.id).join(','), begin)
+// Switching opponents, or handing over a different recording, restarts cleanly.
+watch(
+  () => [props.opponents.map(entry => entry.id).join(','), props.replay?.seed ?? 0].join('|'),
+  begin,
+)
 
 function rematch(): void {
   begin()
@@ -120,6 +129,14 @@ function quit(): void {
         :hud="match.hud.value"
         :opponents="opponents"
       />
+
+      <!-- Unmistakable: this is a recording, and it is not being scored. -->
+      <p
+        v-if="match.isReplay.value"
+        class="arena__replay-badge"
+      >
+        {{ t('game.replay.watching') }}
+      </p>
 
       <Transition name="page">
         <div
@@ -260,6 +277,9 @@ function quit(): void {
       :has-next="hasNext"
       :breaking-tension="playerBreakingTension"
       :last-round="match.hud.value.lastRound"
+      :replay-text="match.replayText.value"
+      :is-replay="match.isReplay.value"
+      :replay-mismatch="match.replayMismatch.value"
       @rematch="rematch"
       @next="next"
       @quit="quit"
@@ -390,6 +410,25 @@ function quit(): void {
   flex-wrap: wrap;
   gap: var(--sp-2);
   justify-content: center;
+}
+
+/// Sits under the pause button, out of the way of the lives and the clock.
+.arena__replay-badge {
+  position: absolute;
+  inset-block-start: var(--sp-3);
+  inset-inline-start: 50%;
+  z-index: calc(var(--z-hud) + 1);
+  padding: rem(3) var(--sp-3);
+  font-family: var(--font-mono);
+  font-size: rem(9.5);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  translate: -50% 0;
+  color: var(--c-gold);
+  border: 1px solid color-mix(in srgb, var(--c-gold) 45%, transparent);
+  border-radius: var(--r-pill);
+  background: color-mix(in srgb, var(--c-ink-900) 78%, transparent);
 }
 
 .arena__pause {

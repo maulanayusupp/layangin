@@ -229,6 +229,25 @@
           "gear": "Kekuatan benang sampai maksimal, lalu tenaga. Anda tidak bisa mengunggulinya soal memotong; Anda bisa bertahan cukup lama untuk memenangkan pertukarannya."
         }
       }
+    },
+    "replay": {
+      "title": "Duel ini, dalam bentuk teks",
+      "body": "Semua yang dibutuhkan untuk menjalankan duel ini persis lagi: seed, lapangan, perlengkapan, dan setiap perintah yang Anda berikan. Tempel kembali di layar persiapan untuk menontonnya, atau kirim ke orang yang bisa memeriksa apa yang terjadi.",
+      "copy": "Salin replay",
+      "copied": "Tersalin",
+      "copyFailed": "Penyalinan ditolak — silakan sorot teksnya",
+      "watching": "Sedang menonton replay",
+      "watchTitle": "Tonton replay",
+      "watchBody": "Tempel teks replay di sini. Duel yang terekam akan dijalankan persis seperti kejadiannya, melawan lawan yang sama saat direkam. Tidak ada yang dihitung — replay tidak pernah memberi koin.",
+      "placeholder": "LYG1|…",
+      "watchAction": "Tonton",
+      "error": {
+        "not-a-replay": "Itu bukan teks replay.",
+        "wrong-version": "Replay itu dari versi game yang berbeda dan tidak bisa dibaca.",
+        "malformed": "Teks replay itu tidak lengkap atau rusak.",
+        "unknown-opponent": "Replay itu memuat lawan yang tidak ada di versi ini."
+      },
+      "mismatch": "Replay ini tidak berjalan sama seperti saat direkam. Simulasinya sudah berubah sejak itu — yang baru saja Anda tonton bukan lagi duel yang tersimpan."
     }
   },
   "opponents": {

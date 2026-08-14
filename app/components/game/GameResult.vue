@@ -35,9 +35,17 @@ const props = defineProps<{
   breakingTension?: number
   /** How the deciding round ended, so the cause can be named precisely. */
   lastRound?: RoundResult | null
+  /** The finished match, encoded. Null while one is still running. */
+  replayText?: string | null
+  /** True when this result came from watching a recording. */
+  isReplay?: boolean
+  /** True when a playback did not reproduce the result it recorded. */
+  replayMismatch?: boolean
 }>()
 
 const emit = defineEmits<{ rematch: [], next: [], quit: [] }>()
+
+const clipboard = useCopyToClipboard()
 
 const { t, locale } = useI18n()
 
@@ -188,6 +196,62 @@ const advice = computed(() => {
       </UiHint>
 
       <!--
+        A playback that came out differently from the recording. Rare, and always
+        worth saying out loud: it means the simulation has changed since the match
+        was recorded, so the replay is no longer the same duel.
+      -->
+      <p
+        v-if="replayMismatch"
+        class="result__mismatch"
+        role="alert"
+      >
+        {{ t('game.replay.mismatch') }}
+      </p>
+
+      <!--
+        The match itself, as a string.
+
+        Collapsed, because most players will never want it — but it is the whole
+        reason replays exist: a duel that felt unfair can be handed over intact
+        instead of described. The text stays selectable so a refused clipboard
+        permission is an inconvenience rather than a dead end.
+      -->
+      <details
+        v-if="replayText"
+        class="result__replay"
+      >
+        <summary class="result__replay-summary">
+          {{ t('game.replay.title') }}
+        </summary>
+
+        <p class="result__replay-body">
+          {{ t('game.replay.body') }}
+        </p>
+
+        <textarea
+          class="result__replay-text"
+          rows="3"
+          readonly
+          :aria-label="t('game.replay.title')"
+          :value="replayText"
+        />
+
+        <UiButton
+          size="sm"
+          variant="secondary"
+          @click="clipboard.copy(replayText)"
+        >
+          {{
+            clipboard.copied.value
+              ? t('game.replay.copied')
+              : clipboard.failed.value
+                ? t('game.replay.copyFailed')
+                : t('game.replay.copy')
+          }}
+        </UiButton>
+      </details>
+
+      <!--
         The tactical brief, repeated where it is most wanted: right after losing to
         a boss. Collapsed by default with `<details>`, so a player who already knows
         it is not made to read it again before hitting rematch.
@@ -247,6 +311,54 @@ const advice = computed(() => {
 </template>
 
 <style scoped lang="scss">
+.result__mismatch {
+  padding: var(--sp-3);
+  font-size: var(--fs-xs);
+  color: var(--c-warn);
+  border: 1px solid color-mix(in srgb, var(--c-warn) 45%, transparent);
+  border-radius: var(--r-md);
+}
+
+.result__replay {
+  padding: var(--sp-3) var(--sp-4);
+  border: 1px solid var(--c-hairline);
+  border-radius: var(--r-md);
+}
+
+.result__replay-summary {
+  font-family: var(--font-mono);
+  font-size: rem(10);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  color: var(--c-text-mute);
+
+  @include focus-visible(2px);
+}
+
+.result__replay-body {
+  margin-block: var(--sp-2);
+  font-size: var(--fs-xs);
+  color: var(--c-text-soft);
+}
+
+/// Monospace and wrapping, because this is data a person may need to eyeball.
+.result__replay-text {
+  width: 100%;
+  margin-block-end: var(--sp-2);
+  padding: var(--sp-2);
+  font-family: var(--font-mono);
+  font-size: rem(10);
+  word-break: break-all;
+  color: var(--c-text-soft);
+  border: 1px solid var(--c-hairline);
+  border-radius: var(--r-sm);
+  background: var(--c-ink-900);
+  resize: vertical;
+
+  @include focus-visible(2px);
+}
+
 .result__tactics {
   padding: var(--sp-3) var(--sp-4);
   border: 1px solid color-mix(in srgb, var(--c-gold) 40%, transparent);

@@ -4,6 +4,7 @@ import { getKite } from '~/data/kites'
 import { availableLineupSizes, lineupFor, type LineupSize } from '~/services/game/lineup'
 import { arenaHazards } from '~/data/arenas'
 import { describeWind } from '~/services/game/physics/wind'
+import { decodeReplay, ReplayFormatError, type Replay } from '~/services/game/replay'
 import type { OpponentDefinition } from '~/services/game/types'
 
 /**
@@ -24,7 +25,11 @@ import type { OpponentDefinition } from '~/services/game/types'
  * the old problem: being moved somewhere you did not ask to go is disorienting even
  * when the destination is right.
  */
-const emit = defineEmits<{ fly: [opponents: OpponentDefinition[]] }>()
+const emit = defineEmits<{
+  fly: [opponents: OpponentDefinition[]]
+  /** Watch a recording instead of playing. */
+  watch: [replay: Replay, opponents: OpponentDefinition[]]
+}>()
 
 const { t, locale } = useI18n()
 const localePath = useLocalePath()
@@ -87,6 +92,44 @@ const bossTips = [1, 2, 3] as const
 
 function fly(): void {
   emit('fly', lineup.value)
+}
+
+// --- Watching a recording -------------------------------------------------
+
+const pasted = ref('')
+/** Which `ReplayFormatError` reason to show, if the paste was refused. */
+const replayError = ref<string | null>(null)
+
+/**
+ * Load a pasted replay.
+ *
+ * The opponents come out of the recording rather than the current selection —
+ * a replay is a specific match, and quietly running it against whoever happens to
+ * be selected would produce a different duel wearing the recording's name.
+ */
+function watchReplay(): void {
+  replayError.value = null
+
+  let replay: Replay
+  try {
+    replay = decodeReplay(pasted.value)
+  }
+  catch (error) {
+    replayError.value = error instanceof ReplayFormatError ? error.message : 'malformed'
+    return
+  }
+
+  const cast = replay.opponentIds
+    .map(id => OPPONENTS.find(entry => entry.id === id))
+    .filter((entry): entry is OpponentDefinition => entry !== undefined)
+
+  // An opponent the build no longer knows about means the recording predates it.
+  if (cast.length !== replay.opponentIds.length) {
+    replayError.value = 'unknown-opponent'
+    return
+  }
+
+  emit('watch', replay, cast)
 }
 </script>
 
@@ -301,6 +344,46 @@ function fly(): void {
         {{ t('game.briefing.changeLoadout') }}
       </UiButton>
     </div>
+
+    <!--
+      Watching a recording. Tucked into a disclosure because almost nobody arrives
+      wanting it, and the ones who do are usually being handed a string by someone
+      else — the setup screen is where they will look for somewhere to put it.
+    -->
+    <details class="setup__replay">
+      <summary class="setup__replay-summary">
+        {{ t('game.replay.watchTitle') }}
+      </summary>
+
+      <p class="setup__replay-body">
+        {{ t('game.replay.watchBody') }}
+      </p>
+
+      <textarea
+        v-model="pasted"
+        class="setup__replay-input"
+        rows="3"
+        :aria-label="t('game.replay.watchTitle')"
+        :placeholder="t('game.replay.placeholder')"
+      />
+
+      <p
+        v-if="replayError"
+        class="setup__replay-error"
+        role="alert"
+      >
+        {{ t(`game.replay.error.${replayError}`) }}
+      </p>
+
+      <UiButton
+        size="sm"
+        variant="secondary"
+        :disabled="pasted.trim().length === 0"
+        @click="watchReplay"
+      >
+        {{ t('game.replay.watchAction') }}
+      </UiButton>
+    </details>
 
     <UiHint hint-id="setup-tension">
       {{ t('howto.tactics.items.tension.body') }}
@@ -604,6 +687,51 @@ function fly(): void {
   font-size: var(--fs-xs);
   text-align: center;
   color: var(--c-text-soft);
+}
+
+.setup__replay {
+  padding: var(--sp-3) var(--sp-4);
+  border: 1px solid var(--c-hairline);
+  border-radius: var(--r-md);
+}
+
+.setup__replay-summary {
+  font-family: var(--font-mono);
+  font-size: rem(10);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  color: var(--c-text-mute);
+
+  @include focus-visible(2px);
+}
+
+.setup__replay-body {
+  margin-block: var(--sp-2);
+  font-size: var(--fs-xs);
+  color: var(--c-text-soft);
+}
+
+.setup__replay-input {
+  width: 100%;
+  margin-block-end: var(--sp-2);
+  padding: var(--sp-2);
+  font-family: var(--font-mono);
+  font-size: rem(10);
+  word-break: break-all;
+  color: var(--c-text);
+  border: 1px solid var(--c-hairline);
+  border-radius: var(--r-sm);
+  background: var(--c-ink-900);
+  resize: vertical;
+
+  @include focus-visible(2px);
+}
+
+.setup__replay-error {
+  margin-block-end: var(--sp-2);
+  font-size: var(--fs-xs);
+  color: var(--c-danger);
 }
 
 .setup__ladder {

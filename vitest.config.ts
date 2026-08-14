@@ -8,6 +8,10 @@ import { defineConfig } from 'vitest/config'
  * silent sign error or off-by-one changes gameplay without breaking the build.
  * They deliberately do not mount components: no Nuxt environment is needed, so
  * the suite stays fast enough to run on every change.
+ *
+ * `include` is `tests/**` only. `tools/` holds on-demand harnesses — the replay
+ * inspector — which are run explicitly (`pnpm replay`) and must never join the
+ * suite, because they exist to print a report rather than to assert anything.
  */
 export default defineConfig({
   test: {

@@ -31,8 +31,10 @@ export default withNuxt({
     'no-console': ['warn', { allow: ['warn', 'error'] }],
   },
 }).append({
-  // Build scripts are Node programs and legitimately log progress.
-  files: ['scripts/**/*.mjs'],
+  // Build scripts are Node programs and legitimately log progress. So are the
+  // on-demand harnesses in `tools/` — printing a report is the whole point of one,
+  // and none of them ship.
+  files: ['scripts/**/*.mjs', 'tools/**/*.ts'],
   rules: {
     'no-console': 'off',
   },

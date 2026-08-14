@@ -1,6 +1,15 @@
+import { getArena } from '~/data/arenas'
 import { createMatchEngine, type MatchEngine } from '~/services/game/engine'
 import { createControlState, createLocalInput, type ControlState } from '~/services/game/input/local'
 import { createArenaRenderer, type ArenaRenderer } from '~/services/game/render/renderer'
+import {
+  createRecorder,
+  createReplayInput,
+  encodeReplay,
+  REPLAY_VERSION,
+  type Replay,
+  type ReplayRecorder,
+} from '~/services/game/replay'
 import { createMatchSeed } from '~/services/game/math/random'
 import { DEFAULT_TIME_LIMIT, STARTING_HP } from '~/services/game/constants'
 import { exchangeAdvantage } from '~/services/game/physics/combat'
@@ -149,6 +158,43 @@ export function useMatch({ canvas, container, hudFooter }: UseMatchOptions) {
   let lastTimestamp = 0
   let resizeObserver: ResizeObserver | null = null
   let resultBanked = false
+
+  /**
+   * Every match records itself.
+   *
+   * The cost is one wrapper around the input source and a few hundred array rows,
+   * which is nothing next to being able to hand someone the match itself instead of
+   * a description of it. `replayText` is only built once the match resolves, so the
+   * encoding never runs inside the frame loop.
+   */
+  let recorder: ReplayRecorder | null = null
+  /**
+   * Set when the running match is a playback rather than a live game. A ref, not a
+   * plain binding: the UI reads it through a computed, and a plain `let` would
+   * never notify it.
+   */
+  const playingBack = ref<Replay | null>(null)
+  /** Everything needed to rebuild the finished match, ready to copy. */
+  const replayText = ref<string | null>(null)
+  /**
+   * Set when a playback did not reproduce what it recorded.
+   *
+   * A replay stores no state, only the inputs — which is what makes it tiny, and
+   * also what makes it fragile against a change to the simulation. The recording
+   * carries the result it originally produced precisely so this can be checked. A
+   * silent divergence would be the worst outcome: the whole value of a replay is
+   * that it is the same match, so when it is not, say so.
+   */
+  const replayMismatch = ref(false)
+  /** Everything a replay needs about the current match's setup. */
+  let lastConfig: {
+    seed: number
+    arenaId: Replay['arenaId']
+    opponentIds: Replay['opponentIds']
+    loadout: Replay['loadout']
+    difficultyScale: number
+    timeLimit: number
+  } | null = null
 
   /**
    * Sound is driven from the render loop rather than from watchers, because the
@@ -311,6 +357,33 @@ export function useMatch({ canvas, container, hudFooter }: UseMatchOptions) {
     resultBanked = true
     outcome.value = snapshot.outcome
     stats.value = { ...snapshot.stats }
+    replayText.value = buildReplayText()
+
+    /**
+     * A playback pays nothing.
+     *
+     * Without this, watching a recorded win would grant its coins again every time
+     * it was played — and since a replay is a shareable string, that is a coin
+     * printer anyone could pass around. The result screen still shows what
+     * happened; it simply is not banked.
+     */
+    if (playingBack.value) {
+      reward.value = null
+      coinsGranted.value = 0
+
+      const recorded = playingBack.value.result
+      if (recorded) {
+        const winner = snapshot.outcome.kind === 'pending' ? 'draw' : snapshot.outcome.winner
+        replayMismatch.value
+          = recorded.kind !== snapshot.outcome.kind
+            || recorded.winner !== winner
+            // A hundredth of a second of tolerance: the duration is stored to two
+            // decimals, so an exact comparison would fail on rounding alone.
+            || Math.abs(recorded.durationSeconds - snapshot.stats.durationSeconds) > 0.01
+      }
+
+      return
+    }
 
     const earned = computeReward(
       snapshot.outcome,
@@ -326,6 +399,31 @@ export function useMatch({ canvas, container, hudFooter }: UseMatchOptions) {
       earned,
       isPlayerWin(snapshot.outcome),
     )
+  }
+
+  /** Encode the match that just finished, or null if it was not recorded. */
+  const buildReplayText = (): string | null => {
+    if (!engine || !recorder || !lastConfig) return null
+
+    const snapshot = engine.snapshot
+
+    return encodeReplay({
+      version: REPLAY_VERSION,
+      seed: lastConfig.seed,
+      arenaId: lastConfig.arenaId,
+      opponentIds: lastConfig.opponentIds,
+      loadout: lastConfig.loadout,
+      difficultyScale: lastConfig.difficultyScale,
+      timeLimit: lastConfig.timeLimit,
+      commands: recorder.commands.map(entry => [...entry] as [number, number, number, 0 | 1]),
+      result: {
+        kind: snapshot.outcome.kind,
+        winner: snapshot.outcome.kind === 'pending' ? 'draw' : snapshot.outcome.winner,
+        durationSeconds: snapshot.stats.durationSeconds,
+        roundsWon: snapshot.stats.roundsWon,
+        roundsLost: snapshot.stats.roundsLost,
+      },
+    })
   }
 
   const resizeCanvas = (): void => {
@@ -382,7 +480,16 @@ export function useMatch({ canvas, container, hudFooter }: UseMatchOptions) {
    * A duel passes one; a free-for-all passes two or three, and the engine spreads
    * their anchors across a wider field to suit.
    */
-  function start(targets: readonly OpponentDefinition[]): void {
+  /**
+   * Begin a match against everyone in `targets`.
+   *
+   * `replay` turns this into a playback: the seed, the arena, the loadout and the
+   * opponents all come from the recording instead of the live save, and the
+   * player's commands are fed from the recorded stream. Because a match is a pure
+   * function of exactly those things, the result is the same match again rather
+   * than a similar one.
+   */
+  function start(targets: readonly OpponentDefinition[], replay: Replay | null = null): void {
     stop()
 
     const element = canvas.value
@@ -391,8 +498,11 @@ export function useMatch({ canvas, container, hudFooter }: UseMatchOptions) {
     const ctx = element.getContext('2d', { alpha: false })
     if (!ctx) return
 
-    const seed = createMatchSeed()
+    const seed = replay?.seed ?? createMatchSeed()
 
+    playingBack.value = replay
+    replayText.value = null
+    replayMismatch.value = false
     opponents.value = [...targets]
     outcome.value = { kind: 'pending' }
     reward.value = null
@@ -413,7 +523,10 @@ export function useMatch({ canvas, container, hudFooter }: UseMatchOptions) {
     controls.reel = 0
     controls.snap = false
 
-    const arena = player.activeArena
+    const arena = replay ? getArena(replay.arenaId) : player.activeArena
+    const loadout = replay?.loadout ?? player.loadout
+    const timeLimit = replay?.timeLimit ?? DEFAULT_TIME_LIMIT
+    const difficultyScale = replay?.difficultyScale ?? player.difficultyScale
 
     renderer = createArenaRenderer({
       ctx,
@@ -422,16 +535,28 @@ export function useMatch({ canvas, container, hudFooter }: UseMatchOptions) {
       reducedEffects: settings.reducedEffects,
     })
 
+    // Live play records; a playback does not re-record itself.
+    recorder = replay ? null : createRecorder(createLocalInput(controls))
+
+    lastConfig = {
+      seed,
+      arenaId: arena.id,
+      opponentIds: opponents.value.map(entry => entry.id),
+      loadout,
+      difficultyScale,
+      timeLimit,
+    }
+
     engine = createMatchEngine({
       config: {
         seed,
         opponents: opponents.value,
-        player: player.loadout,
+        player: loadout,
         arena,
-        timeLimit: DEFAULT_TIME_LIMIT,
-        difficultyScale: player.difficultyScale,
+        timeLimit,
+        difficultyScale,
       },
-      playerInput: createLocalInput(controls),
+      playerInput: replay ? createReplayInput(replay) : (recorder as ReplayRecorder),
     })
 
     resizeCanvas()
@@ -507,6 +632,12 @@ export function useMatch({ canvas, container, hudFooter }: UseMatchOptions) {
     stats,
     opponent,
     opponents,
+    /** The finished match, encoded. Null until it resolves. */
+    replayText,
+    /** True while watching a recording rather than playing. */
+    isReplay: computed(() => playingBack.value !== null),
+    /** True when a playback did not reproduce the result it recorded. */
+    replayMismatch,
     running,
     paused,
     start,

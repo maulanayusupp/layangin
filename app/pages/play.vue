@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { OPPONENTS } from '~/data/opponents'
+import type { Replay } from '~/services/game/replay'
 import type { OpponentDefinition } from '~/services/game/types'
 
 /**
@@ -17,6 +18,9 @@ const player = usePlayerStore()
 /** Everyone in the current match, primary first. Empty means setup. */
 const lineup = ref<OpponentDefinition[]>([])
 const selected = computed(() => lineup.value[0] ?? null)
+
+/** Set while watching a recording rather than playing one. */
+const replay = ref<Replay | null>(null)
 
 /**
  * Bring the arena into view when a match starts. This is the only automatic scroll
@@ -39,16 +43,25 @@ const extraNames = computed(() =>
 )
 
 function fly(opponents: OpponentDefinition[]): void {
+  replay.value = null
+  lineup.value = opponents
+}
+
+/** Watch a recording. Its own cast, not the one currently selected. */
+function watchReplay(recording: Replay, opponents: OpponentDefinition[]): void {
+  replay.value = recording
   lineup.value = opponents
 }
 
 function advance(): void {
+  replay.value = null
   // Winning moves to the next rung; otherwise back to setup.
   if (nextOpponent.value) lineup.value = [nextOpponent.value]
   else lineup.value = []
 }
 
 function leaveMatch(): void {
+  replay.value = null
   lineup.value = []
 }
 
@@ -105,6 +118,7 @@ usePageSeo(() => ({
 
       <GameArena
         :opponents="lineup"
+        :replay="replay"
         :has-next="Boolean(nextOpponent)"
         @quit="leaveMatch"
         @next="advance"
@@ -144,7 +158,10 @@ usePageSeo(() => ({
     >
       <div class="l-container--wide">
         <ClientOnly>
-          <GameSetup @fly="fly" />
+          <GameSetup
+            @fly="fly"
+            @watch="watchReplay"
+          />
         </ClientOnly>
       </div>
     </section>
