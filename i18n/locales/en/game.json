@@ -17,6 +17,8 @@
     "hud": {
       "yourLine": "Your line",
       "rivalLine": "Their line",
+      "youShort": "You",
+      "themShort": "Them",
       "tension": "Tension",
       "load": "Line load",
       "stamina": "Stamina",
@@ -50,8 +52,7 @@
       "spool": "Spool",
       "spoolHint": "Drag up to haul in, down to pay out",
       "walkHint": "Drag left or right to walk",
-      "snapHint": "Tap to yank — big tension spike, costs stamina",
-      "rotateHint": "Turn your phone sideways — the field is wider than it is tall."
+      "snapHint": "Tap to yank — big tension spike, costs stamina"
     },
     "countdown": {
       "ready": "Get set",

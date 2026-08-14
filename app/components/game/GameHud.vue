@@ -13,6 +13,17 @@ import { LINE_BREAK_TENSION } from '~/services/game/constants'
  *
  * The full set of readings lives in `GameReadouts`, below the arena, where it is
  * also the text alternative for the canvas.
+ *
+ * ## On a phone it has to be two thin strips
+ * On a narrow screen the desktop layout covered roughly a third of the field: four
+ * bordered panels, each with a label row and a percentage, over an arena already
+ * capped at 48dvh. The kites fly in that space.
+ *
+ * So below `md` the panel chrome is dropped for a scrim, the meters lose their label
+ * rows (`UiMeter`'s `compact`, which still announces them), and the bottom row folds
+ * onto one line. Nothing is removed — every figure is still in `GameReadouts` under
+ * the arena, and every meter still carries its ARIA label and value text. What goes
+ * is the furniture, not the information.
  */
 const props = defineProps<{
   hud: MatchHud
@@ -41,6 +52,16 @@ const rivals = computed(() =>
 
 /** With three opponents the bars have to shrink to fit the box. */
 const compact = computed(() => rivals.value.length > 1)
+
+/**
+ * Below the `md` breakpoint the meters drop their label rows.
+ *
+ * Matched in JS rather than CSS because it is a prop on `UiMeter`, not a style —
+ * the label is removed from the layout while staying in the accessibility tree,
+ * which a media query alone cannot express.
+ */
+const narrow = useMediaQuery('(max-width: 47.99rem)')
+const barsOnly = computed(() => narrow.value)
 
 /** Exposed so the arena can hand it to the camera as a reserved band. */
 const footer = ref<HTMLElement | null>(null)
@@ -100,23 +121,40 @@ const advantageLabel = computed(() => {
           </span>
         </div>
 
-        <UiMeter
-          :value="hud.playerIntegrity"
-          :label="t('game.hud.yourLine')"
-          :size="compact ? 'sm' : 'md'"
-          tone="sky"
-          class="hud__line"
-        />
-        <UiMeter
+        <!--
+          The short label is inline with the bar rather than above it, so on a phone
+          it costs width instead of height. It is not decoration: with the label rows
+          hidden, colour alone would be the only thing telling your line from theirs,
+          which fails anyone who cannot separate teal from red.
+        -->
+        <div class="hud__line-row">
+          <span class="hud__line-tag hud__line-tag--player">{{ t('game.hud.youShort') }}</span>
+          <UiMeter
+            :value="hud.playerIntegrity"
+            :label="t('game.hud.yourLine')"
+            :size="compact || barsOnly ? 'sm' : 'md'"
+            :compact="barsOnly"
+            tone="sky"
+            class="hud__line"
+          />
+        </div>
+
+        <div
           v-for="rival in rivals"
           :key="rival.key"
-          :value="rival.eliminated ? 0 : rival.integrity"
-          :label="compact ? rival.name : t('game.hud.rivalLine')"
-          :size="compact ? 'sm' : 'md'"
-          tone="danger"
-          class="hud__line"
+          class="hud__line-row"
           :class="{ 'is-out': rival.eliminated }"
-        />
+        >
+          <span class="hud__line-tag hud__line-tag--rival">{{ t('game.hud.themShort') }}</span>
+          <UiMeter
+            :value="rival.eliminated ? 0 : rival.integrity"
+            :label="compact ? rival.name : t('game.hud.rivalLine')"
+            :size="compact || barsOnly ? 'sm' : 'md'"
+            :compact="barsOnly"
+            tone="danger"
+            class="hud__line"
+          />
+        </div>
       </div>
 
       <div class="hud__clock">
@@ -140,6 +178,7 @@ const advantageLabel = computed(() => {
           :label="t('game.hud.load')"
           :display="formatNewtons(hud.playerTension, locale)"
           :threshold="OVERLOAD_MARK"
+          :compact="barsOnly"
           warn-past-threshold
           tone="gold"
           size="sm"
@@ -147,6 +186,7 @@ const advantageLabel = computed(() => {
         <UiMeter
           :value="hud.playerStamina"
           :label="t('game.hud.stamina')"
+          :compact="barsOnly"
           tone="success"
           size="sm"
         />
@@ -157,7 +197,7 @@ const advantageLabel = computed(() => {
         :class="{ 'is-live': hud.clashing }"
       >
         <p class="hud__exchange-label">
-          {{ t('game.hud.advantage') }}
+          <span class="hud__exchange-term">{{ t('game.hud.advantage') }}</span>
           <span class="hud__exchange-state">{{ advantageLabel }}</span>
         </p>
         <div
@@ -219,19 +259,81 @@ const advantageLabel = computed(() => {
   justify-content: space-between;
   // The HUD must never eat a click meant for the arena.
   pointer-events: none;
-  padding: var(--sp-3);
+  padding: var(--sp-2);
   z-index: var(--z-hud);
+
+  @include mq('md') {
+    padding: var(--sp-3);
+  }
+}
+
+/**
+ * Shared panel treatment, applied only from `md`.
+ *
+ * Below that the boxes are dropped entirely — see the note at the top of this file.
+ * A gradient scrim on each row keeps the text legible against a bright sky without
+ * costing the vertical space four bordered panels did.
+ */
+@mixin hud-panel {
+  @include mq('md') {
+    border: 1px solid var(--c-hairline);
+    border-radius: var(--r-md);
+    background: color-mix(in srgb, var(--c-ink-900) 62%, transparent);
+    backdrop-filter: blur(rem(8));
+    padding: var(--sp-2) var(--sp-3);
+  }
 }
 
 .hud__row {
   display: flex;
-  gap: var(--sp-3);
+  gap: var(--sp-2);
   align-items: start;
+
+  @include mq('md') {
+    gap: var(--sp-3);
+  }
+}
+
+/**
+ * A scrim instead of panels on a phone: enough contrast to read white text over a
+ * sunset sky, no borders and almost no padding. Pulled out past the HUD's own
+ * padding so it reaches the edges of the canvas.
+ */
+.hud__row--top,
+.hud__row--bottom {
+  @include mq-below('md') {
+    margin-inline: calc(var(--sp-2) * -1);
+    padding: var(--sp-2);
+  }
+}
+
+.hud__row--top {
+  @include mq-below('md') {
+    margin-block-start: calc(var(--sp-2) * -1);
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--c-ink-900) 78%, transparent),
+      transparent
+    );
+  }
 }
 
 .hud__row--bottom {
   flex-wrap: wrap;
   align-items: end;
+
+  @include mq-below('md') {
+    // One line: two gauges, the exchange bar, then the yank state.
+    flex-wrap: nowrap;
+    gap: var(--sp-2);
+    align-items: center;
+    margin-block-end: calc(var(--sp-2) * -1);
+    background: linear-gradient(
+      0deg,
+      color-mix(in srgb, var(--c-ink-900) 82%, transparent),
+      transparent
+    );
+  }
 }
 
 .hud__lives {
@@ -294,28 +396,69 @@ const advantageLabel = computed(() => {
   color: var(--c-text-mute);
 }
 
+/**
+ * Label beside bar on a phone, bar alone from `md` where `UiMeter` shows its own
+ * label row above the track.
+ */
+.hud__line-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--sp-2);
+  align-items: center;
+
+  @include mq('md') {
+    display: block;
+  }
+}
+
+.hud__line-tag {
+  font-family: var(--font-mono);
+  font-size: rem(9);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+
+  @include mq('md') {
+    display: none;
+  }
+}
+
+.hud__line-tag--player {
+  color: var(--c-sky);
+}
+
+.hud__line-tag--rival {
+  color: var(--c-danger);
+}
+
 .hud__lines {
   display: grid;
-  gap: rem(6);
+  gap: rem(4);
   flex: 1;
-  max-width: rem(340);
-  padding: var(--sp-2) var(--sp-3);
-  border: 1px solid var(--c-hairline);
-  border-radius: var(--r-md);
-  background: color-mix(in srgb, var(--c-ink-900) 62%, transparent);
-  backdrop-filter: blur(rem(8));
+
+  @include hud-panel;
+
+  @include mq('md') {
+    gap: rem(6);
+    max-width: rem(340);
+  }
 }
 
 .hud__clock {
-  display: grid;
-  gap: rem(1);
-  justify-items: end;
-  padding: var(--sp-2) var(--sp-3);
+  // On a phone the label sits beside the value on one line rather than above it.
+  display: flex;
+  gap: var(--sp-2);
+  align-items: baseline;
   text-align: end;
-  border: 1px solid var(--c-hairline);
-  border-radius: var(--r-md);
-  background: color-mix(in srgb, var(--c-ink-900) 62%, transparent);
-  backdrop-filter: blur(rem(8));
+
+  @include hud-panel;
+
+  @include mq('md') {
+    display: grid;
+    gap: rem(1);
+    justify-items: end;
+  }
 }
 
 .hud__clock-label {
@@ -327,37 +470,49 @@ const advantageLabel = computed(() => {
 }
 
 .hud__clock-value {
-  font-size: var(--fs-lg);
+  font-size: var(--fs-md);
   line-height: 1;
   color: var(--c-text);
+
+  @include mq('md') {
+    font-size: var(--fs-lg);
+  }
 }
 
 .hud__gauges {
   display: grid;
-  gap: rem(6);
-  flex: 1 1 rem(180);
-  max-width: rem(260);
-  padding: var(--sp-2) var(--sp-3);
-  border: 1px solid var(--c-hairline);
-  border-radius: var(--r-md);
-  background: color-mix(in srgb, var(--c-ink-900) 62%, transparent);
-  backdrop-filter: blur(rem(8));
+  gap: rem(4);
+  flex: 1 1 rem(96);
+  min-width: 0;
+
+  @include hud-panel;
+
+  @include mq('md') {
+    gap: rem(6);
+    flex: 1 1 rem(180);
+    max-width: rem(260);
+  }
 }
 
 .hud__exchange {
   display: grid;
-  gap: rem(5);
-  flex: 1 1 rem(200);
-  max-width: rem(320);
-  padding: var(--sp-2) var(--sp-3);
-  border: 1px solid var(--c-hairline);
-  border-radius: var(--r-md);
-  background: color-mix(in srgb, var(--c-ink-900) 62%, transparent);
-  backdrop-filter: blur(rem(8));
+  gap: rem(3);
+  flex: 1 1 rem(110);
+  min-width: 0;
   transition: border-color var(--dur-fast) var(--ease-out);
 
+  @include hud-panel;
+
+  @include mq('md') {
+    gap: rem(5);
+    flex: 1 1 rem(200);
+    max-width: rem(320);
+  }
+
   &.is-live {
-    border-color: color-mix(in srgb, var(--c-gold) 65%, transparent);
+    @include mq('md') {
+      border-color: color-mix(in srgb, var(--c-gold) 65%, transparent);
+    }
   }
 }
 
@@ -367,10 +522,23 @@ const advantageLabel = computed(() => {
   align-items: baseline;
   justify-content: space-between;
   font-family: var(--font-mono);
-  font-size: rem(9.5);
-  letter-spacing: 0.12em;
+  font-size: rem(9);
+  letter-spacing: 0.1em;
   text-transform: uppercase;
+  white-space: nowrap;
   color: var(--c-text-mute);
+
+  @include mq('md') {
+    font-size: rem(9.5);
+    letter-spacing: 0.12em;
+  }
+}
+
+/// "Exchange" is furniture once the reader knows the bar; the verdict is not.
+.hud__exchange-term {
+  @include mq-below('md') {
+    display: none;
+  }
 }
 
 .hud__exchange-state {
@@ -415,29 +583,39 @@ const advantageLabel = computed(() => {
 .hud__snap {
   display: grid;
   gap: rem(1);
-  padding: var(--sp-2) var(--sp-3);
+  flex: 0 0 auto;
   text-align: center;
-  border: 1px solid var(--c-hairline);
-  border-radius: var(--r-md);
-  background: color-mix(in srgb, var(--c-ink-900) 62%, transparent);
-  backdrop-filter: blur(rem(8));
+
+  @include hud-panel;
 
   &.is-ready {
-    border-color: color-mix(in srgb, var(--c-brand) 70%, transparent);
+    @include mq('md') {
+      border-color: color-mix(in srgb, var(--c-brand) 70%, transparent);
+    }
   }
 }
 
+/// The word "yank" is on the touch button already; the state is what matters here.
 .hud__snap-label {
   font-family: var(--font-mono);
   font-size: rem(9.5);
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--c-text-mute);
+
+  @include mq-below('md') {
+    display: none;
+  }
 }
 
 .hud__snap-state {
-  font-size: var(--fs-sm);
+  font-size: var(--fs-xs);
+  white-space: nowrap;
   color: var(--c-text);
+
+  @include mq('md') {
+    font-size: var(--fs-sm);
+  }
 }
 
 .hud__snap.is-ready .hud__snap-state {

@@ -106,6 +106,26 @@ What is left, in order:
       underneath it, so reaching the controls meant scrolling mid-duel. On a coarse
       pointer the stage is now capped at 48dvh and the pad sits under it, both
       visible at once, plus a hint to turn the phone sideways.
+- [x] **The mobile HUD stopped covering the field.** Measured from a screenshot at
+      a 375 px viewport: the top panel was 115 px and the bottom row 80 px over a
+      240 px stage — the HUD occupied more of the arena than the arena did. Now two
+      thin strips, about 62 px and 36 px, with the panel chrome replaced by a scrim
+      and the meters reduced to bars with short inline tags.
+- [x] **Portrait now uses the whole screen.** The touch stage was `min(48dvh,
+      62vw)` with a 240 px floor; on a 375×667 phone *both* terms fell under the
+      floor, so it came out 240 px tall and wasted 100 px. Sized by subtraction it
+      is 337 px, and the camera's zoom goes from 3.43 to 4.81 px/m.
+- [ ] **Landscape on a phone still does not fit.** Measured on 667×375: header,
+      match bar, a 240 px stage and the control pad need 566 px of a 375 px
+      viewport, so it scrolls exactly as portrait used to. Shrinking the stage
+      further is not the answer — at 240 px the zoom is already 3.43 px/m against
+      portrait's 4.81. The fix is to overlay the pad and the yank button on the
+      arena's bottom corners rather than stacking them underneath, which is a design
+      decision about occluding the ground where the flyers stand.
+- [ ] Removed a "turn your phone sideways" hint that shipped in the previous
+      round. It was wrong: with the stage floored at 240 px the camera zoom is
+      identical in both orientations, and landscape is the one that does not fit.
+      Worth re-adding only once the overlay above exists.
 - [ ] Haptics on mobile for a clash and a cut.
 - [x] **Replays.** Every match records itself: seed, field, loadout, opponents and
       the run-length command stream, encoded as a ~250-byte line the player can copy

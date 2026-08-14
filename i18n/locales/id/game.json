@@ -17,6 +17,8 @@
     "hud": {
       "yourLine": "Benang Anda",
       "rivalLine": "Benang lawan",
+      "youShort": "Anda",
+      "themShort": "Lawan",
       "tension": "Tegangan",
       "load": "Beban benang",
       "stamina": "Tenaga",
@@ -50,8 +52,7 @@
       "spool": "Gulungan",
       "spoolHint": "Geser ke atas untuk menarik, ke bawah untuk mengulur",
       "walkHint": "Geser kiri atau kanan untuk berjalan",
-      "snapHint": "Ketuk untuk menyentak — lonjakan tegangan besar, menguras tenaga",
-      "rotateHint": "Putar HP Anda ke samping — lapangannya lebih lebar daripada tinggi."
+      "snapHint": "Ketuk untuk menyentak — lonjakan tegangan besar, menguras tenaga"
     },
     "countdown": {
       "ready": "Siap",

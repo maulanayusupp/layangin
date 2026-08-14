@@ -46,15 +46,6 @@ const { flags } = useMatchControls(match.controls, inputEnabled)
 // Touch controls are shown on coarse pointers; the keyboard legend on fine ones.
 const coarsePointer = useMediaQuery('(hover: none) and (pointer: coarse)')
 
-/**
- * Portrait on a phone puts the field in a tall, narrow window — the arena is a
- * wide, flat thing, so it reads far better turned sideways. A hint rather than a
- * lock: plenty of people cannot or would rather not rotate, and the game is fully
- * playable either way.
- */
-const portrait = useMediaQuery('(orientation: portrait)')
-const suggestLandscape = computed(() => coarsePointer.value && portrait.value)
-
 const resolved = computed(() => resolveLoadout(player.save.loadout.kiteId, player.save.upgrades))
 const playerBreakingTension = computed(() => breakingTension(resolved.value.stats))
 
@@ -251,13 +242,6 @@ function quit(): void {
       </button>
     </div>
 
-    <p
-      v-if="suggestLandscape"
-      class="arena__rotate"
-    >
-      {{ t('game.controls.rotateHint') }}
-    </p>
-
     <GameTouchControls
       v-if="coarsePointer"
       :disabled="!inputEnabled"
@@ -316,24 +300,17 @@ function quit(): void {
  * On a touch device the pad has to be on screen at the same time as the field.
  *
  * The stage is otherwise 78dvh tall, which pushed the controls below the fold and
- * meant scrolling mid-duel to reach them — unusable, and the reason touch play felt
- * broken. Capping the stage leaves room for the pad and the yank button under it
- * without either needing a scroll.
+ * meant scrolling mid-duel to reach them.
+ *
+ * Sized by subtraction rather than as a fraction of the viewport: 330px is the
+ * header, the match bar and the control pad added up, so the stage takes whatever
+ * is genuinely left. A `min(48dvh, 62vw)` cap was tried first and was worse than it
+ * looked — on a 375×667 phone both terms fell under the 240px floor, so the stage
+ * came out 240px tall in *either* orientation and left 100px of the screen unused.
  */
 .arena--touch .arena__stage {
-  height: min(48dvh, 62vw);
+  height: max(rem(240), calc(100dvh - rem(330)));
   min-height: rem(240);
-}
-
-/// Only worth saying once, and never in the way.
-.arena__rotate {
-  padding-inline: var(--sp-4);
-  font-family: var(--font-mono);
-  font-size: rem(10);
-  letter-spacing: 0.1em;
-  text-align: center;
-  text-transform: uppercase;
-  color: var(--c-text-mute);
 }
 
 /**

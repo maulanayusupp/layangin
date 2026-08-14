@@ -350,6 +350,22 @@ To read one headlessly: `REPLAY='LYG1|…' pnpm replay`.
   card components at once. Where a row of cards must line up internally too (the
   setup screen's three), give the card explicit `grid-template-rows` so the same
   elements share a baseline across cards.
+- **The HUD is furniture over a game; on a phone, strip the furniture.** Below
+  `md` the arena is ~340 px tall and the kites fly in it, so bordered panels with
+  label rows over percentages covered more than half the field. The mobile HUD is
+  two thin strips: a scrim instead of panels, `UiMeter`'s `compact` instead of
+  label rows, and the bottom row folded onto one line. Nothing is *removed* —
+  every figure is still in `GameReadouts` under the arena and every meter keeps
+  its ARIA label and value text.
+  - When a label is dropped, check what is left carrying the meaning. Hiding the
+    line labels left colour as the only thing separating your line from theirs,
+    which fails anyone who cannot separate teal from red — hence the short inline
+    tags, placed beside the bar so they cost width rather than height.
+- **Size the arena by subtraction, not by a viewport fraction.** On a touch device
+  the stage is `max(240px, 100dvh − 330px)`, where 330 px is the header, the match
+  bar and the control pad added up. A `min(48dvh, 62vw)` cap was tried and both
+  terms fell under the 240 px floor on a 375×667 phone, so the stage came out the
+  same height in either orientation and left 100 px of screen unused.
 - Anything reading `localStorage` renders inside `<ClientOnly>`, or the first
   paint shows default values and then flickers.
 
