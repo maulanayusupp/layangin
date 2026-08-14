@@ -88,6 +88,14 @@ What is left, in order:
 - [ ] The setup screen shows cut power for the kite and a hazard rating for the
       field. Watch whether players want more than that before adding it — the whole
       point of the rebuild was that the old screen showed too much.
+- [x] **Boss briefs.** Each boss now carries a tactical read derived from its own
+      stat block — its airframe's steering rate against the starter kite's, its
+      upgrade levels, the wind and gust it fights in. Shown on the setup screen when
+      a boss is selected, and again as a `<details>` on the result screen after
+      losing to one.
+- [ ] Non-boss opponents have no brief. Deliberate for now — three accurate ones
+      beat eight shallow ones — but tiers 3, 5 and 6 are the other places players
+      stall, so they may earn one.
 - [ ] Haptics on mobile for a clash and a cut.
 - [ ] Replays. The engine already supports it — record the command stream and the
       seed, then feed it back through a `ReplayInputSource`. Also the cheapest

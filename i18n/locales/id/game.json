@@ -194,6 +194,41 @@
           "3": "Tiga lawan di langit yang penuh."
         }
       }
+    },
+    "tactics": {
+      "title": "Cara mengalahkan yang ini",
+      "readLabel": "Yang Anda hadapi",
+      "gearLabel": "Beli ini dulu",
+      "moreLink": "Panduan teknik lengkap",
+      "items": {
+        "bos-pasar": {
+          "read": "Bebean besar dan mantap dengan benang yang diperkuat, diterbangkan agresif di angin yang menghentak. Dia berani masuk ke persilangan dan jarang mundur.",
+          "tips": {
+            "1": "Kalahkan dia soal belok. Layarnya bermanuver di angka 2,6 lawan 3,2 milik layangan awal Anda, jadi Andalah yang menentukan sudut persilangan — jalan menyamping sampai kedua benang bertemu tegak lurus, karena persilangan tegak lurus menggerus paling dalam dan sentuhan miring nyaris tidak berarti.",
+            "2": "Tarik saat angin reda, bukan saat menghentak. Ini angin paling menghentak yang pernah Anda hadapi, dan hentakan sudah membebani benang Anda. Menarik di atasnya mendorong Anda melewati tanda merah, tempat benang tergerus sendiri tanpa perlu lawan.",
+            "3": "Buat dia capek. Tenaganya nyaris tidak ditingkatkan, dan tangan yang kehabisan tenaga hanya menarik sekitar sepertiga kekuatan. Temui satu persilangan, ambil pertukaran Anda, lalu menjauh dan biarkan dia menghabiskan tenaganya."
+          },
+          "gear": "Satu tingkat kekuatan benang. Dia punya dua, dan selisih itulah yang Anda rasakan di setiap pertukaran."
+        },
+        "raja-sawangan": {
+          "read": "Layar terbesar di game ini dengan benang terkuat yang pernah Anda temui — empat tingkat kekuatan benang di rangka yang memang sudah kuat. Dia terbang hati-hati dan menjauh saat merasa kalah.",
+          "tips": {
+            "1": "Jangan mencoba menggerusnya perlahan. Benangnya sanggup bertahan lebih lama daripada gerusan Anda, dan dia cukup disiplin untuk melepaskan diri sebelum Anda selesai. Menanglah lewat sentuhan pendek yang menentukan: datang dalam keadaan sudah tegang, dan pakai sentakan tepat saat kedua benang bertemu.",
+            "2": "Dia tidak bisa mengikuti Anda. Dengan kemudi 2,0 dia yang paling lamban di antara semua lawan, jadi geometrinya Anda yang tentukan. Ambil sisi yang Anda mau dan dia masih dalam perjalanan.",
+            "3": "Awasi beban Anda sendiri. Pada 8,2 m/dtk benang Anda sudah tinggi di meteran sebelum menyentuh apa pun, dan godaan untuk terus menarik itulah yang memutus paling banyak benang di tingkat ini."
+          },
+          "gear": "Tenaga, lalu gelasan. Anda akan banyak menarik di angin kencang, dan kehabisan tenaga di saat yang salah membuang pertukaran yang sudah Anda siapkan."
+        },
+        "naga-senja": {
+          "read": "Semuanya sekaligus: reaksi tercepat di tangga ini, gelasan terbaik, benang terkuat, dan angin paling liar. Dia akan mendatangi Anda dan tidak akan pergi.",
+          "tips": {
+            "1": "Bersentuhan lebih mahal bagi Anda daripada baginya. Daya potong dan kekuatan benangnya sama-sama tertinggi di game ini, jadi gerusan panjang adalah pertukaran yang Anda kalah. Masuk hanya saat Anda benang yang lebih tegang, dan pergi begitu bukan lagi.",
+            "2": "Benang Anda sendiri yang akan putus lebih dulu. Hentakan angin di sini paling kuat di seluruh game, dan hentakan ditambah tarikan sudah melewati tanda merah. Kebanyakan percobaan di duel ini berakhir tanpa lawan melakukan apa pun.",
+            "3": "Dia menerbangkan naga berekor sangat panjang. Itu stabil, bukan lincah — Anda masih bisa memilih sudut, dan persilangan tegak lurus adalah satu-satunya yang layak diambil melawan benang sekuat itu."
+          },
+          "gear": "Kekuatan benang sampai maksimal, lalu tenaga. Anda tidak bisa mengunggulinya soal memotong; Anda bisa bertahan cukup lama untuk memenangkan pertukarannya."
+        }
+      }
     }
   },
   "opponents": {

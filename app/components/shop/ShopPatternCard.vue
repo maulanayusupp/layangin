@@ -94,10 +94,17 @@ const affordable = computed(() => player.coins >= props.pattern.price)
 </template>
 
 <style scoped lang="scss">
+/**
+ * A flex column, not a grid: the card's action is pushed to the foot with an auto
+ * margin, and under `display: grid` with `align-content: start` that margin is
+ * inert. Every card in a row would then end wherever its own text ended, which is
+ * what made the grids look ragged.
+ */
 .corak {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: var(--sp-3);
-  align-content: start;
+  height: 100%;
 }
 
 .corak__head {

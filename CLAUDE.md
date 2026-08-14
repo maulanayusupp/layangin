@@ -264,8 +264,13 @@ depends on (`input/network.ts`). `tests/engine.spec.ts` asserts it.
 - **Every user-visible string lives in `i18n/locales/**`.** No literals in
   templates, ever — including `aria-label`, `alt` and `title`.
 - English is the reference locale; Indonesian must match it key for key.
-  `pnpm lint:i18n` fails on a missing key, a stale key, or a placeholder that
-  differs between locales.
+  `pnpm lint:i18n` fails on a missing key, a stale key, a placeholder that
+  differs between locales, **or a key the app asks for that nothing defines**.
+  That last check exists because the first three cannot catch it: comparing the
+  locales against each other says nothing about a `t('actions.select')` whose key
+  was never written, and the symptom is the raw dotted key rendered on the page.
+  It reads both literal calls and template calls — for `t(\`opponents.${id}.name\`)`
+  the pattern must match at least one real key, which catches a renamed namespace.
 - Content ids (`kiteId`, `patternId`, `arenaId`, …) are the i18n key suffixes, so
   adding a catalog entry means adding `*.name` / `*.lore` in **both** locales.
 - Format numbers with the helpers in `utils/format.ts` and pass `locale.value` —
@@ -296,6 +301,13 @@ depends on (`input/network.ts`). `tests/engine.spec.ts` asserts it.
     store, and the dialog would sit there looking broken.
   - The primary action is `position: sticky` at the foot on mobile, static from
     `md` where the screen already fits.
+- **A card in a grid is a flex column with `height: 100%`**, and its action row
+  carries `margin-block-start: auto`. Under `display: grid` with
+  `align-content: start` that auto margin is silently inert, so every card ends
+  where its own text ends and a row of them looks ragged — this was wrong in six
+  card components at once. Where a row of cards must line up internally too (the
+  setup screen's three), give the card explicit `grid-template-rows` so the same
+  elements share a baseline across cards.
 - Anything reading `localStorage` renders inside `<ClientOnly>`, or the first
   paint shows default values and then flickers.
 
@@ -330,6 +342,7 @@ Alongside the code change, update whichever of these it touches:
 |---|---|
 | Any user-visible string | both locales, then `pnpm lint:i18n` |
 | A catalog entry (kite, airframe, pattern, palette, effect, arena, opponent) | `*.name`/`*.lore` in both locales |
+| An opponent marked `isBoss` | `game.tactics.items.<id>` in both locales — the brief shown before the fight and after a loss. Every claim in it must be read off that opponent's own numbers (airframe steering rate, upgrade levels, wind and gust), not invented |
 | An airframe outline or the derivation formulas | nothing by hand — but check `tests/airframes.spec.ts` still passes, especially the distinct-silhouette test |
 | A sound cue | `/compliance` accessibility section: confirm it still has a visible counterpart |
 | The flight model, trim, reel model or anchor separation | `tests/flight.spec.ts` — especially the crossing-rate and "never sinks" tests |

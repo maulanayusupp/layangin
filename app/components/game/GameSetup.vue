@@ -74,6 +74,17 @@ function chooseOpponent(entry: OpponentDefinition): void {
   if (!formats.value.includes(lineupSize.value)) lineupSize.value = 1
 }
 
+/**
+ * Tactical brief for a boss.
+ *
+ * Only bosses get one. Every claim in the copy is read off the opponent's own
+ * numbers — its airframe's steering rate against the starter kite's, its upgrade
+ * levels, the wind and gust it fights in — so the advice cannot quietly drift away
+ * from what the simulation actually does. Losing repeatedly to a boss without ever
+ * being told *why* is the point at which people stop playing.
+ */
+const bossTips = [1, 2, 3] as const
+
 function fly(): void {
   emit('fly', lineup.value)
 }
@@ -99,67 +110,71 @@ function fly(): void {
     -->
     <ul class="setup__slots">
       <li>
-        <button
+        <UiPanel
+          as="button"
+          interactive
           type="button"
           class="slot"
           @click="picker = 'kite'"
         >
           <span class="slot__label">{{ t('game.setup.slots.kite') }}</span>
-          <span class="slot__art">
-            <KitePreview
-              :kite-id="player.save.loadout.kiteId"
-              :palette-id="player.save.loadout.paletteId"
-              :pattern-id="player.save.loadout.patternId"
-              :name="t(`kites.items.${equippedKite.i18nKey}.name`)"
-              :tails="false"
-              ratio="1"
-            />
-          </span>
+          <KitePreview
+            :kite-id="player.save.loadout.kiteId"
+            :palette-id="player.save.loadout.paletteId"
+            :pattern-id="player.save.loadout.patternId"
+            :name="t(`kites.items.${equippedKite.i18nKey}.name`)"
+            :tails="false"
+            ratio="16/9"
+          />
           <span class="slot__value">{{ t(`kites.items.${equippedKite.i18nKey}.name`) }}</span>
           <span class="slot__meta">
             {{ t('kites.stat.cutPower') }} {{ player.resolved.stats.cutPower.toFixed(2) }}
           </span>
           <span class="slot__change">{{ t('game.setup.change') }}</span>
-        </button>
+        </UiPanel>
       </li>
 
       <li>
-        <button
+        <UiPanel
+          as="button"
+          interactive
           type="button"
           class="slot"
           @click="picker = 'arena'"
         >
           <span class="slot__label">{{ t('game.setup.slots.arena') }}</span>
-          <span class="slot__art slot__art--flat">
-            <GameArenaThumb :arena="player.activeArena" />
-          </span>
+          <GameArenaThumb
+            :arena="player.activeArena"
+            ratio="16/9"
+          />
           <span class="slot__value">
             {{ t(`game.arena.items.${player.activeArena.i18nKey}.name`) }}
           </span>
           <span class="slot__meta">
-            {{ t('game.arena.hazard') }}: {{ formatPercent(arenaRisk, locale) }}
+            {{ t('game.arena.hazard') }} {{ formatPercent(arenaRisk, locale) }}
           </span>
           <span class="slot__change">{{ t('game.setup.change') }}</span>
-        </button>
+        </UiPanel>
       </li>
 
       <li>
-        <button
+        <UiPanel
+          as="button"
+          interactive
           type="button"
           class="slot"
+          :accent="opponent.isBoss ? 'gold' : 'none'"
           @click="picker = 'opponent'"
         >
           <span class="slot__label">{{ t('game.setup.slots.opponent') }}</span>
-          <span class="slot__art slot__art--flat">
-            <KitePreview
-              :kite-id="opponent.kiteId"
-              :palette-id="opponent.paletteId"
-              :pattern-id="opponent.patternId"
-              :name="opponentName"
-              :tails="false"
-              ratio="1"
-            />
-          </span>
+          <KitePreview
+            :kite-id="opponent.kiteId"
+            :palette-id="opponent.paletteId"
+            :pattern-id="opponent.patternId"
+            :name="opponentName"
+            :tails="false"
+            ratio="16/9"
+          />
           <span class="slot__value">
             {{ opponentName }}
             <UiBadge
@@ -170,11 +185,10 @@ function fly(): void {
             </UiBadge>
           </span>
           <span class="slot__meta">
-            {{ t('labels.tier') }} {{ opponent.tier }} ·
-            {{ t(`wind.${windLabel}`) }}
+            {{ t('labels.tier') }} {{ opponent.tier }} · {{ t(`wind.${windLabel}`) }}
           </span>
           <span class="slot__change">{{ t('game.setup.change') }}</span>
-        </button>
+        </UiPanel>
       </li>
     </ul>
 
@@ -211,6 +225,47 @@ function fly(): void {
         </button>
       </div>
     </fieldset>
+
+    <UiPanel
+      v-if="opponent.isBoss"
+      accent="gold"
+      class="tactics"
+    >
+      <h2 class="tactics__title">
+        {{ t('game.tactics.title') }}
+      </h2>
+
+      <p class="tactics__label">
+        {{ t('game.tactics.readLabel') }}
+      </p>
+      <p class="tactics__read">
+        {{ t(`game.tactics.items.${opponent.id}.read`) }}
+      </p>
+
+      <ol class="tactics__list">
+        <li
+          v-for="tip in bossTips"
+          :key="tip"
+        >
+          {{ t(`game.tactics.items.${opponent.id}.tips.${tip}`) }}
+        </li>
+      </ol>
+
+      <p class="tactics__label">
+        {{ t('game.tactics.gearLabel') }}
+      </p>
+      <p class="tactics__gear">
+        {{ t(`game.tactics.items.${opponent.id}.gear`) }}
+      </p>
+
+      <UiButton
+        variant="ghost"
+        size="sm"
+        :to="localePath('/how-to-play')"
+      >
+        {{ t('game.tactics.moreLink') }}
+      </UiButton>
+    </UiPanel>
 
     <p
       v-if="player.save.ladderClears > 0"
@@ -337,43 +392,39 @@ function fly(): void {
  * One column on a phone, three across from the medium breakpoint. Three abreast is
  * the whole point on desktop: every choice is visible without scrolling at all.
  */
+/**
+ * One column on a phone, three across from the medium breakpoint. Three abreast is
+ * the whole point on desktop: every choice is visible without scrolling at all.
+ *
+ * `align-items: stretch` plus `height: 100%` on the card is what makes the three
+ * exactly the same height whatever their names do — a long field name wrapping to
+ * two lines must not make one card taller than its neighbours.
+ */
 .setup__slots {
   display: grid;
   gap: var(--sp-3);
+  align-items: stretch;
 
   @include mq('md') {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
+/**
+ * Explicit rows rather than auto flow, so the label, the art, the name, the detail
+ * and the change affordance all sit on the same baseline across the three cards.
+ * `1fr` on the name row absorbs a second line of wrapping without moving anything
+ * below it.
+ */
 .slot {
   display: grid;
-  gap: rem(4);
+  grid-template-rows: auto auto 1fr auto auto;
+  gap: rem(5);
   width: 100%;
   height: 100%;
-  padding: var(--sp-4);
   text-align: start;
-  border: 1px solid var(--c-hairline);
-  border-radius: var(--r-lg);
-  background: color-mix(in srgb, var(--c-ink-800) 60%, transparent);
-  transition:
-    border-color var(--dur-fast) var(--ease-out),
-    translate var(--dur-fast) var(--ease-out);
 
   @include focus-visible(2px);
-
-  @include hover {
-    border-color: var(--c-brand);
-    translate: 0 rem(-2);
-  }
-
-  @include reduced-motion {
-    transition: none;
-
-    @include hover {
-      translate: none;
-    }
-  }
 }
 
 .slot__label {
@@ -384,26 +435,16 @@ function fly(): void {
   color: var(--c-text-mute);
 }
 
-.slot__art {
-  display: block;
-  width: 100%;
-  max-width: rem(150);
-  margin-inline: auto;
-  margin-block: var(--sp-2);
-}
-
-.slot__art--flat {
-  max-width: rem(170);
-}
-
 .slot__value {
   display: flex;
   flex-wrap: wrap;
   gap: var(--sp-2);
   align-items: center;
+  align-self: start;
   font-family: var(--font-display);
   font-size: var(--fs-md);
   font-weight: 700;
+  line-height: 1.2;
   color: var(--c-text);
 }
 
@@ -414,7 +455,6 @@ function fly(): void {
 
 /// Reads as a link so the card is obviously interactive, not just a summary.
 .slot__change {
-  margin-block-start: rem(2);
   font-size: var(--fs-xs);
   font-weight: 600;
   color: var(--c-brand-soft);
@@ -482,6 +522,54 @@ function fly(): void {
 .setup__format-note {
   font-size: var(--fs-xs);
   color: var(--c-text-soft);
+}
+
+.tactics {
+  display: grid;
+  gap: var(--sp-2);
+  justify-items: start;
+}
+
+.tactics__title {
+  font-size: var(--fs-lg);
+  color: var(--c-gold);
+}
+
+.tactics__label {
+  margin-block-start: var(--sp-2);
+  font-family: var(--font-mono);
+  font-size: rem(9.5);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--c-text-mute);
+}
+
+.tactics__read,
+.tactics__gear {
+  max-width: 68ch;
+  font-size: var(--fs-sm);
+  color: var(--c-text-soft);
+}
+
+/// Numbered, because these are steps to try in order, not a pile of hints.
+.tactics__list {
+  display: grid;
+  gap: var(--sp-2);
+  margin-block-start: var(--sp-2);
+  padding-inline-start: var(--sp-5);
+  list-style: decimal;
+
+  li {
+    max-width: 68ch;
+    font-size: var(--fs-sm);
+    color: var(--c-text);
+
+    &::marker {
+      font-family: var(--font-mono);
+      font-size: var(--fs-xs);
+      color: var(--c-gold);
+    }
+  }
 }
 
 .setup__difficulty {

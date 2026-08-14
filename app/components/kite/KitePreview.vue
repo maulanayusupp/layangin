@@ -17,7 +17,7 @@ const props = withDefaults(
     name: string
     tails?: boolean
     animate?: boolean
-    ratio?: '1' | '4/3' | '3/4'
+    ratio?: '1' | '16/9' | '4/3' | '3/4'
   }>(),
   { patternId: DEFAULT_PATTERN_ID, tails: true, animate: true, ratio: '1' },
 )
@@ -65,6 +65,10 @@ useKitePreview({
 
 .preview--ratio-1 {
   aspect-ratio: 1;
+}
+
+.preview--ratio-16-9 {
+  aspect-ratio: 16 / 9;
 }
 
 .preview--ratio-4-3 {

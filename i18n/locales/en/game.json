@@ -194,6 +194,41 @@
           "3": "Three opponents in a crowded sky."
         }
       }
+    },
+    "tactics": {
+      "title": "How this one is beaten",
+      "readLabel": "What you are up against",
+      "gearLabel": "Buy this first",
+      "moreLink": "Full technique guide",
+      "items": {
+        "bos-pasar": {
+          "read": "A big, steady bebean on a strengthened line, flown aggressively in gusty air. It commits to a crossing and rarely backs out of one.",
+          "tips": {
+            "1": "Out-turn it. Its sail steers at 2.6 against your starter's 3.2, so you decide the crossing angle — walk sideways until the lines meet square, because a square crossing bites hardest and a glancing one barely counts.",
+            "2": "Haul in the lulls, not in the gusts. This is the gustiest air you have flown in so far, and a gust already loads your line. Hauling on top of one pushes you past the red mark, where the line wears out with no opponent involved.",
+            "3": "Make it work. Its stamina is barely upgraded, and empty arms haul at about a third strength. Meet a crossing, take your exchange, then break off and let it spend itself."
+          },
+          "gear": "One level of line strength. It carries two, and the gap is what you feel in every exchange."
+        },
+        "raja-sawangan": {
+          "read": "The largest sail in the game on the toughest line you have met — four levels of line strength on an airframe that is already strong. It flies carefully and breaks off when it is losing.",
+          "tips": {
+            "1": "Do not try to saw through it. Its line outlasts a grind, and it has the discipline to disengage before you finish. Win in short, decisive contacts instead: arrive already hauled, and spend the yank at the moment the lines meet.",
+            "2": "It cannot follow you. At 2.0 steering it is the most sluggish thing you will fight, so the geometry is yours to choose. Take the side you want and it will still be arriving.",
+            "3": "Watch your own load. At 8.2 m/s your line sits high on the meter before you touch anything, and the temptation to hold a haul is what parts most lines at this tier."
+          },
+          "gear": "Stamina, then gelasan. You will be hauling in strong air, and running empty at the wrong moment loses the exchange you set up."
+        },
+        "naga-senja": {
+          "read": "Everything at once: the sharpest reactions on the ladder, the best gelasan, the strongest line, and the wildest air. It will come to you and it will stay.",
+          "tips": {
+            "1": "Contact costs you more than it costs it. Its cutting power and line strength are both the highest in the game, so a long grind is a trade you lose. Engage only when you are the tauter line, and leave once you are not.",
+            "2": "Your own line is the first thing that will part. Gusts here are the strongest in the game, and a gust plus a haul is over the red mark. Most attempts at this fight end without the opponent doing anything.",
+            "3": "It steers a dragon with a very long tail. That is stable, not nimble — you can still pick the angle, and a square crossing is the only kind worth taking against a line this strong."
+          },
+          "gear": "Line strength to the top, then stamina. You cannot out-cut it; you can outlast the exchanges long enough to win them."
+        }
+      }
     }
   },
   "opponents": {

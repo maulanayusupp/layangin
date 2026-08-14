@@ -113,10 +113,16 @@ const name = computed(() => t(`opponents.${props.opponent.i18nKey}.name`))
 </template>
 
 <style scoped lang="scss">
+/**
+ * A column rather than a grid, so the action can be pushed to the foot with an auto
+ * margin. Lore lengths differ by several lines between opponents, and without this
+ * the buttons in a row of cards sat at four different heights.
+ */
 .rival {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: var(--sp-3);
-  align-content: start;
+  height: 100%;
 
   &.is-locked {
     opacity: 0.62;
@@ -180,6 +186,11 @@ const name = computed(() => t(`opponents.${props.opponent.i18nKey}.name`))
   column-gap: var(--sp-3);
 }
 
+/**
+ * Pinned to the bottom edge, so every card in a row ends with its button level.
+ * This only works because `.rival` is a flex column — under the grid it used to be,
+ * the auto margin was inert and the buttons sat wherever the lore ended.
+ */
 .rival__action {
   display: grid;
   gap: var(--sp-2);

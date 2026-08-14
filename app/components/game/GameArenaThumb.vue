@@ -13,7 +13,17 @@ import type { ArenaDefinition } from '~/services/game/types'
  *
  * Decorative: the arena's name is always alongside it, so this is `aria-hidden`.
  */
-const props = defineProps<{ arena: ArenaDefinition }>()
+const props = withDefaults(
+  defineProps<{
+    arena: ArenaDefinition
+    /**
+     * Shape of the frame. Matches `KitePreview`'s vocabulary so a row of cards can
+     * put a kite and a field side by side and have them come out the same height.
+     */
+    ratio?: '16/9' | '4/3' | '1'
+  }>(),
+  { ratio: '16/9' },
+)
 
 const hazards = computed(() => arenaHazards(props.arena))
 
@@ -39,6 +49,7 @@ const ridge = computed(
       sun: arena.sun.color,
     }"
     class="thumb"
+    :class="`thumb--ratio-${ratio.replace('/', '-')}`"
     aria-hidden="true"
   >
     <span class="thumb__sun" />
@@ -55,9 +66,20 @@ const ridge = computed(
 .thumb {
   position: relative;
   overflow: hidden;
-  aspect-ratio: 16 / 9;
   border-radius: var(--r-sm);
   background: var(--sky);
+}
+
+.thumb--ratio-16-9 {
+  aspect-ratio: 16 / 9;
+}
+
+.thumb--ratio-4-3 {
+  aspect-ratio: 4 / 3;
+}
+
+.thumb--ratio-1 {
+  aspect-ratio: 1;
 }
 
 .thumb__sun {

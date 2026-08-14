@@ -117,10 +117,17 @@ const name = computed(() => t(`kites.items.${props.kite.i18nKey}.name`))
 </template>
 
 <style scoped lang="scss">
+/**
+ * A flex column, not a grid: the card's action is pushed to the foot with an auto
+ * margin, and under `display: grid` with `align-content: start` that margin is
+ * inert. Every card in a row would then end wherever its own text ended, which is
+ * what made the grids look ragged.
+ */
 .kite-card {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: var(--sp-3);
-  align-content: start;
+  height: 100%;
 }
 
 .kite-card__head {

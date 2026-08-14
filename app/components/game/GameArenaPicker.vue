@@ -164,10 +164,16 @@ function hazards(arena: ArenaDefinition) {
   }
 }
 
+/**
+ * A column rather than a grid, so `.arena-card__action`'s auto margin actually
+ * pushes the button to the foot. Lore lengths differ between fields, and under the
+ * old grid the auto margin was inert and every card ended at a different height.
+ */
 .arena-card {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: var(--sp-3);
-  align-content: start;
+  height: 100%;
 
   &.is-locked {
     opacity: 0.6;

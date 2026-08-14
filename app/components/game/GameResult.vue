@@ -86,6 +86,9 @@ const reason = computed(() => {
   }
 })
 
+/** The three tips a boss brief carries. See `game.tactics` in the locales. */
+const bossTips = [1, 2, 3] as const
+
 const advice = computed(() => {
   if (!props.stats) return null
   return selectAdvice({
@@ -183,6 +186,38 @@ const advice = computed(() => {
       >
         {{ t(`game.result.advice.${advice}`) }}
       </UiHint>
+
+      <!--
+        The tactical brief, repeated where it is most wanted: right after losing to
+        a boss. Collapsed by default with `<details>`, so a player who already knows
+        it is not made to read it again before hitting rematch.
+      -->
+      <details
+        v-if="opponent.isBoss && !playerWon"
+        class="result__tactics"
+      >
+        <summary class="result__tactics-summary">
+          {{ t('game.tactics.title') }}
+        </summary>
+
+        <p class="result__tactics-read">
+          {{ t(`game.tactics.items.${opponent.id}.read`) }}
+        </p>
+
+        <ol class="result__tactics-list">
+          <li
+            v-for="tip in bossTips"
+            :key="tip"
+          >
+            {{ t(`game.tactics.items.${opponent.id}.tips.${tip}`) }}
+          </li>
+        </ol>
+
+        <p class="result__tactics-gear">
+          <strong>{{ t('game.tactics.gearLabel') }}:</strong>
+          {{ t(`game.tactics.items.${opponent.id}.gear`) }}
+        </p>
+      </details>
     </div>
 
     <template #footer>
@@ -212,6 +247,47 @@ const advice = computed(() => {
 </template>
 
 <style scoped lang="scss">
+.result__tactics {
+  padding: var(--sp-3) var(--sp-4);
+  border: 1px solid color-mix(in srgb, var(--c-gold) 40%, transparent);
+  border-radius: var(--r-md);
+  background: color-mix(in srgb, var(--c-gold) 8%, transparent);
+}
+
+.result__tactics-summary {
+  font-family: var(--font-display);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  cursor: pointer;
+  color: var(--c-gold);
+
+  @include focus-visible(2px);
+}
+
+.result__tactics-read,
+.result__tactics-gear {
+  margin-block-start: var(--sp-2);
+  font-size: var(--fs-xs);
+  color: var(--c-text-soft);
+}
+
+.result__tactics-list {
+  display: grid;
+  gap: var(--sp-2);
+  margin-block-start: var(--sp-2);
+  padding-inline-start: var(--sp-5);
+  list-style: decimal;
+
+  li {
+    font-size: var(--fs-xs);
+    color: var(--c-text);
+
+    &::marker {
+      color: var(--c-gold);
+    }
+  }
+}
+
 .result {
   display: grid;
   gap: var(--sp-4);
