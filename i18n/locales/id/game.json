@@ -158,19 +158,30 @@
         "obstacle": "Layangan menabrak bangunan."
       }
     },
-    "wizard": {
-      "title": "Persiapan",
-      "lead": "Pilih layangan, pilih lapangan, lalu pilih lawannya. Semuanya bisa diubah lagi antar duel.",
-      "next": "Lanjut",
-      "fight": "Lawan {name}",
-      "steps": {
+    "leave": {
+      "title": "Tinggalkan duel?",
+      "body": "Duelnya masih berjalan. Keluar sekarang berarti melepas ronde ini beserta koin yang seharusnya didapat.",
+      "stay": "Lanjut terbang",
+      "go": "Tetap keluar"
+    },
+    "setup": {
+      "title": "Siap terbang",
+      "lead": "Semuanya sudah terpilih. Tekan Terbang, atau ketuk salah satu kartu untuk menggantinya.",
+      "change": "Ganti",
+      "selected": "Terpilih",
+      "fly": "Lawan {name}",
+      "slots": {
         "kite": "Layangan Anda",
         "arena": "Lapangan",
         "opponent": "Lawan"
       },
+      "pick": {
+        "kite": "Pilih rangka",
+        "arena": "Pilih lapangan",
+        "opponent": "Pilih lawan"
+      },
       "format": {
         "legend": "Format duel",
-        "hint": "Di adu rame-rame semua saling serang. Dua lawan yang sibuk satu sama lain berarti dua lawan yang tidak menggerus benang Anda — tapi siapa pun bisa mengejar Anda.",
         "alsoFlying": "Ikut terbang: {names}",
         "size": {
           "1": "Satu lawan satu",
@@ -183,12 +194,6 @@
           "3": "Tiga lawan di langit yang penuh."
         }
       }
-    },
-    "leave": {
-      "title": "Tinggalkan duel?",
-      "body": "Duelnya masih berjalan. Keluar sekarang berarti melepas ronde ini beserta koin yang seharusnya didapat.",
-      "stay": "Lanjut terbang",
-      "go": "Tetap keluar"
     }
   },
   "opponents": {

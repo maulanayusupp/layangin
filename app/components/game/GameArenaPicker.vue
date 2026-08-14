@@ -2,6 +2,8 @@
 import { arenaHazards } from '~/data/arenas'
 import type { ArenaDefinition } from '~/services/game/types'
 
+/** Announced on every pick, so a caller can close a dialog around this picker. */
+const emit = defineEmits<{ select: [arenaId: ArenaDefinition['id']] }>()
 /**
  * Arena picker.
  *
@@ -15,6 +17,11 @@ import type { ArenaDefinition } from '~/services/game/types'
 const { t, locale } = useI18n()
 const player = usePlayerStore()
 
+function select(arena: ArenaDefinition): void {
+  player.selectArena(arena.id)
+  emit('select', arena.id)
+}
+
 interface Entry {
   arena: ArenaDefinition
   unlocked: boolean
@@ -25,12 +32,6 @@ const entries = computed<Entry[]>(() => player.arenas)
 
 function hazards(arena: ArenaDefinition) {
   return arenaHazards(arena)
-}
-
-/** Sky stops → a CSS gradient, so the thumbnail is the real arena palette. */
-function skyGradient(arena: ArenaDefinition): string {
-  const stops = arena.sky.map(([offset, color]) => `${color} ${Math.round(offset * 100)}%`)
-  return `linear-gradient(180deg, ${stops.join(', ')})`
 }
 </script>
 
@@ -60,24 +61,7 @@ function skyGradient(arena: ArenaDefinition): string {
           :class="{ 'is-locked': !entry.unlocked }"
         >
           <!-- Thumbnail built from the arena's own colours: sky, ridge, ground. -->
-          <div
-            v-css-vars="{
-              sky: skyGradient(entry.arena),
-              ground: entry.arena.ground,
-              ridge: entry.arena.ridges[entry.arena.ridges.length - 1] ?? entry.arena.ground,
-              sun: entry.arena.sun.color,
-            }"
-            class="arena-card__thumb"
-            aria-hidden="true"
-          >
-            <span class="arena-card__sun" />
-            <span class="arena-card__ridge" />
-            <span class="arena-card__ground" />
-            <span
-              v-if="hazards(entry.arena).cableCount > 0"
-              class="arena-card__cables"
-            />
-          </div>
+          <GameArenaThumb :arena="entry.arena" />
 
           <div class="arena-card__head">
             <h3 class="arena-card__name">
@@ -133,8 +117,7 @@ function skyGradient(arena: ArenaDefinition): string {
               size="sm"
               block
               :variant="player.activeArena.id === entry.arena.id ? 'ghost' : 'secondary'"
-              :disabled="player.activeArena.id === entry.arena.id"
-              @click="player.selectArena(entry.arena.id)"
+              @click="select(entry.arena)"
             >
               {{
                 player.activeArena.id === entry.arena.id
@@ -192,50 +175,6 @@ function skyGradient(arena: ArenaDefinition): string {
 }
 
 /// Miniature of the arena: sky wash, one ridge, ground band, optional cables.
-.arena-card__thumb {
-  position: relative;
-  overflow: hidden;
-  aspect-ratio: 16 / 9;
-  border-radius: var(--r-sm);
-  background: var(--sky);
-}
-
-.arena-card__sun {
-  position: absolute;
-  inset-block-start: 24%;
-  inset-inline-end: 18%;
-  width: 16%;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: var(--sun);
-  opacity: 0.85;
-  filter: blur(rem(1));
-}
-
-.arena-card__ridge {
-  position: absolute;
-  inset: auto 0 22% 0;
-  height: 26%;
-  background: var(--ridge);
-  clip-path: polygon(0 62%, 14% 34%, 30% 58%, 46% 22%, 62% 52%, 78% 30%, 100% 56%, 100% 100%, 0 100%);
-}
-
-.arena-card__ground {
-  position: absolute;
-  inset: auto 0 0 0;
-  height: 24%;
-  background: var(--ground);
-}
-
-.arena-card__cables {
-  position: absolute;
-  inset: 34% 0 auto 0;
-  height: 30%;
-  // Two slanted hairlines standing in for the power lines.
-  background:
-    linear-gradient(6deg, transparent calc(50% - 1px), rgb(10 12 18 / 75%) 50%, transparent calc(50% + 1px)),
-    linear-gradient(-4deg, transparent calc(70% - 1px), rgb(10 12 18 / 55%) 70%, transparent calc(70% + 1px));
-}
 
 .arena-card__head {
   display: flex;

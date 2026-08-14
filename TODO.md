@@ -79,6 +79,15 @@ What is left, in order:
       neighbourhood arena (measured: zero line clashes across tiers 1, 4 and 8).
       Hauling shortens the line and keeps the kite on your own side of the field.
       Probably a real tactical hole rather than a bug, but it deserves a look.
+- [x] **Setup, rebuilt.** The three-step wizard is gone. It cost a scroll down and
+      a scroll back up per choice, because each step was a page of grid with the
+      Next button underneath it. Replaced by one screen: three cards showing the
+      current kite, field and opponent, each opening a dialog that closes itself on
+      selection, with a single Fly button that is sticky on mobile. The default path
+      is now one tap and no scrolling at all.
+- [ ] The setup screen shows cut power for the kite and a hazard rating for the
+      field. Watch whether players want more than that before adding it — the whole
+      point of the rebuild was that the old screen showed too much.
 - [ ] Haptics on mobile for a clash and a cut.
 - [ ] Replays. The engine already supports it — record the command stream and the
       seed, then feed it back through a `ReplayInputSource`. Also the cheapest

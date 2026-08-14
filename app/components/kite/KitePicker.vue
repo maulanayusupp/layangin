@@ -24,6 +24,13 @@ const props = withDefaults(
   { pageSize: 25 },
 )
 
+/**
+ * Announced on every successful pick, including re-picking the one already
+ * equipped. A caller showing this in a dialog needs to close on *any* choice —
+ * watching the equipped id alone would leave the dialog open when the reader
+ * confirms the kite they already had, which reads as a broken button.
+ */
+const emit = defineEmits<{ select: [kiteId: KiteDefinition['id']] }>()
 const { t, locale } = useI18n()
 const player = usePlayerStore()
 
@@ -69,6 +76,7 @@ const ownedCount = computed(() => cells.value.filter(cell => cell.owned).length)
 function select(cell: Cell): void {
   if (!cell.owned) return
   player.equipKite(cell.kite.id)
+  emit('select', cell.kite.id)
 }
 </script>
 

@@ -158,19 +158,30 @@
         "obstacle": "The kite hit a structure."
       }
     },
-    "wizard": {
-      "title": "Get ready",
-      "lead": "Pick your kite, pick a field, then pick who to fly against. You can change any of it between matches.",
-      "next": "Next",
-      "fight": "Fly against {name}",
-      "steps": {
+    "leave": {
+      "title": "Leave the match?",
+      "body": "The duel is still going. Leaving now forfeits the round and the coins it would have paid.",
+      "stay": "Keep flying",
+      "go": "Leave anyway"
+    },
+    "setup": {
+      "title": "Ready to fly",
+      "lead": "Everything already has a choice made. Press Fly, or tap a card to change one.",
+      "change": "Change",
+      "selected": "Selected",
+      "fly": "Fly against {name}",
+      "slots": {
         "kite": "Your kite",
         "arena": "The field",
         "opponent": "Opponent"
       },
+      "pick": {
+        "kite": "Pick an airframe",
+        "arena": "Pick a field",
+        "opponent": "Pick an opponent"
+      },
       "format": {
         "legend": "Match format",
-        "hint": "In a free-for-all everyone fights everyone. Two opponents busy with each other is two opponents not cutting your line — but any of them can reach you.",
         "alsoFlying": "Also flying: {names}",
         "size": {
           "1": "Duel",
@@ -183,12 +194,6 @@
           "3": "Three opponents in a crowded sky."
         }
       }
-    },
-    "leave": {
-      "title": "Leave the match?",
-      "body": "The duel is still going. Leaving now forfeits the round and the coins it would have paid.",
-      "stay": "Keep flying",
-      "go": "Leave anyway"
     }
   },
   "opponents": {

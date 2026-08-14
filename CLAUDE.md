@@ -280,8 +280,22 @@ depends on (`input/network.ts`). `tests/engine.spec.ts` asserts it.
   owns the control buffer.
 - Prefer the platform: `<dialog>` for modals, `<details>` for disclosures, real
   `<input type="checkbox">` under a styled switch, real links for navigation.
-- When a control replaces the content below it (wizard step, tab, filter), wire
-  `useScrollToOnChange` so the reader is not left looking at the old panel.
+- When a control replaces the content below it (tab, filter), wire
+  `useScrollToOnChange` so the reader is not left looking at the old panel. Prefer
+  not needing it: see the note on choosing below.
+- **A choice should cost one tap and no scrolling.** `GameSetup` is the worked
+  example. The play page used to be a three-step wizard, and it was miserable for a
+  specific, repeatable reason: the confirm button sat *below* a full page of grid,
+  so every choice cost a scroll down to pick and a scroll back up to continue.
+  The shape that fixed it:
+  - Every choice has a sensible default, so the common path is one button.
+  - A long list of options lives in a `<UiModal>` over the page, not inline.
+  - The picker **emits on selection and the dialog closes itself**, returning the
+    reader exactly where they were. Close on the picker's own `@select` event, not
+    on a store watch — re-confirming the option already chosen does not change the
+    store, and the dialog would sit there looking broken.
+  - The primary action is `position: sticky` at the foot on mobile, static from
+    `md` where the screen already fits.
 - Anything reading `localStorage` renders inside `<ClientOnly>`, or the first
   paint shows default values and then flickers.
 
