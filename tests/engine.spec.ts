@@ -58,14 +58,40 @@ describe('match engine', () => {
     expect(engine.snapshot.elapsed).toBeGreaterThan(0)
   })
 
+  /**
+   * The invariant is that a kite under neutral input **does not sink** — the
+   * shipped bug was every kite stalling into the ground in about eight seconds.
+   *
+   * Altitude is therefore sampled while each fighter is actually flying, rather
+   * than asserted once at the end on a fighter that is assumed to be alive. Being
+   * cut is a legitimate way for a match to progress, and tying this test to
+   * survival made it fail whenever the abrasion rate was tuned.
+   */
   it('keeps both kites airborne under neutral input in steady conditions', () => {
     const engine = makeEngine()
     engine.skipCountdown()
-    run(engine, 12)
 
-    expect(engine.snapshot.player.position.y).toBeGreaterThan(5)
-    expect(engine.snapshot.rival.position.y).toBeGreaterThan(5)
-    expect(engine.snapshot.player.alive).toBe(true)
+    let lowestPlayer = Infinity
+    let lowestRival = Infinity
+    let flyingSteps = 0
+
+    const steps = Math.round(12 / FIXED_TIMESTEP)
+    for (let i = 0; i < steps; i += 1) {
+      engine.advance(FIXED_TIMESTEP)
+      if (engine.snapshot.phase !== 'flying') continue
+
+      flyingSteps += 1
+      if (engine.snapshot.player.alive) {
+        lowestPlayer = Math.min(lowestPlayer, engine.snapshot.player.position.y)
+      }
+      if (engine.snapshot.rival.alive) {
+        lowestRival = Math.min(lowestRival, engine.snapshot.rival.position.y)
+      }
+    }
+
+    expect(flyingSteps).toBeGreaterThan(0)
+    expect(lowestPlayer).toBeGreaterThan(5)
+    expect(lowestRival).toBeGreaterThan(5)
   })
 
   it('produces no NaN in the fighter state over a long run', () => {

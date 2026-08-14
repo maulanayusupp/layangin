@@ -154,12 +154,26 @@ export const TENSION_SMOOTHING = 0.0001
  * Multiplies `√slip × √(relative contact pressure) × crossing bite` — see the
  * note in `applyAbrasion` for why the response is compressed rather than linear.
  *
- * Calibrated by sweeping it against measured match length across all eight
- * opponents: at this value a duel lands in 9–27 s, against 120 s (or never) before.
- * Raising it further stops helping, because what is left is the time the two lines
- * spend finding each other rather than the time they spend cutting.
+ * Swept against measured match length across all eight opponents, with each
+ * measured against **the gear a player actually reaches that tier with** rather
+ * than the starter kite. That distinction is the whole story: measured with an
+ * unequipped player the value looked calibrated at 3.5, and the earlier note here
+ * claimed raising it stopped helping. Both were artefacts of the wrong test
+ * subject. Measured properly:
+ *
+ * ```
+ *            mean   caps    band
+ * 3.5        27.8s  15/48   14–45s
+ * 4.5        22.0s   8/48   13–33s
+ * 6          16.3s   1/48   13–20s
+ * 7 + 3 hp   22.0s   1/48   18–27s   ← here
+ * ```
+ *
+ * Paired with three lives it puts seven of the eight tiers between 18 and 25
+ * seconds with one capped match in forty-eight, which is the tightest band any
+ * combination produced.
  */
-export const ABRASION_COEFFICIENT = 3.5
+export const ABRASION_COEFFICIENT = 7
 
 /** Integrity lost per second per newton above the breaking tension. */
 export const OVERLOAD_COEFFICIENT = 0.0022
@@ -221,12 +235,16 @@ export const COUNTDOWN_SECONDS = 3
  * ground, or to a cable — costs one life and relaunches the round; the match is
  * over when someone runs out.
  *
- * Two, not three: measured match length is dominated by the time the two lines
- * take to find each other, not by how fast they cut, so each extra life adds
- * roughly ten seconds of manoeuvring. Two keeps a duel around twenty seconds while
- * still meaning a single mistimed haul never ends it.
+ * Three, paired with a higher `ABRASION_COEFFICIENT`. The pair is the point: on
+ * its own, three lives stretched a duel to a measured 27.6 s mean with a 14–45 s
+ * spread, and on its own a higher abrasion rate collapsed it to 16 s. Together
+ * they land seven of the eight tiers between 18 and 25 seconds — short rounds,
+ * more of them.
+ *
+ * Three also buys forgiveness, which two did not: a cable, a gust or one mistimed
+ * haul now costs a third of a match rather than half of it.
  */
-export const STARTING_HP = 2
+export const STARTING_HP = 3
 
 /** Seconds between a life being lost and the next round launching. */
 export const ROUND_BREAK = 1.4

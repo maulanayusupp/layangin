@@ -88,10 +88,29 @@ The **last** life is different: it goes to a `falling` phase rather than straigh
 overlay during that phase is deliberately transparent, and `FALL_TIMEOUT` guarantees
 the match cannot hang there if the wind carries the kite sideways instead of down.
 
-Match length is dominated by how long the two lines take to *find* each other, not
-by how fast they cut — a sweep of the abrasion coefficient barely moved it past a
-point. If a duel needs to be shorter, make contact more reliable or remove a life;
-do not keep raising damage.
+### Measure against the gear a player actually has
+
+The single most expensive mistake in this repo's balance work, made twice:
+**every duration and win-rate table was measured with the starter kite and no
+upgrades, at every tier.** Nobody fights the tier-8 boss like that.
+
+Measured properly — each tier against the loadout a player plausibly reaches it
+with — the conclusions inverted. Duels looked 9–27 s and were really 14–45 s. The
+abrasion coefficient looked calibrated at 3.5 and was really about half what it
+needed to be. A note in this file claimed raising it past 3.5 stopped helping;
+that was an artefact of the wrong test subject, and raising it to 7 took the
+capped-match rate from 15/48 to 1/48.
+
+So: when measuring anything that scales with gear, build the loadout for the tier.
+The harness in `tools/inspect-replay.spec.ts` reads a real player's actual loadout
+out of a replay, which is better still.
+
+Match length is dominated by two things and it is worth knowing which one is
+biting: how long the lines take to *find* each other (contact rate, measured
+22–41%) and how much damage lands once they do. Contact rate turned out **not** to
+be the differentiator — tiers 7 and 8 have near-identical contact and durations of
+45 s and 14 s, because the gear matchup decides it. Check which before reaching for
+a lever.
 
 ### Two fighters or four
 

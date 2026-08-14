@@ -45,6 +45,22 @@ export interface ArenaRenderer {
 const KITE_RENDER_SCALE = 4.5
 
 /**
+ * People are drawn larger than life too, for the same reason kites are.
+ *
+ * The camera frames a field 60–90 m wide, so a 1.7 m person is a handful of pixels
+ * — accurate and unreadable. The kites are already exaggerated 4.5×; leaving the
+ * flyers at true scale made them read as specks rather than as the people holding
+ * the lines. Nothing physical uses this: the anchor is still a point.
+ */
+const PERSON_RENDER_SCALE = 2.2
+
+/** Floor in pixels, so a person stays visible at the widest zoom. */
+const MIN_PERSON_PX = 14
+
+/** Altitude below which a downed kite can be picked up, metres. */
+const CLAIMABLE_ALTITUDE = 1.2
+
+/**
  * Floor on the pixels-per-metre used for kites only, so they stay readable when
  * the camera zooms out on a small screen.
  *
@@ -132,7 +148,7 @@ export function createArenaRenderer({
   const drawFighter = (fighter: FighterState): void => {
     const groundY = camera.y(0)
     const x = camera.x(fighter.anchor.x)
-    const height = Math.max(8, camera.m(1.7))
+    const height = Math.max(MIN_PERSON_PX, camera.m(1.7) * PERSON_RENDER_SCALE)
 
     ctx.fillStyle = ARENA.fighter
     ctx.beginPath()
@@ -373,7 +389,17 @@ export function createArenaRenderer({
         drawParticles()
       }
 
-      for (const fighter of back) drawFighterKite(fighter)
+      /**
+       * A claimed kite is gone.
+       *
+       * Once a runner has it, drawing it in the grass as well would show the same
+       * kite twice — and leaving a dead kite lying on the field for the rest of the
+       * match is exactly what claiming it is meant to resolve.
+       */
+      for (const fighter of back) {
+        if (crowd.captured && fighter === chasing) continue
+        drawFighterKite(fighter)
+      }
       for (const fighter of back) drawFighter(fighter)
 
       /**
@@ -396,7 +422,8 @@ export function createArenaRenderer({
       }
 
       if (chasing) {
-        crowd.update(chasing.position.x, dt)
+        // Nobody grabs a kite out of the air: it has to be down first.
+        crowd.update(chasing.position.x, dt, chasing.position.y <= CLAIMABLE_ALTITUDE)
         crowd.draw(ctx, camera)
       }
     },

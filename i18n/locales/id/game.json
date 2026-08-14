@@ -50,7 +50,8 @@
       "spool": "Gulungan",
       "spoolHint": "Geser ke atas untuk menarik, ke bawah untuk mengulur",
       "walkHint": "Geser kiri atau kanan untuk berjalan",
-      "snapHint": "Ketuk untuk menyentak — lonjakan tegangan besar, menguras tenaga"
+      "snapHint": "Ketuk untuk menyentak — lonjakan tegangan besar, menguras tenaga",
+      "rotateHint": "Putar HP Anda ke samping — lapangannya lebih lebar daripada tinggi."
     },
     "countdown": {
       "ready": "Siap",

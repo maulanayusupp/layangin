@@ -96,6 +96,16 @@ What is left, in order:
 - [ ] Non-boss opponents have no brief. Deliberate for now — three accurate ones
       beat eight shallow ones — but tiers 3, 5 and 6 are the other places players
       stall, so they may earn one.
+- [x] **The chase has an ending.** A runner who reaches a downed kite claims it,
+      holds it up, and the kite is gone from the field — instead of a dead kite
+      lying in the grass for the rest of the match. Renderer-only.
+- [x] **People are readable.** Flyers and chasers are drawn 2.2× and 2× life size
+      for the same reason kites are drawn 4.5×: at a 60–90 m frame a 1.7 m person
+      is a few pixels. Nothing physical uses the scale.
+- [x] **Touch play fits on the screen.** The stage was 78dvh tall with the pad
+      underneath it, so reaching the controls meant scrolling mid-duel. On a coarse
+      pointer the stage is now capped at 48dvh and the pad sits under it, both
+      visible at once, plus a hint to turn the phone sideways.
 - [ ] Haptics on mobile for a clash and a cut.
 - [x] **Replays.** Every match records itself: seed, field, loadout, opponents and
       the run-length command stream, encoded as a ~250-byte line the player can copy
@@ -146,6 +156,37 @@ lit.
       default flying arc clears them, or accept it and rewrite the arena's brief to
       say the field is unflyable without deliberate avoidance. Do not just soften
       `CABLE_ABRASION` — that hides the geometry problem instead of fixing it.
+
+### Duration, recalibrated against real loadouts
+
+The tables further down were all measured with the starter kite at every tier,
+which nobody actually plays. Re-measured with the gear a player plausibly reaches
+each tier with, and swept:
+
+```
+                    mean   caps/48   band
+abrasion 3.5, 2 hp  27.8s   15       14–45s   ← was shipping
+abrasion 4.5, 2 hp  22.0s    8       13–33s
+abrasion 6,   2 hp  16.3s    1       13–20s
+abrasion 7,   3 hp  22.0s    1       18–27s   ← now shipping
+```
+
+Seven of the eight tiers now land between 18 and 25 seconds. Two findings paid
+for the sweep:
+
+- **The old note in `constants.ts` was wrong.** It claimed raising abrasion past
+  3.5 stopped helping. That was measured on an unequipped player; with real gear,
+  going to 7 took the capped-match rate from 15/48 to 1/48.
+- **Contact rate is not the differentiator.** Measured 22–41% across all tiers,
+  and tiers 7 and 8 have near-identical contact with durations of 45 s and 14 s.
+  The gear matchup decides it, so reaching for a contact lever would have been
+  wasted work.
+
+- [ ] `profile.caution` is close to dead code. Sweeping it from 1.0 to 0 changed
+      measured duration by nothing at all across every tier, because `losing` is
+      rarely true for long enough to trigger a retreat. Either give it real effect
+      or drop it from `AiProfile` — a difficulty knob that does nothing is worse
+      than no knob, and it is currently described on `/compliance`.
 
 ## 5. Ladder balance — measured, and not right yet
 

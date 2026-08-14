@@ -15,6 +15,16 @@ import { NEUTRAL_COMMAND, PLAYER_INDEX, type ArenaId, type FighterCommand } from
 import type { InputSource } from '~/services/game/input/source'
 import { hazardCeiling } from '~/services/game/physics/obstacles'
 
+/**
+ * Step until the match is in the flying phase, so a test can reach in and change
+ * a fighter's state at a moment the engine will act on.
+ */
+function advanceUntilFlying(engine: ReturnType<typeof createMatchEngine>, limit = 600): void {
+  for (let i = 0; i < limit && engine.snapshot.phase !== 'flying'; i += 1) {
+    engine.advance(FIXED_TIMESTEP)
+  }
+}
+
 function makeEngine(
   arenaId: ArenaId,
   seed = 1,
@@ -278,6 +288,12 @@ describe('the falling phase', () => {
     engine.skipCountdown()
     run(engine, 6)
 
+    // Force a cut only while the match is actually being played. Six seconds in,
+    // the engine may already be in the between-rounds pause, and a cut applied
+    // then is simply ignored — which is how this test used to fail whenever the
+    // abrasion rate changed and rounds started ending sooner.
+    advanceUntilFlying(engine)
+
     engine.snapshot.rival.hp = 1
     engine.snapshot.rival.lineIntegrity = 0
     engine.advance(FIXED_TIMESTEP)
@@ -294,6 +310,7 @@ describe('the falling phase', () => {
     const engine = makeEngine('pantai', 14)
     engine.skipCountdown()
     run(engine, 6)
+    advanceUntilFlying(engine)
 
     engine.snapshot.player.hp = 1
     engine.snapshot.player.lineIntegrity = 0
