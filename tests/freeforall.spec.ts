@@ -12,6 +12,8 @@ import {
   ROUND_BREAK,
   STARTING_HP,
   anchorsFor,
+  livesFor,
+  timeLimitFor,
   walkBoundFor,
 } from '~/services/game/constants'
 import { NEUTRAL_COMMAND, PLAYER_INDEX, type OpponentId } from '~/services/game/types'
@@ -63,6 +65,36 @@ describe('anchor spread', () => {
     // A four-way anchors at ±21, so the duel's 26 m bound would pin them.
     expect(walkBoundFor(4)).toBeGreaterThan(21)
     expect(walkBoundFor(4)).toBeGreaterThan(walkBoundFor(2))
+  })
+})
+
+describe('lives scale with the crowd', () => {
+  /**
+   * Winning means cutting *every* opponent down, so a four-way at duel lives needs
+   * three times the cuts — measured, that made 17 of 24 four-way matches end on the
+   * clock rather than with a result.
+   */
+  it('gives fewer lives the more fighters are in the air', () => {
+    expect(livesFor(2)).toBe(STARTING_HP)
+    expect(livesFor(3)).toBeLessThan(livesFor(2))
+    expect(livesFor(4)).toBeLessThan(livesFor(3))
+  })
+
+  it('never drops below three, so one accident is never half a match', () => {
+    expect(livesFor(MAX_FIGHTERS)).toBeGreaterThanOrEqual(3)
+  })
+
+  it('gives every fighter in a match the same number', () => {
+    const engine = makeEngine(['bocah-sawah', 'anak-kampung', 'juara-lorong'])
+    const lives = engine.snapshot.startingHp
+
+    expect(lives).toBe(livesFor(4))
+    expect(engine.snapshot.fighters.every(fighter => fighter.hp === lives)).toBe(true)
+  })
+
+  it('allows a longer clock the more there is to get through', () => {
+    expect(timeLimitFor(3)).toBeGreaterThan(timeLimitFor(2))
+    expect(timeLimitFor(4)).toBeGreaterThan(timeLimitFor(3))
   })
 })
 
@@ -128,15 +160,19 @@ describe('rivals fight each other', () => {
 
     victim.lineIntegrity = 0.0005
 
+    // Read the lives from the match rather than the constant: a crowded sky gets
+    // fewer of them, so a four-way does not start on `STARTING_HP`.
+    const lives = engine.snapshot.startingHp
+
     const steps = Math.round(6 / FIXED_TIMESTEP)
     for (let i = 0; i < steps; i += 1) {
       engine.advance(FIXED_TIMESTEP)
-      if (victim.hp < STARTING_HP) break
+      if (victim.hp < lives) break
     }
 
-    expect(victim.hp).toBeLessThan(STARTING_HP)
-    // The player kept both lives: the loss was not theirs.
-    expect(engine.snapshot.player.hp).toBe(STARTING_HP)
+    expect(victim.hp).toBeLessThan(lives)
+    // The player kept every life: the loss was not theirs.
+    expect(engine.snapshot.player.hp).toBe(lives)
     expect(engine.snapshot.stats.roundsWon).toBeGreaterThan(0)
   })
 
@@ -150,7 +186,7 @@ describe('rivals fight each other', () => {
     engine.advance(FIXED_TIMESTEP)
 
     // A life gone, a pause opened — not a match spent watching two AI flyers.
-    expect(engine.snapshot.player.hp).toBe(STARTING_HP - 1)
+    expect(engine.snapshot.player.hp).toBe(engine.snapshot.startingHp - 1)
     expect(engine.snapshot.phase).toBe('roundOver')
   })
 })

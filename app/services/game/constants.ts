@@ -219,13 +219,28 @@ export const EXHAUSTED_EFFECTIVENESS = 0.35
 // --- Match -----------------------------------------------------------------
 
 /**
- * Match length cap, seconds.
+ * Match length cap for a duel, seconds.
  *
- * Measured duels resolve in 9–27 s, so this is the ceiling on a stalemate rather
- * than the normal path to a result. Two opponents (tiers 3 and 6) still reach it
- * regularly because they hold contact down to a few seconds — see TODO.md.
+ * A ceiling on a stalemate, not the normal path to a result: measured duels
+ * resolve in 31–42 s against the gear a player actually reaches each tier with.
+ *
+ * The cap does real work rather than being a formality. Left effectively unbounded
+ * at 400 s, the median duel still finished in 32 s but the 90th percentile ran to
+ * 319 s — the contact-starved matchups (tiers 3 and 6) genuinely never resolve, and
+ * five lives multiplies the stall by five. See TODO.md.
  */
-export const DEFAULT_TIME_LIMIT = 45
+export const DEFAULT_TIME_LIMIT = 60
+
+/**
+ * Match length cap for `count` fighters, seconds.
+ *
+ * A free-for-all has more to get through, so it gets proportionally longer before
+ * the clock intervenes — measured medians are 32 s for a duel, 70 s for a three-way
+ * and 97 s for a four-way, before lives were scaled down to match.
+ */
+export function timeLimitFor(count: number): number {
+  return DEFAULT_TIME_LIMIT + Math.max(0, count - 2) * 25
+}
 export const COUNTDOWN_SECONDS = 3
 
 /**
@@ -235,16 +250,45 @@ export const COUNTDOWN_SECONDS = 3
  * ground, or to a cable — costs one life and relaunches the round; the match is
  * over when someone runs out.
  *
- * Three, paired with a higher `ABRASION_COEFFICIENT`. The pair is the point: on
- * its own, three lives stretched a duel to a measured 27.6 s mean with a 14–45 s
- * spread, and on its own a higher abrasion rate collapsed it to 16 s. Together
- * they land seven of the eight tiers between 18 and 25 seconds — short rounds,
- * more of them.
+ * Five in a duel, paired with a high `ABRASION_COEFFICIENT`. The pair is the
+ * point: lives set how long a match runs, abrasion sets how *tightly* the tiers
+ * cluster around it. Measured against real per-tier loadouts, with the cap lifted
+ * so nothing was distorted by it:
  *
- * Three also buys forgiveness, which two did not: a cable, a gust or one mistimed
- * haul now costs a third of a match rather than half of it.
+ * ```
+ *                 mean    band
+ * abr 7, 3 hp    22.5s   18–30s
+ * abr 7, 4 hp    29.4s   25–36s
+ * abr 7, 5 hp    35.8s   31–42s   ← here
+ * abr 6, 4 hp    36.4s   26–56s
+ * abr 5, 4 hp    45.2s   26–81s
+ * ```
+ *
+ * Note the last two: reaching the same length by *slowing the cutting* rather than
+ * adding lives widens the spread badly, because the contact-starved matchups stall
+ * instead of finishing. Lives lengthen a match evenly; abrasion does not.
+ *
+ * Five also buys forgiveness: a cable, a gust or one mistimed haul costs a fifth of
+ * a match. A crowded sky gets fewer — see `livesFor`.
  */
-export const STARTING_HP = 3
+export const STARTING_HP = 5
+
+/**
+ * Lives for a match with `count` fighters.
+ *
+ * Lives shrink as the sky fills, and the reason is arithmetic: winning a match
+ * means cutting *every* opponent down to nothing, so a four-way at five lives each
+ * needs fifteen cuts against a duel's five. Measured, that turned a free-for-all
+ * into a match that almost always ended on the clock — 17 of 24 four-way matches
+ * hit the cap — which is the least satisfying way for one to finish.
+ *
+ * Scaling down keeps every format in roughly the same span, and it happens to fix
+ * the HUD too: four fighters at five pips each overflows the mobile strip, at three
+ * it does not.
+ */
+export function livesFor(count: number): number {
+  return Math.max(3, STARTING_HP - Math.max(0, count - 2))
+}
 
 /** Seconds between a life being lost and the next round launching. */
 export const ROUND_BREAK = 1.4

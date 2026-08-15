@@ -11,7 +11,7 @@ import {
   type ReplayRecorder,
 } from '~/services/game/replay'
 import { createMatchSeed } from '~/services/game/math/random'
-import { DEFAULT_TIME_LIMIT, STARTING_HP } from '~/services/game/constants'
+import { STARTING_HP, timeLimitFor } from '~/services/game/constants'
 import { exchangeAdvantage } from '~/services/game/physics/combat'
 import { breakingTension } from '~/services/game/physics/fighter'
 import { describeWind } from '~/services/game/physics/wind'
@@ -97,7 +97,7 @@ function emptyHud(): MatchHud {
     phase: 'briefing',
     countdown: 0,
     elapsed: 0,
-    timeRemaining: DEFAULT_TIME_LIMIT,
+    timeRemaining: 0,
     playerIntegrity: 1,
     rivalIntegrity: 1,
     playerStamina: 1,
@@ -235,7 +235,7 @@ export function useMatch({ canvas, container, hudFooter }: UseMatchOptions) {
       snagged: self.snagged,
       playerHp: self.hp,
       rivalHp: rival.hp,
-      maxHp: STARTING_HP,
+      maxHp: snapshot.startingHp,
       rivals: snapshot.fighters.slice(1).map(fighter => ({
         integrity: fighter.lineIntegrity,
         hp: fighter.hp,
@@ -525,7 +525,8 @@ export function useMatch({ canvas, container, hudFooter }: UseMatchOptions) {
 
     const arena = replay ? getArena(replay.arenaId) : player.activeArena
     const loadout = replay?.loadout ?? player.loadout
-    const timeLimit = replay?.timeLimit ?? DEFAULT_TIME_LIMIT
+    // A free-for-all has more to get through, so the clock allows for it.
+    const timeLimit = replay?.timeLimit ?? timeLimitFor(opponents.value.length + 1)
     const difficultyScale = replay?.difficultyScale ?? player.difficultyScale
 
     renderer = createArenaRenderer({

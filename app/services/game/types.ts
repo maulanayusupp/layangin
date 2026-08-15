@@ -614,6 +614,12 @@ export function isPlayerLoss(outcome: MatchOutcome): boolean {
 }
 
 export interface MatchSnapshot {
+  /**
+   * Lives each fighter started with. On the snapshot rather than read from a
+   * constant because it varies with how many fighters are in the match, and the
+   * HUD draws exactly this many pips.
+   */
+  startingHp: number
   phase: MatchPhase
   outcome: MatchOutcome
   arena: ArenaDefinition

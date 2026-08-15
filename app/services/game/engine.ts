@@ -7,6 +7,7 @@ import {
   FIXED_TIMESTEP,
   MAX_FIGHTERS,
   MAX_FRAME_TIME,
+  livesFor,
   ROUND_BREAK,
   START_LINE_LENGTH,
   walkBoundFor,
@@ -128,6 +129,8 @@ export function createMatchEngine({
    */
   const anchors = anchorsFor(count)
   const walkBound = walkBoundFor(count)
+  // Fewer lives the more fighters there are — see `livesFor`.
+  const lives = livesFor(count)
 
   /**
    * Launch altitude that clears every hazard between the anchor and where the
@@ -161,6 +164,7 @@ export function createMatchEngine({
     effectId: config.player.effectId,
     minAltitude: safeLaunchAltitude(anchors[0] as number),
     walkBound,
+    lives,
   })
 
   const fighters: FighterState[] = [player]
@@ -184,6 +188,7 @@ export function createMatchEngine({
       effectId: opponent.effectId,
       minAltitude: safeLaunchAltitude(anchorX),
       walkBound,
+      lives,
     }))
 
     inputs.push(
@@ -242,6 +247,7 @@ export function createMatchEngine({
     rivalsOf(self)[0] as FighterState
 
   const snapshot: MatchSnapshot = {
+    startingHp: lives,
     phase: 'countdown',
     outcome: { kind: 'pending' },
     arena,

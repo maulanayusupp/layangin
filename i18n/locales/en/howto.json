@@ -11,8 +11,8 @@
     },
     "goal": {
       "title": "The goal",
-      "body": "Both kites fly downwind of their flyer, so the two lines cross in the middle of the field. Wherever they touch, each line abrades the other. Losing your line costs one of your two lives and the round restarts; lose both and the match is over. If nobody has run out inside 45 seconds, whoever has more lives left — or the better line, if that is level — takes it.",
-      "freeForAll": "You can also take on two or three at once. In a free-for-all everyone fights everyone: any pair of crossed lines abrades, so the opponents cut each other as readily as they cut you. Letting two of them grind each other down is a real tactic — but they weigh your line above another flyer's, so nobody is going to leave you alone for long. A round ends when your line parts or only one line is left; an opponent out of lives is out of the match."
+      "body": "Both kites fly downwind of their flyer, so the two lines cross in the middle of the field. Wherever they touch, each line abrades the other. Losing your line costs one of your {lives} lives and the round restarts; lose them all and the match is over. If nobody has run out inside {seconds} seconds, whoever has more lives left — or the better line, if that is level — takes it.",
+      "freeForAll": "You can also take on two or three at once. In a free-for-all everyone fights everyone: any pair of crossed lines abrades, so the opponents cut each other as readily as they cut you. Letting two of them grind each other down is a real tactic — but they weigh your line above another flyer's, so nobody is going to leave you alone for long. A round ends when your line parts or only one line is left; an opponent out of lives is out of the match. Everyone gets fewer lives and a longer clock the more flyers are in the air, since beating three of them means cutting all three down."
     },
     "controls": {
       "title": "Controls",

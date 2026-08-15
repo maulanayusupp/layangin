@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { DEFAULT_TIME_LIMIT, STARTING_HP } from '~/services/game/constants'
+
 /**
  * How to play.
  *
@@ -55,7 +57,13 @@ usePageSeo(() => ({
             {{ t('howto.goal.title') }}
           </h2>
           <p class="guide__body">
-            {{ t('howto.goal.body') }}
+            <!--
+              The lives and the clock are interpolated from the constants rather
+              than typed into the copy. They were hardcoded once and went stale the
+              moment the balance changed — and no guard can catch a sentence that is
+              merely out of date.
+            -->
+            {{ t('howto.goal.body', { lives: STARTING_HP, seconds: DEFAULT_TIME_LIMIT }) }}
           </p>
           <p class="guide__body">
             {{ t('howto.goal.freeForAll') }}

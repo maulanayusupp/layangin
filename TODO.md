@@ -177,6 +177,46 @@ lit.
       say the field is unflyable without deliberate avoidance. Do not just soften
       `CABLE_ABRASION` — that hides the geometry problem instead of fixing it.
 
+### Duration, lengthened again — and what actually controls it
+
+Asked for longer matches than the ~22 s band below. Re-swept with the cap lifted
+to 400 s first, so nothing was measured through a ceiling:
+
+```
+                mean    band       note
+abr 7, 3 hp    22.5s   18–30s      was shipping
+abr 7, 4 hp    29.4s   25–36s
+abr 7, 5 hp    35.8s   31–42s      ← now shipping
+abr 8, 5 hp    33.8s   28–39s
+abr 6, 4 hp    36.4s   26–56s      same mean, twice the spread
+abr 5, 4 hp    45.2s   26–81s      spread collapses entirely
+```
+
+**Lives lengthen a match evenly; lowering abrasion does not.** The last two rows
+are the finding: reaching the same mean by slowing the cutting widens the band from
+11 s to 55 s, because the contact-starved matchups stall rather than finish. Lives
+are the lever for length, abrasion for tightness.
+
+**The cap is not a formality.** Left at 400 s the median duel still finished in
+32 s, but the 90th percentile ran to 319 s and the longest to 335 s — tiers 3 and 6
+genuinely never resolve for an under-equipped player, and five lives multiplies that
+stall fivefold.
+
+**Free-for-all needed its own numbers.** At five lives each, winning a four-way
+means fifteen cuts, and 17 of 24 measured matches ended on the clock. Lives now
+shrink as the sky fills (`livesFor`: 5 / 4 / 3) and the clock grows
+(`timeLimitFor`: 60 / 85 / 110 s). That also fixed the HUD: four fighters at five
+pips each overflowed the mobile strip.
+
+- [ ] Free-for-all still reaches the clock in about a quarter of measured matches
+      (13/48 three-way, 11/48 four-way, means 55 s and 52 s). Expected to be
+      overstated — the harness player never attacks, so it rarely eliminates anyone
+      — but worth re-measuring once a human has played some.
+- [ ] The guide's lives and clock are now interpolated from the constants rather
+      than typed into the copy. They had gone stale once already, and no guard can
+      catch a sentence that is merely out of date. Worth doing the same anywhere
+      else prose quotes a number.
+
 ### Duration, recalibrated against real loadouts
 
 The tables further down were all measured with the starter kite at every tier,

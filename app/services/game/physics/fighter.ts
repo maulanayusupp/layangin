@@ -49,6 +49,8 @@ export interface FighterInit {
   minAltitude?: number
   /** How far this fighter may walk from centre. Defaults to the duel bound. */
   walkBound?: number
+  /** Lives. Defaults to the duel value; a crowded sky gets fewer — see `livesFor`. */
+  lives?: number
 }
 
 /**
@@ -123,7 +125,7 @@ export function createFighter(init: FighterInit): FighterState {
     reelRate: 0,
     tension: 0,
     lineIntegrity: 1,
-    hp: STARTING_HP,
+    hp: init.lives ?? STARTING_HP,
     eliminated: false,
     stamina: 1,
     staminaEfficiency: Math.max(0.1, init.staminaEfficiency),
