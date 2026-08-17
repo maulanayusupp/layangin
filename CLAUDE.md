@@ -135,6 +135,30 @@ exist because of the crowd:
   four-way matches against the top tier because the opponents ignored them. The
   weighting is disclosed on the compliance page.
 
+### Teach the two things that decide a match
+
+Measured against real per-tier loadouts, a scripted player that holds neutral
+through crossings wins **0 matches in 48**; the same player hauling on contact and
+walking to contest the angle wins **29**. Everything else — yank timing, altitude,
+stamina management — is worth a fraction of that.
+
+For a long time nothing in the game said so. The HUD reported who was winning the
+exchange and never what to do about it, and the only tactical writing was three
+hand-written boss briefs. Two things now carry it, and both must keep leading with
+those two actions:
+
+- `services/game/briefing.ts` derives a brief for **any** matchup by comparing the
+  opponent's stats against the player's *current* loadout. That is what makes it an
+  answer to "how do I beat someone stronger than me": buy a tougher line and the
+  advice to avoid a grind disappears, because the grind is now winnable. Add a line
+  here when adding a stat or an AI trait; never hand-write advice a comparison
+  could produce.
+- `useMatch`'s `updateCoach` shows one instruction in the arena at the moment it
+  applies, and **stops for good** once the player has hauled into five crossings
+  (through the ordinary hint-dismissal store, so "show tips again" restores it). It
+  ranks below the snag and overload alarms: a line being destroyed is more urgent
+  than technique.
+
 ### Every AI advantage must pass through a human limit
 
 `/compliance` promises that difficulty comes only from human-shaped limits —
@@ -420,7 +444,8 @@ Alongside the code change, update whichever of these it touches:
 |---|---|
 | Any user-visible string | both locales, then `pnpm lint:i18n` |
 | A catalog entry (kite, airframe, pattern, palette, effect, arena, opponent) | `*.name`/`*.lore` in both locales |
-| An opponent marked `isBoss` | `game.tactics.items.<id>` in both locales — the brief shown before the fight and after a loss. Every claim in it must be read off that opponent's own numbers (airframe steering rate, upgrade levels, wind and gust), not invented |
+| An opponent marked `isBoss` | `game.tactics.items.<id>` in both locales — the hand-written brief inside the derived one. Every claim in it must be read off that opponent's own numbers (airframe steering rate, upgrade levels, wind and gust), not invented |
+| A stat that decides an exchange, or an `AiProfile` field | `services/game/briefing.ts` — the pre-match brief is derived from those numbers, so a new lever needs a line there or the advice goes quietly incomplete |
 | An airframe outline or the derivation formulas | nothing by hand — but check `tests/airframes.spec.ts` still passes, especially the distinct-silhouette test |
 | A sound cue | `/compliance` accessibility section: confirm it still has a visible counterpart |
 | The flight model, trim, reel model or anchor separation | `tests/flight.spec.ts` — especially the crossing-rate and "never sinks" tests |

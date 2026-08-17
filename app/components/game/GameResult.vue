@@ -5,6 +5,8 @@ import type { MatchHud } from '~/composables/useMatch'
 import {
   isDraw as outcomeIsDraw,
   isPlayerWin,
+  type ArenaDefinition,
+  type MatchLoadout,
   type MatchOutcome,
   type MatchReward,
   type MatchStats,
@@ -41,6 +43,10 @@ const props = defineProps<{
   isReplay?: boolean
   /** True when a playback did not reproduce the result it recorded. */
   replayMismatch?: boolean
+  /** The loadout that was flown, so the brief compares against the real gear. */
+  loadout?: MatchLoadout
+  /** The field it was flown on, for the wind and gust in the brief. */
+  arena?: ArenaDefinition
 }>()
 
 const emit = defineEmits<{ rematch: [], next: [], quit: [] }>()
@@ -93,9 +99,6 @@ const reason = computed(() => {
       return ''
   }
 })
-
-/** The three tips a boss brief carries. See `game.tactics` in the locales. */
-const bossTips = [1, 2, 3] as const
 
 const advice = computed(() => {
   if (!props.stats) return null
@@ -252,36 +255,17 @@ const advice = computed(() => {
       </details>
 
       <!--
-        The tactical brief, repeated where it is most wanted: right after losing to
-        a boss. Collapsed by default with `<details>`, so a player who already knows
-        it is not made to read it again before hitting rematch.
+        The brief, repeated where it is most wanted: right after a loss, with the
+        opponent's numbers compared against what the player is actually flying. It
+        is the same panel as the setup screen, so the advice cannot say two things.
       -->
-      <details
-        v-if="opponent.isBoss && !playerWon"
-        class="result__tactics"
-      >
-        <summary class="result__tactics-summary">
-          {{ t('game.tactics.title') }}
-        </summary>
-
-        <p class="result__tactics-read">
-          {{ t(`game.tactics.items.${opponent.id}.read`) }}
-        </p>
-
-        <ol class="result__tactics-list">
-          <li
-            v-for="tip in bossTips"
-            :key="tip"
-          >
-            {{ t(`game.tactics.items.${opponent.id}.tips.${tip}`) }}
-          </li>
-        </ol>
-
-        <p class="result__tactics-gear">
-          <strong>{{ t('game.tactics.gearLabel') }}:</strong>
-          {{ t(`game.tactics.items.${opponent.id}.gear`) }}
-        </p>
-      </details>
+      <GameBriefing
+        v-if="!playerWon && !isDraw && arena && loadout"
+        :opponent="opponent"
+        :player="loadout"
+        :arena="arena"
+        open
+      />
     </div>
 
     <template #footer>
@@ -357,102 +341,5 @@ const advice = computed(() => {
   resize: vertical;
 
   @include focus-visible(2px);
-}
-
-.result__tactics {
-  padding: var(--sp-3) var(--sp-4);
-  border: 1px solid color-mix(in srgb, var(--c-gold) 40%, transparent);
-  border-radius: var(--r-md);
-  background: color-mix(in srgb, var(--c-gold) 8%, transparent);
-}
-
-.result__tactics-summary {
-  font-family: var(--font-display);
-  font-size: var(--fs-sm);
-  font-weight: 700;
-  cursor: pointer;
-  color: var(--c-gold);
-
-  @include focus-visible(2px);
-}
-
-.result__tactics-read,
-.result__tactics-gear {
-  margin-block-start: var(--sp-2);
-  font-size: var(--fs-xs);
-  color: var(--c-text-soft);
-}
-
-.result__tactics-list {
-  display: grid;
-  gap: var(--sp-2);
-  margin-block-start: var(--sp-2);
-  padding-inline-start: var(--sp-5);
-  list-style: decimal;
-
-  li {
-    font-size: var(--fs-xs);
-    color: var(--c-text);
-
-    &::marker {
-      color: var(--c-gold);
-    }
-  }
-}
-
-.result {
-  display: grid;
-  gap: var(--sp-4);
-}
-
-.result__reason {
-  font-family: var(--font-display);
-  font-size: var(--fs-md);
-  font-weight: 700;
-
-  &.is-win {
-    color: var(--c-success);
-  }
-
-  &.is-loss {
-    color: var(--c-danger);
-  }
-}
-
-.result__coins {
-  display: grid;
-  gap: rem(6);
-  padding: var(--sp-4);
-  border: 1px solid color-mix(in srgb, var(--c-gold) 26%, transparent);
-  border-radius: var(--r-md);
-  background: color-mix(in srgb, var(--c-gold) 7%, transparent);
-}
-
-.result__coin-row {
-  display: flex;
-  gap: var(--sp-3);
-  align-items: baseline;
-  justify-content: space-between;
-  font-size: var(--fs-sm);
-  color: var(--c-text-soft);
-}
-
-.result__coin-row--total {
-  padding-block-start: rem(7);
-  font-size: var(--fs-md);
-  color: var(--c-gold);
-  border-block-start: 1px solid color-mix(in srgb, var(--c-gold) 26%, transparent);
-}
-
-.result__stats-title {
-  margin-block-end: rem(4);
-  font-size: var(--fs-sm);
-  color: var(--c-text-mute);
-}
-
-.result__stats-grid {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  column-gap: var(--sp-4);
 }
 </style>

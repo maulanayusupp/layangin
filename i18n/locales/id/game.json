@@ -250,6 +250,33 @@
         "unknown-opponent": "Replay itu memuat lawan yang tidak ada di versi ini."
       },
       "mismatch": "Replay ini tidak berjalan sama seperti saat direkam. Simulasinya sudah berubah sejak itu — yang baru saja Anda tonton bukan lagi duel yang tersimpan."
+    },
+    "brief": {
+      "title": "Cara mengalahkannya",
+      "outgeared": "Perlengkapannya di atas Anda. Tetap bisa dimenangkan, tapi bukan dengan adu gerusan — baca dua poin di bawah dulu.",
+      "even": "Baca ini sebelum menerbangkan.",
+      "coreLabel": "Lakukan dua hal ini",
+      "edgeLabel": "Menguntungkan Anda",
+      "riskLabel": "Merugikan Anda",
+      "points": {
+        "haul": "Tarik begitu benang bersentuhan. Kerusakan dibagi menurut pembagian tegangan, jadi benang yang lebih kencang yang menggerus dan yang lebih kendur yang tergerus. Diam saja saat bersilangan adalah cara paling umum kalah.",
+        "walk": "Jalan menyamping supaya bertemu tegak lurus. Persilangan siku menggerus paling dalam; yang miring nyaris tidak berarti. Terukur, menarik dan berjalan bersama-sama bernilai lebih besar daripada semua isi halaman ini digabung.",
+        "weakerLine": "Benang mereka tahan sekitar {percent}% lebih banyak gerusan daripada milik Anda. Jangan betah berlama-lama beradu — Anda kalah di pertukaran itu. Ambil sentuhan pendek dalam keadaan tegang, lalu menjauh.",
+        "strongerLine": "Benang Anda tahan sekitar {percent}% lebih banyak gerusan daripada milik mereka. Anda sanggup bertahan di persilangan yang justru harus mereka tinggalkan.",
+        "weakerGelasan": "Gelasan mereka menggigit lebih dalam. Setiap detik bersentuhan lebih mahal bagi Anda daripada bagi mereka, jadi buat sentuhannya berarti, bukan diperbanyak.",
+        "strongerGelasan": "Gelasan Anda menggigit lebih dalam. Waktu bersentuhan berpihak pada Anda — bertahanlah di persilangan.",
+        "nimbler": "Kemudi Anda lebih cepat daripada mereka ({mine} lawan {theirs}), jadi sudut persilangan Anda yang tentukan. Ambil sisi yang Anda mau; mereka masih dalam perjalanan.",
+        "slower": "Kemudi mereka lebih cepat daripada Anda ({theirs} lawan {mine}), jadi merekalah yang memilih sudut. Ambil keputusan lebih awal daripada mencoba mengakali di detik terakhir.",
+        "gusty": "Anginnya menghentak. Hentakan sudah membebani benang Anda, jadi menarik di atasnya mendorong Anda melewati tanda merah — tempat benang tergerus sendiri tanpa perlu lawan. Tarik saat angin reda.",
+        "strongWind": "Angin kencang. Benang Anda sudah tinggi di meteran beban sebelum menyentuh apa pun, jadi awasi itu seketat Anda mengawasi lawan.",
+        "committed": "Mereka berani masuk ke persilangan dan jarang mundur. Anda bisa mengandalkan sentuhannya terjadi — datanglah dalam keadaan sudah menarik.",
+        "cagey": "Mereka menjauh saat merasa kalah. Perang urat saraf menguntungkan mereka, jadi menangkan pertukaran yang ada alih-alih menunggu yang panjang.",
+        "sloppy": "Mereka benar-benar bisa salah. Tetap dekat dan siap — celahnya pasti datang."
+      }
+    },
+    "coach": {
+      "haul": "Benang bersilangan — tarik sekarang supaya lebih tegang",
+      "angle": "Masih kalah? Jalan menyamping agar bersilangan tegak lurus"
     }
   },
   "opponents": {

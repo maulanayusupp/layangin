@@ -226,6 +226,22 @@ const advantageLabel = computed(() => {
       </div>
     </div>
 
+    <!--
+      Coaching, not a readout: the one place the interface tells you what to *do*.
+      Sits above the bottom strip, holds for a beat so it cannot flicker, and stops
+      appearing for good once the player has the habit — see `updateCoach`.
+
+      Ranked below the two alarms: a line being destroyed by a cable or by your own
+      overload is more urgent than technique, so those win the space.
+    -->
+    <p
+      v-if="hud.coach && !hud.snagged && hud.playerLoad < OVERLOAD_MARK"
+      class="hud__coach"
+      role="status"
+    >
+      {{ t(`game.coach.${hud.coach}`) }}
+    </p>
+
     <!-- Two things can be silently destroying your line. Both get a callout. -->
     <p
       v-if="hud.snagged"
@@ -620,6 +636,36 @@ const advantageLabel = computed(() => {
 
 .hud__snap.is-ready .hud__snap-state {
   color: var(--c-brand-soft);
+}
+
+/**
+ * Just above the bottom strip, centred, and narrow enough to read in a glance. Not
+ * an alarm colour: this is advice, and dressing it as a warning would make the real
+ * warnings mean less.
+ */
+.hud__coach {
+  position: absolute;
+  inset-block-end: rem(74);
+  inset-inline: var(--sp-3);
+  padding: rem(5) var(--sp-3);
+  margin-inline: auto;
+  width: fit-content;
+  max-width: calc(100% - var(--sp-6));
+  font-family: var(--font-display);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  text-align: center;
+  text-wrap: balance;
+  color: var(--c-ink-900);
+  border-radius: var(--r-pill);
+  background: var(--c-brand-soft);
+  box-shadow: var(--sh-2);
+
+  @include animate(pop-in, var(--dur-base), var(--ease-spring));
+
+  @include mq('md') {
+    inset-block-end: rem(96);
+  }
 }
 
 .hud__alarm {

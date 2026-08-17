@@ -283,6 +283,8 @@ function quit(): void {
       :replay-text="match.replayText.value"
       :is-replay="match.isReplay.value"
       :replay-mismatch="match.replayMismatch.value"
+      :loadout="player.loadout"
+      :arena="player.activeArena"
       @rematch="rematch"
       @next="next"
       @quit="quit"

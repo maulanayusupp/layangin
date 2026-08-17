@@ -210,10 +210,19 @@ Duel length barely moved: 35.5 s → 34.2 s mean, and capped matches went 1/48 �
 - [ ] The ladder is still not ordered: measured 6/6/6/2/5/4/0/0 across tiers. The
       dips are gear matchups, not difficulty. The ordering test in the section below
       is still worth writing.
-- [ ] Nothing in the match *teaches* the player to haul on contact, which the table
-      above shows is worth 29 wins out of 48. The exchange bar reports who is winning
-      but never says what to do about it. A one-off coaching hint on the first
-      crossing would be the cheapest fix.
+- [x] **The game now teaches the two things that matter.** A derived brief
+      (`services/game/briefing.ts`) compares the opponent's stats against the
+      player's current loadout and leads with hauling and walking every time; it
+      shows on the setup screen for every opponent and again after a loss. In the
+      arena, one coaching line appears at the moment a crossing is being lost and
+      stops for good after the player has hauled into five of them.
+- [ ] Non-boss opponents still have no hand-written flavour brief, only the derived
+      one. That is deliberate — three accurate ones beat eight shallow ones — but the
+      derived panel now covers the tactical need, so any addition would be for
+      character rather than help.
+- [ ] The coaching cue is untested by anything but reading it. Component tests would
+      catch a cue that fires on every glancing brush or never dismisses; the harness
+      for that (`@nuxt/test-utils`) is installed and unused.
 
 ### Duration, lengthened again — and what actually controls it
 

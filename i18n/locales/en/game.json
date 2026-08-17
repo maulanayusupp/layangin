@@ -250,6 +250,33 @@
         "unknown-opponent": "That replay features an opponent this version does not have."
       },
       "mismatch": "This replay did not come out the same way it was recorded. The simulation has changed since — what you just watched is no longer the match that was saved."
+    },
+    "brief": {
+      "title": "How to beat them",
+      "outgeared": "They out-gear you. That is winnable, but not by grinding — read the two lines below first.",
+      "even": "Read these before you launch.",
+      "coreLabel": "Do these two things",
+      "edgeLabel": "In your favour",
+      "riskLabel": "Against you",
+      "points": {
+        "haul": "Haul the moment the lines touch. Damage is split by tension share, so the tighter line does the cutting and the slacker one takes it. Holding neutral through a crossing is how most matches are lost.",
+        "walk": "Walk sideways to meet them square. A right-angle crossing bites hardest; a shallow one barely counts. Measured, hauling and walking together are worth more than everything else on this page combined.",
+        "weakerLine": "Their line survives about {percent}% more punishment than yours. Do not settle in for a long grind — you lose that trade. Take short, loaded exchanges and break off.",
+        "strongerLine": "Your line takes about {percent}% more punishment than theirs. You can afford to stay in a crossing they have to leave.",
+        "weakerGelasan": "Their gelasan bites harder than yours. Every second of contact costs you more than it costs them, so make contact count rather than making a lot of it.",
+        "strongerGelasan": "Your gelasan bites harder. Time in contact is on your side — stay in the crossing.",
+        "nimbler": "You steer faster than they do ({mine} against {theirs}), so the crossing angle is yours to choose. Take the side you want; they will still be arriving.",
+        "slower": "They steer faster than you ({theirs} against {mine}), so they will pick the angle. Commit early instead of trying to out-manoeuvre them late.",
+        "gusty": "The air is gusty. A gust already loads your line, so hauling on top of one pushes you past the red mark — where the line wears out with no opponent involved. Haul in the lulls.",
+        "strongWind": "Strong wind. Your line sits high on the load meter before you touch anything, so watch it as closely as you watch them.",
+        "committed": "They commit to a crossing and rarely back out. You can count on the contact happening — arrive already hauled.",
+        "cagey": "They break off when they are losing. A war of attrition favours them, so win the exchanges you get rather than waiting for a long one.",
+        "sloppy": "They make real mistakes. Stay close and be ready — the opening will come."
+      }
+    },
+    "coach": {
+      "haul": "Lines crossed — haul now to be the tauter line",
+      "angle": "Still losing? Walk sideways to cross square"
     }
   },
   "opponents": {

@@ -79,17 +79,6 @@ function chooseOpponent(entry: OpponentDefinition): void {
   if (!formats.value.includes(lineupSize.value)) lineupSize.value = 1
 }
 
-/**
- * Tactical brief for a boss.
- *
- * Only bosses get one. Every claim in the copy is read off the opponent's own
- * numbers — its airframe's steering rate against the starter kite's, its upgrade
- * levels, the wind and gust it fights in — so the advice cannot quietly drift away
- * from what the simulation actually does. Losing repeatedly to a boss without ever
- * being told *why* is the point at which people stop playing.
- */
-const bossTips = [1, 2, 3] as const
-
 function fly(): void {
   emit('fly', lineup.value)
 }
@@ -269,46 +258,17 @@ function watchReplay(): void {
       </div>
     </fieldset>
 
-    <UiPanel
-      v-if="opponent.isBoss"
-      accent="gold"
-      class="tactics"
-    >
-      <h2 class="tactics__title">
-        {{ t('game.tactics.title') }}
-      </h2>
-
-      <p class="tactics__label">
-        {{ t('game.tactics.readLabel') }}
-      </p>
-      <p class="tactics__read">
-        {{ t(`game.tactics.items.${opponent.id}.read`) }}
-      </p>
-
-      <ol class="tactics__list">
-        <li
-          v-for="tip in bossTips"
-          :key="tip"
-        >
-          {{ t(`game.tactics.items.${opponent.id}.tips.${tip}`) }}
-        </li>
-      </ol>
-
-      <p class="tactics__label">
-        {{ t('game.tactics.gearLabel') }}
-      </p>
-      <p class="tactics__gear">
-        {{ t(`game.tactics.items.${opponent.id}.gear`) }}
-      </p>
-
-      <UiButton
-        variant="ghost"
-        size="sm"
-        :to="localePath('/how-to-play')"
-      >
-        {{ t('game.tactics.moreLink') }}
-      </UiButton>
-    </UiPanel>
+    <!--
+      Always shown, not just for bosses. The whole panel is derived from the gap
+      between this opponent's numbers and the player's current loadout, so it answers
+      "how do I beat someone stronger than me" rather than reciting generic advice —
+      and it changes the moment a better line is bought.
+    -->
+    <GameBriefing
+      :opponent="opponent"
+      :player="player.loadout"
+      :arena="player.activeArena"
+    />
 
     <p
       v-if="player.save.ladderClears > 0"
@@ -605,54 +565,6 @@ function watchReplay(): void {
 .setup__format-note {
   font-size: var(--fs-xs);
   color: var(--c-text-soft);
-}
-
-.tactics {
-  display: grid;
-  gap: var(--sp-2);
-  justify-items: start;
-}
-
-.tactics__title {
-  font-size: var(--fs-lg);
-  color: var(--c-gold);
-}
-
-.tactics__label {
-  margin-block-start: var(--sp-2);
-  font-family: var(--font-mono);
-  font-size: rem(9.5);
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--c-text-mute);
-}
-
-.tactics__read,
-.tactics__gear {
-  max-width: 68ch;
-  font-size: var(--fs-sm);
-  color: var(--c-text-soft);
-}
-
-/// Numbered, because these are steps to try in order, not a pile of hints.
-.tactics__list {
-  display: grid;
-  gap: var(--sp-2);
-  margin-block-start: var(--sp-2);
-  padding-inline-start: var(--sp-5);
-  list-style: decimal;
-
-  li {
-    max-width: 68ch;
-    font-size: var(--fs-sm);
-    color: var(--c-text);
-
-    &::marker {
-      font-family: var(--font-mono);
-      font-size: var(--fs-xs);
-      color: var(--c-gold);
-    }
-  }
 }
 
 .setup__difficulty {

@@ -90,7 +90,35 @@ export interface MatchHud {
   lastRound: RoundResult | null
   snapReady: boolean
   snapCooldown: number
+  /**
+   * What to coach the player on right now, or null.
+   *
+   * Not a readout — an instruction, and the only one in the interface. Measured
+   * against real per-tier loadouts, a player who holds neutral through crossings
+   * wins 0 matches in 48 while one who hauls on contact and walks to contest wins
+   * 29. Nothing else the HUD shows is worth telling someone about by comparison,
+   * and until now nothing told them at all.
+   */
+  coach: CoachCue | null
 }
+
+/** Coaching cues, in the order they are checked. */
+export type CoachCue = 'haul' | 'angle'
+
+/** Times the player must haul into a crossing before the coaching stops. */
+const COACH_LEARNED_AFTER = 5
+
+/** Seconds a cue stays up once shown, so it cannot flicker on and off. */
+const COACH_HOLD = 1.6
+
+/**
+ * Dismissal id for the coaching cues.
+ *
+ * Shared by both cues on purpose: someone who has learned to haul into a crossing
+ * does not need to be told about the angle either, and two separate nags would be
+ * one too many. Cleared by "show tips again" like every other hint.
+ */
+const COACH_HINT_ID = 'match-coach'
 
 function emptyHud(): MatchHud {
   return {
@@ -120,6 +148,7 @@ function emptyHud(): MatchHud {
     lastRound: null,
     snapReady: true,
     snapCooldown: 0,
+    coach: null,
   }
 }
 
@@ -210,6 +239,20 @@ export function useMatch({ canvas, container, hudFooter }: UseMatchOptions) {
   /** Carry for the sparse spark ticks laid over the rasp. */
   let sparkCarry = 0
 
+  /**
+   * Coaching state.
+   *
+   * `hauledIntoContact` counts the times the player answered a crossing by pulling.
+   * Once they plainly have the habit the cue is dismissed for good through the
+   * settings store, which is the same mechanism every other hint uses — so it is
+   * also restored by "show tips again".
+   */
+  let coachCue: CoachCue | null = null
+  let coachHold = 0
+  let contactFor = 0
+  let hauledThisContact = false
+  let hauledIntoContact = 0
+
   const syncHud = (): void => {
     if (!engine) return
     const snapshot = engine.snapshot
@@ -217,6 +260,7 @@ export function useMatch({ canvas, container, hudFooter }: UseMatchOptions) {
 
     hud.value = {
       phase: snapshot.phase,
+      coach: coachCue,
       countdown: snapshot.countdown,
       elapsed: snapshot.elapsed,
       timeRemaining: Math.max(0, snapshot.timeLimit - snapshot.elapsed),
@@ -248,6 +292,71 @@ export function useMatch({ canvas, container, hudFooter }: UseMatchOptions) {
       snapReady: self.snapCooldown === 0 && self.stamina > 0.22,
       snapCooldown: self.snapCooldown,
     }
+  }
+
+  /**
+   * Decide what, if anything, to tell the player this frame.
+   *
+   * Deliberately narrow: two cues, both about the thing that decides matches, and
+   * both suppressed the moment the player shows they already know. The existing
+   * snag and overload alarms cover the other two ways to lose a line, so this does
+   * not repeat them.
+   */
+  const updateCoach = (seconds: number): void => {
+    if (!engine) return
+    const snapshot = engine.snapshot
+    const self = snapshot.player
+
+    coachHold = Math.max(0, coachHold - seconds)
+
+    if (snapshot.phase !== 'flying' || !self.alive) {
+      contactFor = 0
+      hauledThisContact = false
+      if (coachHold === 0) coachCue = null
+      return
+    }
+
+    const clashing = snapshot.clashes.some(clash => clash.kind === 'line')
+    const hauling = self.reelRate > 0.5
+
+    if (clashing) {
+      contactFor += seconds
+      if (hauling && !hauledThisContact) {
+        hauledThisContact = true
+        hauledIntoContact += 1
+        if (hauledIntoContact >= COACH_LEARNED_AFTER) settings.dismissHint(COACH_HINT_ID)
+      }
+    }
+    else {
+      contactFor = 0
+      hauledThisContact = false
+    }
+
+    // Nothing to teach someone who has already been taught.
+    if (settings.isHintDismissed(COACH_HINT_ID)) {
+      if (coachHold === 0) coachCue = null
+      return
+    }
+
+    /**
+     * The lines are crossed and the player is not pulling. Given a moment first —
+     * a cue that appears the instant contact starts would fire on every glancing
+     * brush and read as noise.
+     */
+    if (clashing && !hauling && contactFor > 0.4) {
+      coachCue = 'haul'
+      coachHold = COACH_HOLD
+      return
+    }
+
+    // Pulling but still losing the exchange: the angle is the other half.
+    if (clashing && hauling && hud.value.advantage < 0.42 && contactFor > 1.2) {
+      coachCue = 'angle'
+      coachHold = COACH_HOLD
+      return
+    }
+
+    if (coachHold === 0) coachCue = null
   }
 
   /**
@@ -463,6 +572,7 @@ export function useMatch({ canvas, container, hudFooter }: UseMatchOptions) {
     }
 
     renderer.render(engine.snapshot, paused.value ? 0 : dt)
+    if (!paused.value) updateCoach(Math.min(dt, 0.05))
     syncHud()
 
     lastFrameSeconds = Math.min(dt, 0.05)
@@ -515,6 +625,10 @@ export function useMatch({ canvas, container, hudFooter }: UseMatchOptions) {
     announcedResult = false
     announcedFall = false
     sparkCarry = 0
+    coachCue = null
+    coachHold = 0
+    contactFor = 0
+    hauledThisContact = false
 
     if (!sfx) sfx = createSfxEngine(!settings.sound)
     sfx.setMuted(!settings.sound)
