@@ -78,6 +78,26 @@ const TARGET_COMMITMENT = 7.5
  */
 const PLAYER_APPEAL = 2.6
 
+/**
+ * How much of its reaction time the AI takes to answer a contact, 0..1.
+ *
+ * Below 1 because feeling the other line is a reflex, not a decision — you know it
+ * is there before you have worked out what to do about it. Not 0, because that was
+ * the bug: the response fired 8 ms after the lines touched for every opponent on
+ * the ladder, including the beginner whose reaction time is nominally 0.95 s.
+ *
+ * Swept against a scripted player that hauls, yanks and walks (win rate out of 48):
+ *
+ * ```
+ * share 0.35   26   share 0.7   34
+ * share 0.5    29   share 1.0   37
+ * ```
+ *
+ * Half keeps a passive player at 0/48 — doing nothing must still lose — while
+ * leaving the first three tiers winnable with active play and the last two a wall.
+ */
+const CONTACT_REACTION_SHARE = 0.5
+
 interface AiPlan {
   /** Fighter index this plan is aimed at. */
   target: number
@@ -126,6 +146,13 @@ export function createAiInput({ profile, random, clearance, bounds }: AiOptions)
     blundering: false,
   }
   let timeUntilRethink = 0
+  /**
+   * How long the lines have been touching, seconds. Reset the moment they part.
+   *
+   * The contact response is gated on this rather than firing immediately — see the
+   * note where it is applied.
+   */
+  let contactFor = 0
   /** Seconds left on the current side commitment. */
   let sideCommitment = 0
   /** Seconds left before the target is reconsidered. */
@@ -291,6 +318,7 @@ export function createAiInput({ profile, random, clearance, bounds }: AiOptions)
       timeUntilRethink -= context.dt
       sideCommitment -= context.dt
       targetCommitment -= context.dt
+      contactFor = context.contact ? contactFor + context.dt : 0
 
       if (timeUntilRethink <= 0) {
         plan = decide(context)
@@ -320,8 +348,17 @@ export function createAiInput({ profile, random, clearance, bounds }: AiOptions)
        * flyer does the moment they feel the other line. Without this the AI spent
        * every exchange as the slacker line and could not win a single one: a player
        * who did nothing at all beat every opponent.
+       *
+       * **It has to wait for its own reaction time first.** This override lived
+       * outside the reaction gate, so the single most decisive action in the game
+       * fired 8 ms after the lines touched — for *every* opponent, including the
+       * first one on the ladder whose reaction time is nominally 0.95 s. Difficulty
+       * here is supposed to come only from human-shaped limits, and `/compliance`
+       * says so; an instant reflex is not one. Measured, the gap it created is
+       * large: a scripted player reacting in 0.25 s won 18 of 48, and the same
+       * player reacting instantly won 26.
        */
-      if (context.contact) {
+      if (contactFor >= profile.reactionTime * CONTACT_REACTION_SHARE) {
         reel = Math.max(reel, lerp(0.2, 0.65, profile.aggression))
       }
 

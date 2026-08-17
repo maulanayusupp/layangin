@@ -134,6 +134,26 @@ exist because of the crowd:
   flavour: with purely nearest-target selection, a measured passive player won 6 of 6
   four-way matches against the top tier because the opponents ignored them. The
   weighting is disclosed on the compliance page.
+
+### Every AI advantage must pass through a human limit
+
+`/compliance` promises that difficulty comes only from human-shaped limits —
+reaction time, precision, discipline, mistake rate — plus gear. That promise is
+easy to break by accident, and was: the haul-on-contact response lived in
+`sample()` rather than behind the reaction gate, so the most decisive action in a
+duel fired one step after the lines touched, for **every** opponent including the
+first rung with its nominal 0.95 s reaction. Measured, a scripted player that
+hauls, yanks and walks went from 18 wins in 48 to 37 once it was gated.
+
+So when adding any AI behaviour, ask which human limit it passes through. If the
+answer is "none", it is a cheat however small it looks. `tests/ai.spec.ts` pins
+the contact reflex; extend it rather than adding an ungated reaction.
+
+Note the reflex uses `CONTACT_REACTION_SHARE` (0.5) of the reaction time, because
+feeling the other line is quicker than deciding a plan. Also beware the degenerate
+case: gating on `contactFor >= 0` is *not* "no delay", it is "always hauling", since
+`contactFor` is 0 when the lines are apart. That misreading measured as a passive
+player winning 8 of 48.
 - **Rewards sum.** `computeReward` takes the whole lineup, and a first-time win
   marks every opponent in it as beaten.
 

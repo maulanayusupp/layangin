@@ -177,6 +177,44 @@ lit.
       say the field is unflyable without deliberate avoidance. Do not just soften
       `CABLE_ABRASION` — that hides the geometry problem instead of fixing it.
 
+### Why it felt impossible: the AI's contact reflex was ungated
+
+Reported as "very hard to beat". Measured with scripted players of increasing
+skill against real per-tier loadouts (wins out of 48):
+
+```
+                       before  after
+passive                  0       0
+haul on contact          1       2
++ yank                   5      11
++ walk to contest       18      29
+```
+
+Skill was already the dominant factor — 0 to 18 — but the AI had a real cheat.
+`input/ai.ts` applied its haul-on-contact override in `sample()`, outside the
+reaction gate, so it answered a crossing one simulation step (8 ms) after the lines
+touched. Every opponent, including tier 1 whose reaction time is nominally 0.95 s.
+That is precisely what `/compliance` promises does not happen.
+
+Gated at half the reaction time (a reflex is quicker than a decision, but not
+instant) the ladder now reads: tiers 1–3 winnable with active play, 4–6 a genuine
+challenge, 7–8 a wall no script has beaten. A passive player still wins 0 of 48,
+which is the property that must not be traded away.
+
+Duel length barely moved: 35.5 s → 34.2 s mean, and capped matches went 1/48 → 0/48.
+
+- [ ] Tiers 7 and 8 are 0/6 even for a disciplined script that manages load and
+      stamina. That may be right for the last two bosses, but no script beating them
+      means the claim "beatable with skill" is untested up there — worth revisiting
+      with a replay from a human who has actually cleared one.
+- [ ] The ladder is still not ordered: measured 6/6/6/2/5/4/0/0 across tiers. The
+      dips are gear matchups, not difficulty. The ordering test in the section below
+      is still worth writing.
+- [ ] Nothing in the match *teaches* the player to haul on contact, which the table
+      above shows is worth 29 wins out of 48. The exchange bar reports who is winning
+      but never says what to do about it. A one-off coaching hint on the first
+      crossing would be the cheapest fix.
+
 ### Duration, lengthened again — and what actually controls it
 
 Asked for longer matches than the ~22 s band below. Re-swept with the cap lifted
