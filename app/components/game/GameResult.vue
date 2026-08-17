@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { KITES } from '~/data/kites'
 import { selectAdvice } from '~/services/game/advice'
 import { LINE_BREAK_TENSION } from '~/services/game/constants'
 import type { MatchHud } from '~/composables/useMatch'
@@ -52,6 +53,10 @@ const props = defineProps<{
 const emit = defineEmits<{ rematch: [], next: [], quit: [] }>()
 
 const clipboard = useCopyToClipboard()
+const player = usePlayerStore()
+
+/** Hangar contents, so a losing matchup can point at a kite already owned. */
+const ownedKiteIds = computed(() => KITES.filter(kite => player.owns('kite', kite.id)).map(kite => kite.id))
 
 const { t, locale } = useI18n()
 
@@ -264,6 +269,7 @@ const advice = computed(() => {
         :opponent="opponent"
         :player="loadout"
         :arena="arena"
+        :owned-kite-ids="ownedKiteIds"
         open
       />
     </div>

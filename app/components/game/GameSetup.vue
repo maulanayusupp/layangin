@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { OPPONENTS, isOpponentUnlocked } from '~/data/opponents'
-import { getKite } from '~/data/kites'
+import { getKite, KITES } from '~/data/kites'
 import { availableLineupSizes, lineupFor, type LineupSize } from '~/services/game/lineup'
 import { arenaHazards } from '~/data/arenas'
 import { describeWind } from '~/services/game/physics/wind'
@@ -45,6 +45,12 @@ type Picker = 'kite' | 'arena' | 'opponent'
 const picker = ref<Picker | null>(null)
 
 const equippedKite = computed(() => getKite(player.save.loadout.kiteId))
+
+/**
+ * Airframes in the hangar. The brief uses them to point at a better matchup, which
+ * is the difference between "you are out-gunned" and "you already own the answer".
+ */
+const ownedKiteIds = computed(() => KITES.filter(kite => player.owns('kite', kite.id)).map(kite => kite.id))
 
 /** 0..1 hazard rating of the active field, the same figure the picker shows. */
 const arenaRisk = computed(() => arenaHazards(player.activeArena).rating)
@@ -268,6 +274,7 @@ function watchReplay(): void {
       :opponent="opponent"
       :player="player.loadout"
       :arena="player.activeArena"
+      :owned-kite-ids="ownedKiteIds"
     />
 
     <p

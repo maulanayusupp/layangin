@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { buildBriefing, isOutgeared, type BriefingPoint } from '~/services/game/briefing'
-import type { ArenaDefinition, MatchLoadout, OpponentDefinition } from '~/services/game/types'
+import { getKite } from '~/data/kites'
+import type { ArenaDefinition, KiteId, MatchLoadout, OpponentDefinition } from '~/services/game/types'
 
 /**
  * Pre-match brief: how to beat this particular opponent with this particular kite.
@@ -26,8 +27,10 @@ const props = withDefaults(
     arena: ArenaDefinition
     /** Start expanded. Used on the result screen after a loss. */
     open?: boolean
+    /** Airframes the player owns, so a bad matchup can point at a better one. */
+    ownedKiteIds?: KiteId[]
   }>(),
-  { open: false },
+  { open: false, ownedKiteIds: () => [] },
 )
 
 const { t } = useI18n()
@@ -37,6 +40,7 @@ const input = computed(() => ({
   opponent: props.opponent,
   windMultiplier: props.arena.windMultiplier,
   gustMultiplier: props.arena.gustMultiplier,
+  ownedKiteIds: props.ownedKiteIds,
 }))
 
 const points = computed(() => buildBriefing(input.value))
@@ -55,6 +59,22 @@ const groups = computed(() => {
 
 /** The three tips a hand-written boss brief carries. */
 const bossTips = [1, 2, 3] as const
+
+/**
+ * Interpolation values, with any kite id swapped for its translated name.
+ *
+ * The briefing service is framework-free and deals in ids; turning one into a word
+ * is the view's job, and doing it here keeps the service testable without i18n.
+ */
+function valuesFor(point: BriefingPoint): Record<string, string | number> {
+  const values = { ...(point.values ?? {}) }
+
+  if (typeof values.kite === 'string') {
+    values.kite = t(`kites.items.${getKite(values.kite as KiteId).i18nKey}.name`)
+  }
+
+  return values
+}
 </script>
 
 <template>
@@ -90,7 +110,7 @@ const bossTips = [1, 2, 3] as const
           :key="point.key"
           :class="`is-${group.kind}`"
         >
-          {{ t(`game.brief.points.${point.key}`, point.values ?? {}) }}
+          {{ t(`game.brief.points.${point.key}`, valuesFor(point)) }}
         </li>
       </ul>
     </div>

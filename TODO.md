@@ -203,10 +203,22 @@ which is the property that must not be traded away.
 
 Duel length barely moved: 35.5 s → 34.2 s mean, and capped matches went 1/48 → 0/48.
 
-- [ ] Tiers 7 and 8 are 0/6 even for a disciplined script that manages load and
-      stamina. That may be right for the last two bosses, but no script beating them
-      means the claim "beatable with skill" is untested up there — worth revisiting
-      with a replay from a human who has actually cleared one.
+- [x] **Every boss is beatable — the earlier 0/6 was my measurement, not the game.**
+      Those tables gave the player a plausible-looking kite per tier, which at tier 7
+      meant a sawangan against the sawangan boss and at tier 8 a naga with `gelasan 4`
+      against a boss with 5 — when the ceiling is 6. Re-measured on the right kite:
+
+      ```
+      bos-pasar (T4)      8/8 on a naga, even at modest upgrades
+      raja-sawangan (T7)  8/8 on a naga
+      naga-senja (T8)     0/8 near-max, 5/8 fully maxed (1.5 of 5 lives left)
+      ```
+
+      So the final boss demands full investment and the rest demand the right
+      airframe. Both are legitimate — the problem was that nothing said so.
+- [ ] `naga-senja` at 5/8 fully maxed is the intended wall, but it has only ever been
+      beaten by a script with a 0.25 s reaction. Worth a replay from a human before
+      calling the top of the ladder tuned.
 - [ ] The ladder is still not ordered: measured 6/6/6/2/5/4/0/0 across tiers. The
       dips are gear matchups, not difficulty. The ordering test in the section below
       is still worth writing.
@@ -216,6 +228,15 @@ Duel length barely moved: 35.5 s → 34.2 s mean, and capped matches went 1/48 �
       shows on the setup screen for every opponent and again after a loss. In the
       arena, one coaching line appears at the moment a crossing is being lost and
       stops for good after the player has hauled into five of them.
+- [x] **The brief now names the kite to fly.** A losing matchup points at a better
+      airframe already in the hangar (`betterKiteFor`), and gear parity against a
+      sharp opponent is called out as the losing position it measured as — without
+      that, a mirror match against the tier-7 boss read as "evenly matched" on a
+      fight worth 0 wins in 6.
+- [ ] The matchup score behind that recommendation is a heuristic
+      (`lineStrength × cutPower`, nudged by steering) rather than a simulated result.
+      It picks the naga correctly for the top tiers, but it has not been checked
+      against a sweep of every kite against every opponent.
 - [ ] Non-boss opponents still have no hand-written flavour brief, only the derived
       one. That is deliberate — three accurate ones beat eight shallow ones — but the
       derived panel now covers the tactical need, so any addition would be for

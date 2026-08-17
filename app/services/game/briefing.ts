@@ -1,7 +1,7 @@
 import { resolveLoadout } from './loadout'
 import { describeWind } from './physics/wind'
 import { getKite } from '~/data/kites'
-import type { KiteStats, MatchLoadout, OpponentDefinition } from './types'
+import type { KiteId, KiteStats, MatchLoadout, OpponentDefinition } from './types'
 
 /**
  * "How do I beat this one?", answered from the numbers.
@@ -52,6 +52,65 @@ export interface BriefingInput {
   /** Arena multipliers, so the brief describes the air actually being flown in. */
   windMultiplier: number
   gustMultiplier: number
+  /**
+   * Airframes the player owns, so a losing matchup can point at a better one they
+   * already have. Omit to skip the recommendation.
+   */
+  ownedKiteIds?: readonly KiteId[]
+}
+
+/**
+ * Reaction time at or below which an opponent out-plays gear parity.
+ *
+ * Measured: a player flying a sawangan against the tier-7 boss — the same airframe,
+ * comparable upgrades — lost 0 of 6, because when the gear is level the sharper
+ * flyer wins every exchange. The same player on a naga won 8 of 8. Gear parity is a
+ * losing position against a boss, and the brief has to say so, because the stat
+ * comparisons alone read as "evenly matched".
+ */
+const SHARP_REACTION = 0.45
+
+/** How much better a matchup score must be before suggesting a different kite. */
+const WORTH_SWITCHING = 1.12
+
+/**
+ * How well a kite suits a fight, before upgrades.
+ *
+ * The product of the two stats that decide an exchange, nudged by whether it
+ * out-turns the opponent — steering decides who picks the crossing angle, which is
+ * worth real damage but less than the line itself.
+ */
+function matchupScore(kiteId: KiteId, opponent: OpponentDefinition): number {
+  const mine = getKite(kiteId).stats
+  const theirs = getKite(opponent.kiteId).stats
+  const turning = mine.agility / theirs.agility
+
+  return mine.lineStrength * mine.cutPower * (0.85 + 0.15 * Math.min(2, turning))
+}
+
+/**
+ * The owned airframe best suited to this fight, if it beats the equipped one by
+ * enough to be worth the trip to the shop. Null when the current kite is fine.
+ */
+export function betterKiteFor(input: BriefingInput): KiteId | null {
+  const owned = input.ownedKiteIds
+  if (!owned || owned.length === 0) return null
+
+  const current = matchupScore(input.player.kiteId, input.opponent)
+
+  let best: KiteId | null = null
+  let bestScore = current * WORTH_SWITCHING
+
+  for (const kiteId of owned) {
+    if (kiteId === input.player.kiteId) continue
+    const score = matchupScore(kiteId, input.opponent)
+    if (score > bestScore) {
+      bestScore = score
+      best = kiteId
+    }
+  }
+
+  return best
 }
 
 export function buildBriefing(input: BriefingInput): BriefingPoint[] {
@@ -121,6 +180,19 @@ export function buildBriefing(input: BriefingInput): BriefingPoint[] {
   if (describeWind(wind) === 'wild' || describeWind(wind) === 'strong') {
     points.push({ key: 'strongWind', kind: 'risk' })
   }
+
+  /**
+   * Gear parity is not parity when they fly better than you.
+   *
+   * Placed above the behaviour notes because it changes what the player should do
+   * before the match rather than during it: go and buy something.
+   */
+  if (opponent.ai.reactionTime <= SHARP_REACTION && lineEdge <= NOTABLE && cutEdge <= NOTABLE) {
+    points.push({ key: 'needEdge', kind: 'risk' })
+  }
+
+  const swap = betterKiteFor(input)
+  if (swap) points.push({ key: 'switchKite', kind: 'edge', values: { kite: swap } })
 
   // --- How they fight -----------------------------------------------------
   if (opponent.ai.aggression >= 0.75) {

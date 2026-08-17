@@ -271,7 +271,9 @@
         "strongWind": "Angin kencang. Benang Anda sudah tinggi di meteran beban sebelum menyentuh apa pun, jadi awasi itu seketat Anda mengawasi lawan.",
         "committed": "Mereka berani masuk ke persilangan dan jarang mundur. Anda bisa mengandalkan sentuhannya terjadi — datanglah dalam keadaan sudah menarik.",
         "cagey": "Mereka menjauh saat merasa kalah. Perang urat saraf menguntungkan mereka, jadi menangkan pertukaran yang ada alih-alih menunggu yang panjang.",
-        "sloppy": "Mereka benar-benar bisa salah. Tetap dekat dan siap — celahnya pasti datang."
+        "sloppy": "Mereka benar-benar bisa salah. Tetap dekat dan siap — celahnya pasti datang.",
+        "needEdge": "Perlengkapan Anda paling banter setara dengan mereka — dan mereka terbang lebih baik dari Anda. Setara itu posisi kalah melawan yang ini: Anda butuh keunggulan nyata di kekuatan benang atau gelasan, bukan seimbang. Tingkatkan dulu sebelum mencoba lagi.",
+        "switchKite": "Anda punya rangka yang lebih cocok untuk duel ini: {kite}. Pasang di toko."
       }
     },
     "coach": {

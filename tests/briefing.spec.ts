@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildBriefing, isOutgeared } from '~/services/game/briefing'
+import { betterKiteFor, buildBriefing, isOutgeared } from '~/services/game/briefing'
 import { getArena } from '~/data/arenas'
 import { getOpponent } from '~/data/opponents'
 import { normaliseUpgradeLevels } from '~/data/upgrades'
@@ -123,6 +123,66 @@ describe('the advice follows the gear', () => {
   it('says a beginner makes mistakes and a boss does not', () => {
     expect(keysOf(brief(loadout('pecut'), 'bocah-sawah'))).toContain('sloppy')
     expect(keysOf(brief(loadout('pecut'), 'naga-senja'))).not.toContain('sloppy')
+  })
+})
+
+describe('pointing at a better airframe', () => {
+  /**
+   * The measurement that motivated this: a player flying a sawangan against the
+   * tier-7 boss — same airframe, comparable upgrades — lost 0 of 6, and the same
+   * player on a naga won 8 of 8. Nothing in the game said the kite was the problem.
+   */
+  it('suggests a kite already owned when it is a better matchup', () => {
+    const suggestion = betterKiteFor({
+      player: loadout('sawangan', { 'line-strength': 4, 'gelasan': 3 }),
+      opponent: getOpponent('raja-sawangan'),
+      windMultiplier: 1,
+      gustMultiplier: 1,
+      ownedKiteIds: ['pecut', 'sawangan', 'naga'],
+    })
+
+    expect(suggestion).toBe('naga')
+  })
+
+  it('stays quiet when the equipped kite is already the best owned', () => {
+    expect(betterKiteFor({
+      player: loadout('naga'),
+      opponent: getOpponent('raja-sawangan'),
+      windMultiplier: 1,
+      gustMultiplier: 1,
+      ownedKiteIds: ['pecut', 'sawangan', 'naga'],
+    })).toBeNull()
+  })
+
+  it('never suggests a kite the player does not own', () => {
+    const suggestion = betterKiteFor({
+      player: loadout('pecut'),
+      opponent: getOpponent('naga-senja'),
+      windMultiplier: 1,
+      gustMultiplier: 1,
+      ownedKiteIds: ['pecut'],
+    })
+
+    expect(suggestion).toBeNull()
+  })
+})
+
+describe('gear parity against a sharper flyer', () => {
+  it('warns that level gear loses to a boss', () => {
+    // Mirror match against the tier-7 boss: the stat comparisons find nothing, so
+    // without this the brief would read as "evenly matched" on a fight measured at
+    // 0 wins in 6.
+    const keys = keysOf(brief(loadout('sawangan', { 'line-strength': 4, 'gelasan': 3 }), 'raja-sawangan'))
+    expect(keys).toContain('needEdge')
+  })
+
+  it('does not warn once the player has a real edge', () => {
+    const keys = keysOf(brief(loadout('naga', { 'line-strength': 6, 'gelasan': 6 }), 'raja-sawangan'))
+    expect(keys).not.toContain('needEdge')
+  })
+
+  it('does not warn about a beginner, whose reactions are slow', () => {
+    expect(keysOf(brief(loadout('pecut'), 'bocah-sawah'))).not.toContain('needEdge')
   })
 })
 
