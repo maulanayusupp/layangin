@@ -209,6 +209,27 @@ those two actions:
   ranks below the snag and overload alarms: a line being destroyed is more urgent
   than technique.
 
+### Practice mode
+
+`config.practice` makes a match that cannot be lost: `markOut` gives the life
+straight back, and the clock never resolves. A cut still ends the round and still
+flashes the pips, because the consequence has to be visible — what is removed is
+the *cost*, not the feedback.
+
+Three rules hold it together, and each one existed because leaving it out was a lie:
+
+- **It pays nothing**, like a replay. Not reachable in normal use since it never
+  resolves, but the guard stays so it remains true if that changes.
+- **The coaching stays on for the whole session** and does not count toward the
+  "learned" tally. A drill that switches its own hints off partway through is the
+  opposite of a drill.
+- **The leave guard does not arm.** Warning that a player will lose the round and
+  the coins when neither is at stake is a false claim, and the same applies to a
+  playback.
+
+`tests/practice.spec.ts` pins the two properties that make it a classroom rather
+than a match: it never resolves, and it never runs out of lives.
+
 ### Every AI advantage must pass through a human limit
 
 `/compliance` promises that difficulty comes only from human-shaped limits —

@@ -133,7 +133,18 @@ What is left, in order:
       `REPLAY='…' pnpm replay` to replay it headlessly and print what happened second
       by second. A playback never pays coins, and a recording carries the result it
       originally produced so a divergence is reported rather than passing silently.
-- [ ] Practice mode: no opponent, adjustable wind, free flight.
+- [x] **Practice mode.** A duel that cannot be lost, reached from a button beside
+      the primary action on the setup screen. A cut still ends the round so the
+      consequence is visible, but lives are given straight back, the clock never
+      resolves, nothing is scored, and the coaching stays on for the whole session
+      instead of switching itself off after five crossings.
+
+      Deliberately a duel against the chosen opponent rather than free flight with no
+      opponent: the three things worth learning are all about a crossing, and there is
+      no crossing without someone to cross with.
+- [ ] Adjustable wind in practice, so the load meter and the overload mark can be
+      learned on purpose rather than by accident. The arena picker already varies wind
+      but only in whole fields.
 - [ ] Configurable lives (1 for a quick duel, 5 for a long one). `STARTING_HP` is
       a constant today.
 - [x] **Free-for-all.** Done: two or three opponents in one match, chosen in the

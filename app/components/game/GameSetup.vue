@@ -27,6 +27,8 @@ import type { OpponentDefinition } from '~/services/game/types'
  */
 const emit = defineEmits<{
   fly: [opponents: OpponentDefinition[]]
+  /** Drill against the same opponent with nothing at stake. */
+  practise: [opponents: OpponentDefinition[]]
   /** Watch a recording instead of playing. */
   watch: [replay: Replay, opponents: OpponentDefinition[]]
 }>()
@@ -87,6 +89,17 @@ function chooseOpponent(entry: OpponentDefinition): void {
 
 function fly(): void {
   emit('fly', lineup.value)
+}
+
+/**
+ * Practice against the chosen opponent.
+ *
+ * Always a duel, whatever the format selector says: three opponents is the wrong
+ * place to learn what a crossing is. Nothing is scored and the coaching stays on for
+ * the whole session.
+ */
+function practise(): void {
+  emit('practise', [opponent.value])
 }
 
 // --- Watching a recording -------------------------------------------------
@@ -302,6 +315,23 @@ function watchReplay(): void {
         class="setup__go-note"
       >
         {{ t('game.setup.format.alsoFlying', { names: extras.join(', ') }) }}
+      </p>
+
+      <!--
+        Beside the primary action rather than hidden in a menu. Nothing else in the
+        game lets a player find out what the controls do without paying for the
+        lesson with a loss, and the measurements say the technique is most of the
+        win rate.
+      -->
+      <UiButton
+        variant="secondary"
+        size="sm"
+        @click="practise"
+      >
+        {{ t('game.practice.action') }}
+      </UiButton>
+      <p class="setup__go-note">
+        {{ t('game.practice.note') }}
       </p>
       <UiButton
         variant="ghost"

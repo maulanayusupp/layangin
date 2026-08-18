@@ -248,6 +248,7 @@ export function createMatchEngine({
     rivalsOf(self)[0] as FighterState
 
   const snapshot: MatchSnapshot = {
+    practice: config.practice === true,
     startingHp: lives,
     phase: 'countdown',
     outcome: { kind: 'pending' },
@@ -472,7 +473,8 @@ export function createMatchEngine({
       return
     }
 
-    if (snapshot.elapsed >= snapshot.timeLimit) resolveOnTime()
+    // Practice has no clock: there is no result to reach.
+    if (!config.practice && snapshot.elapsed >= snapshot.timeLimit) resolveOnTime()
   }
 
   /**
@@ -485,6 +487,13 @@ export function createMatchEngine({
     roundOut[fighter.index] = true
     fighter.hp -= 1
     lastReason = reason
+
+    /**
+     * In practice nobody runs out. The life is taken and immediately given back, so
+     * the round still ends and the pips still flash — the consequence is visible —
+     * but the session carries on for as long as the player wants it to.
+     */
+    if (config.practice && fighter.hp <= 0) fighter.hp = lives
 
     if (fighter.hp <= 0) {
       fighter.hp = 0

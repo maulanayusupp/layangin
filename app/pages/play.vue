@@ -21,6 +21,8 @@ const selected = computed(() => lineup.value[0] ?? null)
 
 /** Set while watching a recording rather than playing one. */
 const replay = ref<Replay | null>(null)
+/** Set while practising: the same arena, but nothing is scored and hints stay on. */
+const practice = ref(false)
 
 /**
  * Bring the arena into view when a match starts. This is the only automatic scroll
@@ -44,17 +46,27 @@ const extraNames = computed(() =>
 
 function fly(opponents: OpponentDefinition[]): void {
   replay.value = null
+  practice.value = false
+  lineup.value = opponents
+}
+
+/** Drill against the same opponent, with nothing at stake. */
+function practise(opponents: OpponentDefinition[]): void {
+  replay.value = null
+  practice.value = true
   lineup.value = opponents
 }
 
 /** Watch a recording. Its own cast, not the one currently selected. */
 function watchReplay(recording: Replay, opponents: OpponentDefinition[]): void {
   replay.value = recording
+  practice.value = false
   lineup.value = opponents
 }
 
 function advance(): void {
   replay.value = null
+  practice.value = false
   // Winning moves to the next rung; otherwise back to setup.
   if (nextOpponent.value) lineup.value = [nextOpponent.value]
   else lineup.value = []
@@ -62,14 +74,18 @@ function advance(): void {
 
 function leaveMatch(): void {
   replay.value = null
+  practice.value = false
   lineup.value = []
 }
 
 /**
  * A match in progress is unsaved work: leaving loses the round and the coins. The
- * guard only arms while a fight is actually running.
+ * guard only arms while a fight is actually running — and not during practice or a
+ * playback, where there is nothing at stake and the warning would be a lie.
  */
-const inMatch = computed(() => selected.value !== null)
+const inMatch = computed(() =>
+  selected.value !== null && !practice.value && replay.value === null,
+)
 const leave = useLeaveGuard(inMatch)
 
 usePageSeo(() => ({
@@ -119,6 +135,7 @@ usePageSeo(() => ({
       <GameArena
         :opponents="lineup"
         :replay="replay"
+        :practice="practice"
         :has-next="Boolean(nextOpponent)"
         @quit="leaveMatch"
         @next="advance"
@@ -160,6 +177,7 @@ usePageSeo(() => ({
         <ClientOnly>
           <GameSetup
             @fly="fly"
+            @practise="practise"
             @watch="watchReplay"
           />
         </ClientOnly>

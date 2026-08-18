@@ -24,6 +24,8 @@ const props = defineProps<{
    * commands all come from it, so the same duel runs again rather than a new one.
    */
   replay?: Replay | null
+  /** Practice: a session that cannot be lost, with the coaching left on. */
+  practice?: boolean
 }>()
 
 const emit = defineEmits<{ quit: [], next: [] }>()
@@ -82,14 +84,18 @@ function onTouchSnap(): void {
 }
 
 function begin(): void {
-  match.start(props.opponents, props.replay ?? null)
+  match.start(props.opponents, props.replay ?? null, { practice: props.practice === true })
 }
 
 onMounted(begin)
 
 // Switching opponents, or handing over a different recording, restarts cleanly.
 watch(
-  () => [props.opponents.map(entry => entry.id).join(','), props.replay?.seed ?? 0].join('|'),
+  () => [
+    props.opponents.map(entry => entry.id).join(','),
+    props.replay?.seed ?? 0,
+    props.practice === true ? 'practice' : 'match',
+  ].join('|'),
   begin,
 )
 
@@ -133,12 +139,18 @@ function quit(): void {
         :opponents="opponents"
       />
 
-      <!-- Unmistakable: this is a recording, and it is not being scored. -->
+      <!-- Unmistakable: neither of these is being scored. -->
       <p
         v-if="match.isReplay.value"
         class="arena__replay-badge"
       >
         {{ t('game.replay.watching') }}
+      </p>
+      <p
+        v-else-if="match.isPractice.value"
+        class="arena__replay-badge arena__replay-badge--practice"
+      >
+        {{ t('game.practice.badge') }}
       </p>
 
       <Transition name="page">
@@ -225,7 +237,7 @@ function quit(): void {
               variant="ghost"
               @click="quit"
             >
-              {{ t('game.paused.quit') }}
+              {{ match.isPractice.value ? t('game.practice.leave') : t('game.paused.quit') }}
             </UiButton>
           </div>
         </div>
@@ -451,6 +463,12 @@ function quit(): void {
   border: 1px solid color-mix(in srgb, var(--c-gold) 45%, transparent);
   border-radius: var(--r-pill);
   background: color-mix(in srgb, var(--c-ink-900) 78%, transparent);
+}
+
+/// Practice is teal rather than gold: informative, not a prize.
+.arena__replay-badge--practice {
+  color: var(--c-sky);
+  border-color: color-mix(in srgb, var(--c-sky) 45%, transparent);
 }
 
 .arena__pause {

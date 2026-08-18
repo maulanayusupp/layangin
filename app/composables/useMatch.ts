@@ -82,6 +82,8 @@ export interface MatchHud {
    * three rows of pips instead of one. A duel has exactly one entry.
    */
   rivals: RivalHud[]
+  /** True while this is a practice session: nothing is scored and there is no clock. */
+  practice: boolean
   /** 1-based round being fought. */
   round: number
   /** Seconds left on the between-rounds pause; 0 while flying. */
@@ -176,6 +178,7 @@ function emptyHud(): MatchHud {
     snapReady: true,
     snapCooldown: 0,
     coach: null,
+    practice: false,
   }
 }
 
@@ -230,6 +233,12 @@ export function useMatch({ canvas, container, hudFooter }: UseMatchOptions) {
    * never notify it.
    */
   const playingBack = ref<Replay | null>(null)
+  /**
+   * True while this is a practice session.
+   *
+   * A ref for the same reason as `playingBack`: the UI reads it through a computed.
+   */
+  const practising = ref(false)
   /** Everything needed to rebuild the finished match, ready to copy. */
   const replayText = ref<string | null>(null)
   /**
@@ -313,6 +322,7 @@ export function useMatch({ canvas, container, hudFooter }: UseMatchOptions) {
         eliminated: fighter.eliminated,
         primary: fighter === rival,
       })),
+      practice: snapshot.practice,
       round: snapshot.round,
       roundBreak: snapshot.roundBreak,
       lastRound: snapshot.lastRound,
@@ -351,7 +361,11 @@ export function useMatch({ canvas, container, hudFooter }: UseMatchOptions) {
       if (hauling && !hauledThisContact) {
         hauledThisContact = true
         hauledIntoContact += 1
-        if (hauledIntoContact >= COACH_LEARNED_AFTER) settings.dismissHint(COACH_HINT_ID)
+        // Practice does not count: a drill that turns its own hints off partway
+        // through is the opposite of what it is for.
+        if (!snapshot.practice && hauledIntoContact >= COACH_LEARNED_AFTER) {
+          settings.dismissHint(COACH_HINT_ID)
+        }
       }
     }
     else {
@@ -359,8 +373,12 @@ export function useMatch({ canvas, container, hudFooter }: UseMatchOptions) {
       hauledThisContact = false
     }
 
-    // Nothing to teach someone who has already been taught.
-    if (settings.isHintDismissed(COACH_HINT_ID)) {
+    /**
+     * Nothing to teach someone who has already been taught — except in practice,
+     * where being taught is the entire point and a veteran may be there precisely to
+     * drill something they had stopped being shown.
+     */
+    if (!snapshot.practice && settings.isHintDismissed(COACH_HINT_ID)) {
       if (coachHold === 0) coachCue = null
       return
     }
@@ -520,6 +538,17 @@ export function useMatch({ canvas, container, hudFooter }: UseMatchOptions) {
     replayText.value = buildReplayText()
 
     /**
+     * Practice pays nothing either, and for the same reason a playback does not: it
+     * is not a match. It also never reaches `resolved`, so in normal use this is
+     * unreachable — the guard is here so it stays true if that ever changes.
+     */
+    if (practising.value) {
+      reward.value = null
+      coinsGranted.value = 0
+      return
+    }
+
+    /**
      * A playback pays nothing.
      *
      * Without this, watching a recorded win would grant its coins again every time
@@ -650,7 +679,11 @@ export function useMatch({ canvas, container, hudFooter }: UseMatchOptions) {
    * function of exactly those things, the result is the same match again rather
    * than a similar one.
    */
-  function start(targets: readonly OpponentDefinition[], replay: Replay | null = null): void {
+  function start(
+    targets: readonly OpponentDefinition[],
+    replay: Replay | null = null,
+    options: { practice?: boolean } = {},
+  ): void {
     stop()
 
     const element = canvas.value
@@ -662,6 +695,7 @@ export function useMatch({ canvas, container, hudFooter }: UseMatchOptions) {
     const seed = replay?.seed ?? createMatchSeed()
 
     playingBack.value = replay
+    practising.value = options.practice === true
     replayText.value = null
     replayMismatch.value = false
     opponents.value = [...targets]
@@ -721,6 +755,7 @@ export function useMatch({ canvas, container, hudFooter }: UseMatchOptions) {
         arena,
         timeLimit,
         difficultyScale,
+        practice: practising.value,
       },
       playerInput: replay ? createReplayInput(replay) : (recorder as ReplayRecorder),
     })
@@ -802,6 +837,8 @@ export function useMatch({ canvas, container, hudFooter }: UseMatchOptions) {
     replayText,
     /** True while watching a recording rather than playing. */
     isReplay: computed(() => playingBack.value !== null),
+    /** True while practising rather than playing a real match. */
+    isPractice: computed(() => practising.value),
     /** True when a playback did not reproduce the result it recorded. */
     replayMismatch,
     running,

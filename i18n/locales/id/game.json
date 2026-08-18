@@ -281,6 +281,14 @@
       "angle": "Persilangan terlalu miring — jalan menyamping agar tegak lurus",
       "haul": "Persilangan bagus — tarik sekarang supaya lebih tegang",
       "yank": "Masih kalah? Sentak untuk melonjakkan tegangan"
+    },
+    "practice": {
+      "action": "Latihan dulu",
+      "note": "Tanpa nyawa, tanpa koin, tanpa hasil — petunjuknya menyala terus.",
+      "badge": "Latihan — tidak dihitung",
+      "title": "Latihan",
+      "body": "Duel yang tidak bisa Anda kalahi. Benang Anda tetap putus dan ronde tetap dimulai lagi, jadi Anda bisa melihat harga sebuah kesalahan — tapi sesinya berlanjut sampai Anda keluar, dan petunjuknya tetap menyala.",
+      "leave": "Selesai berlatih"
     }
   },
   "opponents": {

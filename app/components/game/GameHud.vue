@@ -157,7 +157,14 @@ const advantageLabel = computed(() => {
         </div>
       </div>
 
-      <div class="hud__clock">
+      <!--
+        No clock in practice: the session has nothing to count down to, and a timer
+        frozen at 0:00 reads as a bug.
+      -->
+      <div
+        v-if="!hud.practice"
+        class="hud__clock"
+      >
         <span class="hud__clock-label">{{ t('game.hud.time') }}</span>
         <span class="hud__clock-value t-num">{{ formatClock(hud.timeRemaining) }}</span>
       </div>

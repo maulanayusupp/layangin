@@ -281,6 +281,14 @@
       "angle": "Crossing too shallow — walk sideways to meet them square",
       "haul": "Good crossing — haul now to be the tauter line",
       "yank": "Still losing? Yank to spike the tension"
+    },
+    "practice": {
+      "action": "Practice first",
+      "note": "No lives, no coins, no result — the hints stay on the whole time.",
+      "badge": "Practice — nothing is scored",
+      "title": "Practice",
+      "body": "A duel that cannot be lost. Your line still parts and the round still restarts, so you can see what a mistake costs — but the session carries on until you leave, and the coaching stays on.",
+      "leave": "Finish practising"
     }
   },
   "opponents": {

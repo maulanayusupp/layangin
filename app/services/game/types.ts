@@ -614,6 +614,8 @@ export function isPlayerLoss(outcome: MatchOutcome): boolean {
 }
 
 export interface MatchSnapshot {
+  /** True while this is a practice session rather than a real match. */
+  practice: boolean
   /**
    * Lives each fighter started with. On the snapshot rather than read from a
    * constant because it varies with how many fighters are in the match, and the
@@ -673,6 +675,16 @@ export interface MatchConfig {
   timeLimit: number
   /** Extra difficulty scaling applied on repeat runs of the ladder. */
   difficultyScale: number
+  /**
+   * Practice: a match that cannot be lost.
+   *
+   * Lives are restored the moment they run out and the clock never resolves, so a
+   * cut still costs the round — the player watches their line part and the kites
+   * relaunch — but it never ends the session. Learning the three things that decide
+   * a duel currently requires losing real matches to find out what they are, which
+   * is the worst possible classroom.
+   */
+  practice?: boolean
 }
 
 export interface MatchReward {
