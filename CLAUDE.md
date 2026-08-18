@@ -209,6 +209,28 @@ those two actions:
   ranks below the snag and overload alarms: a line being destroyed is more urgent
   than technique.
 
+### Challenges
+
+`data/challenges.ts` holds the definitions, `services/economy/challenges.ts` the
+rotation and the awarding. Three rules, and each is a promise to the player that
+the code has to keep rather than a nicety:
+
+- **Nothing expires.** The trio is drawn from the calendar date, which looks exactly
+  like a daily quest — and daily quests punish someone for having a life. An
+  unfinished challenge comes round again, a finished one stays finished, and the
+  panel says so in as many words, because the *shape* of a rotating trio makes a
+  promise the copy has to confirm. `tests/challenges.spec.ts` sweeps a year to prove
+  every challenge is reachable.
+- **Checked, never claimed.** Each is a predicate over what the engine recorded —
+  `snapsUsed`, `clashSeconds`, `peakTension`, `roundsLost`. A losing match satisfies
+  none of them, whatever else it did.
+- **Only what is on offer counts, and only once.** Checking all nine on every match
+  would empty the list in an afternoon.
+
+Adding one means: a definition, `ChallengeId`, both locales, and nothing else — the
+save migration keeps unknown ids out by the same `keepKnown` rule every other
+content list uses.
+
 ### Practice mode
 
 `config.practice` makes a match that cannot be lost: `markOut` gives the life
@@ -520,7 +542,7 @@ Alongside the code change, update whichever of these it touches:
 | An airframe outline or the derivation formulas | nothing by hand — but check `tests/airframes.spec.ts` still passes, especially the distinct-silhouette test |
 | A sound cue | `/compliance` accessibility section: confirm it still has a visible counterpart |
 | The flight model, trim, reel model or anchor separation | `tests/flight.spec.ts` — especially the crossing-rate and "never sinks" tests |
-| Save shape, storage keys, cookies | `/compliance`, `/legal/privacy`, `/legal/cookies` + the date in `shared/constants/legal.ts` |
+| Save shape, storage keys, cookies | `/compliance`, `/legal/privacy`, `/legal/cookies` + the date in `shared/constants/legal.ts`. Both pages *enumerate* what is stored, so a new field means editing two lists, not just bumping a version |
 | Monetisation, randomised rewards, cosmetic↔gameplay boundary | `/compliance` money + fairness sections |
 | Anything a11y-relevant | `/compliance` accessibility section — move the item between "implemented" and "known gaps" honestly |
 | AI difficulty mechanism | `/compliance` fairness section |

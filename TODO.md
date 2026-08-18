@@ -455,9 +455,21 @@ Notes on what those numbers cost to get:
 
 ## 6. Progression
 
-- [ ] Daily or weekly challenges ("win without yanking", "win on the cabled
-      field"). Must stay offline-only and never time-limited in a way that
-      punishes not playing.
+- [x] **Challenges.** Nine of them, three offered at a time, drawn from the calendar
+      date so everyone playing on the same day sees the same set. Each pays once and
+      is checked against what the engine recorded rather than claimed, so a losing
+      match satisfies none of them however well it was played.
+
+      Nothing expires, which was the hard requirement: an unfinished one comes round
+      again and a finished one stays finished. A year-long sweep in the tests proves
+      every challenge is reachable, so none can be orphaned by the rotation.
+
+      Most of them name a technique the measurements say decides matches — winning
+      without the yank, winning without crossing the overload mark, winning a
+      crossing-heavy duel — so they teach rather than asking for repetition.
+- [ ] Challenge progress is invisible mid-match. A player going for "12 seconds of
+      contact" has no idea where they are; `clashSeconds` is on the snapshot and the
+      readouts panel already shows adjacent figures.
 - [ ] Endless mode with escalating AI, for after the ladder is cleared.
 - [ ] Local leaderboard of best streaks.
 - [ ] Export/import save as a JSON string, so progress can move between devices

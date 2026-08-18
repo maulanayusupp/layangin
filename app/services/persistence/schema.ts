@@ -12,6 +12,7 @@ import type {
   PatternId,
   TrailEffectId,
   UpgradeLevels,
+  ChallengeId,
 } from '~/services/game/types'
 
 /**
@@ -59,6 +60,12 @@ export interface SaveDataV1 {
   ladderClears: number
   /** Total coins ever earned, for the profile read-out. */
   lifetimeCoins: number
+  /**
+   * Challenges completed, ever. Nothing expires, so this only grows — see
+   * `services/economy/challenges.ts` for why that is the design rather than an
+   * oversight.
+   */
+  completedChallenges: ChallengeId[]
   updatedAt: string
 }
 
@@ -98,6 +105,7 @@ export function createDefaultSave(): SaveData {
     bestStreak: 0,
     ladderClears: 0,
     lifetimeCoins: 0,
+    completedChallenges: [],
     updatedAt: new Date().toISOString(),
   }
 }

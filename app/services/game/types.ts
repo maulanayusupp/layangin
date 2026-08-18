@@ -439,6 +439,18 @@ export const NEUTRAL_COMMAND: Readonly<FighterCommand> = Object.freeze({
  */
 export type FighterSide = 'player' | 'rival'
 
+/** Ids of the short-term goals in `data/challenges.ts`. */
+export type ChallengeId
+  = | 'no-yank'
+    | 'clean-line'
+    | 'stay-in-it'
+    | 'flawless'
+    | 'cabled-field'
+    | 'high-flyer'
+    | 'quick-work'
+    | 'outnumbered'
+    | 'boss-hunter'
+
 /** Index into `MatchSnapshot.fighters`. Index 0 is always the human player. */
 export type FighterIndex = number
 

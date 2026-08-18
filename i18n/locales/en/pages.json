@@ -155,7 +155,11 @@
         },
         "chance": {
           "term": "Loot boxes or randomised rewards",
-          "def": "None. Every price is fixed and every item is bought directly."
+          "def": "None. Every price is fixed and every item is bought directly. Challenges pay a fixed amount each, and the three on offer are drawn from the calendar date rather than per player — everyone playing on the same day sees the same three, and none of them expire."
+        },
+        "challenges": {
+          "term": "Challenges",
+          "def": "A second way to earn coins, paid once each. They are checked against what the simulation recorded — yanks used, seconds of line contact, peak line load — so one cannot be claimed without having been done. Nothing about them is time-limited: an unfinished one comes round again and being away costs nothing."
         },
         "ads": {
           "term": "Advertising",

@@ -21,7 +21,7 @@
           "title": "Yang tersimpan di perangkat Anda",
           "body": "Dua hal, keduanya di browser Anda sendiri:",
           "items": [
-            "Penyimpanan lokal — kemajuan game Anda (koin, barang yang dimiliki, level upgrade, posisi tangga lawan, arena yang dipilih, jumlah menang/kalah) dan pengaturan Anda (bahasa, efek dikurangi, tips yang ditutup). Ini tidak pernah keluar dari browser Anda.",
+            "Penyimpanan lokal — kemajuan game Anda (koin, barang yang dimiliki, level upgrade, posisi tangga lawan, arena yang dipilih, jumlah menang/kalah, tantangan yang sudah diselesaikan) dan pengaturan Anda (bahasa, efek dikurangi, tips yang ditutup). Ini tidak pernah keluar dari browser Anda.",
             "Satu cookie — pilihan bahasa Anda, supaya situs terbuka dalam bahasa yang Anda pilih. Isinya kode bahasa dan tidak lebih."
           ]
         },
@@ -126,7 +126,7 @@
             },
             "save": {
               "name": "layangin:save",
-              "purpose": "Kemajuan game Anda: koin, rangka dan kosmetik yang dimiliki, level upgrade, posisi tangga lawan, arena yang dipilih, jumlah menang dan kalah.",
+              "purpose": "Kemajuan game Anda: koin, rangka dan kosmetik yang dimiliki, level upgrade, posisi tangga lawan, arena yang dipilih, jumlah menang dan kalah, tantangan yang sudah diselesaikan.",
               "duration": "Sampai Anda menghapusnya",
               "type": "Penyimpanan lokal · bukan cookie, tidak pernah dikirim ke server"
             },

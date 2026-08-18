@@ -16,6 +16,7 @@ import { exchangeAdvantage } from '~/services/game/physics/combat'
 import { breakingTension } from '~/services/game/physics/fighter'
 import { describeWind } from '~/services/game/physics/wind'
 import { computeReward } from '~/services/economy/rewards'
+import { evaluateChallenges, type ChallengeAward } from '~/services/economy/challenges'
 import {
   isPlayerWin,
   type MatchOutcome,
@@ -203,6 +204,14 @@ export function useMatch({ canvas, container, hudFooter }: UseMatchOptions) {
   const outcome = ref<MatchOutcome>({ kind: 'pending' })
   const reward = ref<MatchReward | null>(null)
   const coinsGranted = ref(0)
+  /**
+   * Challenges this match completed, with what they paid.
+   *
+   * Only a real match can complete one — practice and playbacks return before this
+   * is touched, for the same reason neither pays a reward.
+   */
+  const challengeAwards = ref<ChallengeAward[]>([])
+  const challengeCoins = ref(0)
   /** Everyone in the current match, ladder order. One entry for a duel. */
   const opponents = ref<OpponentDefinition[]>([])
   /** The one the player picked; drives the briefing and the result screen. */
@@ -588,6 +597,21 @@ export function useMatch({ canvas, container, hudFooter }: UseMatchOptions) {
       earned,
       isPlayerWin(snapshot.outcome),
     )
+
+    /**
+     * Challenges, checked against what the engine actually recorded rather than
+     * against anything the UI claims. Only the ones on offer today count.
+     */
+    const awards = evaluateChallenges(player.challenges, player.save.completedChallenges, {
+      outcome: snapshot.outcome,
+      stats: snapshot.stats,
+      arena: getArena(lastConfig?.arenaId ?? player.activeArena.id),
+      opponents: opponents.value,
+      peakLoad: snapshot.stats.peakTension / breakingTension(snapshot.player.stats),
+    })
+
+    challengeAwards.value = awards
+    challengeCoins.value = player.completeChallenges(awards)
   }
 
   /** Encode the match that just finished, or null if it was not recorded. */
@@ -704,6 +728,8 @@ export function useMatch({ canvas, container, hudFooter }: UseMatchOptions) {
     stats.value = null
     coinsGranted.value = 0
     resultBanked = false
+    challengeAwards.value = []
+    challengeCoins.value = 0
     lastRoundNumber = 1
     lastRoundLossCount = 0
     lastSnapActive = false
@@ -839,6 +865,9 @@ export function useMatch({ canvas, container, hudFooter }: UseMatchOptions) {
     isReplay: computed(() => playingBack.value !== null),
     /** True while practising rather than playing a real match. */
     isPractice: computed(() => practising.value),
+    /** Challenges this match completed, and what they paid. */
+    challengeAwards,
+    challengeCoins,
     /** True when a playback did not reproduce the result it recorded. */
     replayMismatch,
     running,

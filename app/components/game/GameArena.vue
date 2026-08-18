@@ -295,6 +295,7 @@ function quit(): void {
       :replay-text="match.replayText.value"
       :is-replay="match.isReplay.value"
       :replay-mismatch="match.replayMismatch.value"
+      :challenge-awards="match.challengeAwards.value"
       :loadout="player.loadout"
       :arena="player.activeArena"
       @rematch="rematch"

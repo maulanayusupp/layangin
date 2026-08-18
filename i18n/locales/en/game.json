@@ -289,6 +289,52 @@
       "title": "Practice",
       "body": "A duel that cannot be lost. Your line still parts and the round still restarts, so you can see what a mistake costs — but the session carries on until you leave, and the coaching stays on.",
       "leave": "Finish practising"
+    },
+    "challenges": {
+      "title": "Challenges",
+      "lead": "Three at a time, each paid once. Something to aim at besides the next rung.",
+      "noExpiry": "Nothing expires. The set changes each day, but one you have not done comes round again and one you have done stays done — being away costs you nothing.",
+      "allDone": "You have completed every challenge. Nothing here expires, so that is the end of the list rather than a reset.",
+      "completed": "Challenge complete",
+      "earned": "+{coins} coins",
+      "items": {
+        "no-yank": {
+          "name": "No yank",
+          "how": "Win without using the yank once."
+        },
+        "clean-line": {
+          "name": "Clean line",
+          "how": "Win without ever pushing your line past the red mark."
+        },
+        "stay-in-it": {
+          "name": "Stay in it",
+          "how": "Win with at least 12 seconds of line contact."
+        },
+        "flawless": {
+          "name": "Flawless",
+          "how": "Win without losing a single round."
+        },
+        "cabled-field": {
+          "name": "Under the wires",
+          "how": "Win on a field that has power lines in it."
+        },
+        "high-flyer": {
+          "name": "High flyer",
+          "how": "Win having reached 70 m of altitude."
+        },
+        "quick-work": {
+          "name": "Quick work",
+          "how": "Win inside 20 seconds."
+        },
+        "outnumbered": {
+          "name": "Outnumbered",
+          "how": "Win a free-for-all against two or more."
+        },
+        "boss-hunter": {
+          "name": "Boss hunter",
+          "how": "Beat an opponent marked as a boss."
+        }
+      }
     }
   },
   "opponents": {

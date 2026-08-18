@@ -5,11 +5,14 @@ import { TRAIL_EFFECTS } from '~/data/effects'
 import { ARENAS, getArena, isArenaUnlocked } from '~/data/arenas'
 import { UPGRADES, getUpgrade, nextUpgradeCost } from '~/data/upgrades'
 import { OPPONENTS, availableOpponents } from '~/data/opponents'
+import { CHALLENGES } from '~/data/challenges'
+import { challengeDay, challengesFor, type ChallengeAward } from '~/services/economy/challenges'
 import { checkPurchase } from '~/services/economy/shop'
 import { difficultyForClears } from '~/services/economy/rewards'
 import { resolveLoadout } from '~/services/game/loadout'
 import type {
   ArenaId,
+  ChallengeId,
   KiteId,
   MatchLoadout,
   MatchReward,
@@ -288,6 +291,48 @@ export const usePlayerStore = defineStore('player', () => {
    * Takes every opponent who was in it: winning a free-for-all marks all of them
    * beaten, which is the whole appeal of taking on three at once.
    */
+  /**
+   * Today's challenges, and whether each is done.
+   *
+   * Derived rather than stored: the trio comes from the date, so there is nothing to
+   * keep in sync and nothing to expire. See `services/economy/challenges.ts`.
+   */
+  const challenges = computed(() =>
+    challengesFor(challengeDay(new Date()), save.value.completedChallenges),
+  )
+
+  const challengesCleared = computed(
+    () => save.value.completedChallenges.length >= CHALLENGES.length,
+  )
+
+  function hasCompletedChallenge(id: ChallengeId): boolean {
+    return save.value.completedChallenges.includes(id)
+  }
+
+  /**
+   * Bank completed challenges and pay for them. Returns the coins granted.
+   *
+   * Each one pays once, ever — the caller has already filtered by that, and the
+   * `includes` guard here makes it true even if it has not.
+   */
+  function completeChallenges(awards: readonly ChallengeAward[]): number {
+    let granted = 0
+
+    for (const award of awards) {
+      if (save.value.completedChallenges.includes(award.challenge.id)) continue
+      save.value.completedChallenges.push(award.challenge.id)
+      granted += award.coins
+    }
+
+    if (granted > 0) {
+      save.value.coins += granted
+      save.value.lifetimeCoins += granted
+      persist()
+    }
+
+    return granted
+  }
+
   function recordMatch(
     opponentIds: readonly OpponentId[],
     reward: MatchReward,
@@ -362,5 +407,9 @@ export const usePlayerStore = defineStore('player', () => {
     buyUpgrade,
     affordableCount,
     recordMatch,
+    challenges,
+    challengesCleared,
+    hasCompletedChallenge,
+    completeChallenges,
   }
 })

@@ -37,7 +37,7 @@ const groups: readonly { key: string, items: readonly string[], accent: Accent }
     items: ['collection', 'storage', 'transmission', 'deletion', 'children'],
     accent: 'sky',
   },
-  { key: 'money', items: ['purchases', 'coins', 'chance', 'ads'], accent: 'gold' },
+  { key: 'money', items: ['purchases', 'coins', 'challenges', 'chance', 'ads'], accent: 'gold' },
   { key: 'fairness', items: ['cosmetic', 'ai', 'targeting', 'upgrades'], accent: 'brand' },
 ]
 

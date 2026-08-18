@@ -154,8 +154,12 @@
           "def": "Hanya didapat dari bermain. Tidak bisa dibeli dan tidak punya nilai di luar game. Arena sama sekali tidak bisa dibeli — terbuka berdasarkan jumlah kemenangan."
         },
         "chance": {
-          "term": "Loot box atau hadiah acak",
-          "def": "Tidak ada. Setiap harga tetap dan setiap barang dibeli langsung."
+          "term": "Kotak hadiah atau imbalan acak",
+          "def": "Tidak ada. Setiap harga tetap dan setiap barang dibeli langsung. Tantangan membayar jumlah tetap masing-masing, dan tiga yang ditawarkan diambil dari tanggal kalender, bukan per pemain — semua orang yang bermain di hari yang sama melihat tiga yang sama, dan tidak ada yang kedaluwarsa."
+        },
+        "challenges": {
+          "term": "Tantangan",
+          "def": "Cara kedua mendapatkan koin, dibayar sekali masing-masing. Semuanya diperiksa terhadap apa yang dicatat simulasi — jumlah sentakan, detik persinggungan benang, puncak beban benang — jadi tidak bisa diklaim tanpa benar-benar dilakukan. Tidak ada yang dibatasi waktu: yang belum selesai akan datang lagi dan tidak bermain tidak merugikan apa pun."
         },
         "ads": {
           "term": "Iklan",

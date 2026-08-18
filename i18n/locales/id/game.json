@@ -289,6 +289,52 @@
       "title": "Latihan",
       "body": "Duel yang tidak bisa Anda kalahi. Benang Anda tetap putus dan ronde tetap dimulai lagi, jadi Anda bisa melihat harga sebuah kesalahan — tapi sesinya berlanjut sampai Anda keluar, dan petunjuknya tetap menyala.",
       "leave": "Selesai berlatih"
+    },
+    "challenges": {
+      "title": "Tantangan",
+      "lead": "Tiga sekaligus, masing-masing dibayar sekali. Sesuatu untuk dituju selain tangga berikutnya.",
+      "noExpiry": "Tidak ada yang kedaluwarsa. Setnya berganti setiap hari, tapi yang belum Anda selesaikan akan datang lagi dan yang sudah tetap selesai — tidak bermain sehari tidak merugikan Anda sama sekali.",
+      "allDone": "Anda sudah menyelesaikan semua tantangan. Tidak ada yang kedaluwarsa di sini, jadi itu ujung daftarnya, bukan reset.",
+      "completed": "Tantangan selesai",
+      "earned": "+{coins} koin",
+      "items": {
+        "no-yank": {
+          "name": "Tanpa sentak",
+          "how": "Menang tanpa memakai sentakan sekali pun."
+        },
+        "clean-line": {
+          "name": "Benang bersih",
+          "how": "Menang tanpa pernah melewati tanda merah pada beban benang."
+        },
+        "stay-in-it": {
+          "name": "Berani beradu",
+          "how": "Menang dengan setidaknya 12 detik persinggungan benang."
+        },
+        "flawless": {
+          "name": "Tanpa cela",
+          "how": "Menang tanpa kehilangan satu ronde pun."
+        },
+        "cabled-field": {
+          "name": "Di bawah kabel",
+          "how": "Menang di lapangan yang ada kabel listriknya."
+        },
+        "high-flyer": {
+          "name": "Terbang tinggi",
+          "how": "Menang setelah mencapai ketinggian 70 m."
+        },
+        "quick-work": {
+          "name": "Cepat selesai",
+          "how": "Menang dalam waktu kurang dari 20 detik."
+        },
+        "outnumbered": {
+          "name": "Dikeroyok",
+          "how": "Menang adu rame-rame melawan dua orang atau lebih."
+        },
+        "boss-hunter": {
+          "name": "Pemburu bos",
+          "how": "Kalahkan lawan yang berstatus bos."
+        }
+      }
     }
   },
   "opponents": {

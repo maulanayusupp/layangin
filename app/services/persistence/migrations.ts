@@ -4,8 +4,10 @@ import { findPattern } from '~/data/patterns'
 import { findTrailEffect } from '~/data/effects'
 import { findArena } from '~/data/arenas'
 import { normaliseUpgradeLevels } from '~/data/upgrades'
+import { findChallenge } from '~/data/challenges'
 import { findOpponent } from '~/data/opponents'
 import type {
+  ChallengeId,
   KiteId,
   OpponentId,
   PaletteId,
@@ -73,6 +75,17 @@ export function migrateSave(raw: unknown): SaveData {
   const ownedEffects = keepKnown<TrailEffectId>(toStringArray(input.ownedEffects), findTrailEffect)
   const defeated = keepKnown<OpponentId>(toStringArray(input.defeated), findOpponent)
 
+  /**
+   * Challenges completed. Absent from every save written before they existed, which
+   * reads correctly as "none yet" — nobody loses progress and nobody is handed any.
+   * `keepKnown` also drops any id this build no longer defines, which is the rule
+   * for every other content list here.
+   */
+  const completedChallenges = keepKnown<ChallengeId>(
+    toStringArray(input.completedChallenges),
+    findChallenge,
+  )
+
   // The starter kite can never be missing, or the player would be unable to fly.
   for (const id of defaults.ownedKites) if (!ownedKites.includes(id)) ownedKites.push(id)
   for (const id of defaults.ownedPalettes) if (!ownedPalettes.includes(id)) ownedPalettes.push(id)
@@ -117,6 +130,7 @@ export function migrateSave(raw: unknown): SaveData {
     bestStreak: Math.floor(toFiniteNumber(input.bestStreak, 0)),
     ladderClears: Math.floor(toFiniteNumber(input.ladderClears, 0)),
     lifetimeCoins: Math.floor(toFiniteNumber(input.lifetimeCoins, 0)),
+    completedChallenges,
     updatedAt: typeof input.updatedAt === 'string' ? input.updatedAt : new Date().toISOString(),
   }
 }

@@ -7,7 +7,7 @@
  *
  * ISO 8601 (YYYY-MM-DD) so `<time datetime>` is valid.
  */
-export const COMPLIANCE_REVIEWED = '2026-08-13'
-export const PRIVACY_UPDATED = '2026-08-13'
+export const COMPLIANCE_REVIEWED = '2026-08-18'
+export const PRIVACY_UPDATED = '2026-08-18'
 export const TERMS_UPDATED = '2026-08-13'
-export const COOKIES_UPDATED = '2026-08-13'
+export const COOKIES_UPDATED = '2026-08-18'

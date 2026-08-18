@@ -290,6 +290,12 @@ function watchReplay(): void {
       :owned-kite-ids="ownedKiteIds"
     />
 
+    <!--
+      After the brief, not before: the brief is how to win the fight in front of you,
+      which matters more than what it happens to pay extra for.
+    -->
+    <GameChallenges />
+
     <p
       v-if="player.save.ladderClears > 0"
       class="setup__difficulty"

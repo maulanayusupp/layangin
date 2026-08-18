@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { ChallengeAward } from '~/services/economy/challenges'
 import { KITES } from '~/data/kites'
 import { selectAdvice } from '~/services/game/advice'
 import { LINE_BREAK_TENSION } from '~/services/game/constants'
@@ -44,6 +45,8 @@ const props = defineProps<{
   isReplay?: boolean
   /** True when a playback did not reproduce the result it recorded. */
   replayMismatch?: boolean
+  /** Challenges this match completed, with what each paid. */
+  challengeAwards?: ChallengeAward[]
   /** The loadout that was flown, so the brief compares against the real gear. */
   loadout?: MatchLoadout
   /** The field it was flown on, for the wind and gust in the brief. */
@@ -195,6 +198,29 @@ const advice = computed(() => {
         </dl>
       </section>
 
+      <!--
+        Completed challenges, above the advice: this is the good news, and a player
+        who has just lost a close match should see what they gained before being told
+        what to do differently.
+      -->
+      <ul
+        v-if="challengeAwards && challengeAwards.length > 0"
+        class="result__challenges"
+      >
+        <li
+          v-for="award in challengeAwards"
+          :key="award.challenge.id"
+        >
+          <span class="result__challenge-label">{{ t('game.challenges.completed') }}</span>
+          <span class="result__challenge-name">
+            {{ t(`game.challenges.items.${award.challenge.i18nKey}.name`) }}
+          </span>
+          <span class="result__challenge-coins t-num">
+            {{ t('game.challenges.earned', { coins: formatCoins(award.coins, locale) }) }}
+          </span>
+        </li>
+      </ul>
+
       <UiHint
         v-if="advice"
         :hint-id="`advice-${advice}`"
@@ -301,6 +327,44 @@ const advice = computed(() => {
 </template>
 
 <style scoped lang="scss">
+.result__challenges {
+  display: grid;
+  gap: var(--sp-2);
+  list-style: none;
+
+  li {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2);
+    align-items: baseline;
+    padding: var(--sp-2) var(--sp-3);
+    border: 1px solid color-mix(in srgb, var(--c-gold) 45%, transparent);
+    border-radius: var(--r-md);
+    background: color-mix(in srgb, var(--c-gold) 10%, transparent);
+  }
+}
+
+.result__challenge-label {
+  font-family: var(--font-mono);
+  font-size: rem(9.5);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--c-text-mute);
+}
+
+.result__challenge-name {
+  font-family: var(--font-display);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--c-text);
+}
+
+.result__challenge-coins {
+  margin-inline-start: auto;
+  font-size: var(--fs-sm);
+  color: var(--c-gold);
+}
+
 .result__mismatch {
   padding: var(--sp-3);
   font-size: var(--fs-xs);

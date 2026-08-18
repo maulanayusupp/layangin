@@ -21,7 +21,7 @@
           "title": "What is stored on your device",
           "body": "Two things, both in your own browser:",
           "items": [
-            "Local storage — your game progress (coins, owned items, upgrade levels, ladder position, chosen arena, win/loss counts) and your settings (language, reduced effects, dismissed tips). This never leaves your browser.",
+            "Local storage — your game progress (coins, owned items, upgrade levels, ladder position, chosen arena, win/loss counts, completed challenges) and your settings (language, reduced effects, dismissed tips). This never leaves your browser.",
             "One cookie — your language choice, so the site opens in the language you picked. It contains a language code and nothing else."
           ]
         },
@@ -126,7 +126,7 @@
             },
             "save": {
               "name": "layangin:save",
-              "purpose": "Your game progress: coins, owned airframes and cosmetics, upgrade levels, ladder position, chosen arena, win and loss counts.",
+              "purpose": "Your game progress: coins, owned airframes and cosmetics, upgrade levels, ladder position, chosen arena, win and loss counts, completed challenges.",
               "duration": "Until you clear it",
               "type": "Local storage · not a cookie, never sent to a server"
             },
