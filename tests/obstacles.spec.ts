@@ -121,24 +121,57 @@ describe('wind shadow', () => {
 describe('cables', () => {
   const kampung = getArena('kampung')
 
+  /**
+   * A kite whose line crosses the cable run.
+   *
+   * The cables sit along the street at the downwind end (x 46–82, y 14–20), which is
+   * where a kite that has been paid out too far and allowed to sink ends up. A line
+   * from x = 30 up to a kite 50 m high at x = 90 crosses 17 m of altitude at about
+   * x = 50, squarely under the wires.
+   */
+  const overTheCables = (): FighterState => makeFighter(V.vec2(90, 50), 30)
+
   it('finds no contact when the kite flies below every cable', () => {
     const fighter = makeFighter(V.vec2(0, 6))
     expect(findCableContacts(kampung, fighter, [])).toHaveLength(0)
   })
 
   it('finds a contact when the line crosses a cable', () => {
-    // Kite high above and downwind, so the line must pass through the cables.
-    const fighter = makeFighter(V.vec2(20, 60), -20)
-    expect(findCableContacts(kampung, fighter, []).length).toBeGreaterThan(0)
+    expect(findCableContacts(kampung, overTheCables(), []).length).toBeGreaterThan(0)
+  })
+
+  /**
+   * The fix this pins: cables must be a hazard, not a tax.
+   *
+   * They used to run across the middle of the field at 14–20 m, and a line from an
+   * anchor at x = ±7 to a kite 50 m up crosses that band at x = 3–21 — so every
+   * launch snagged, for both fighters, on every seed. Measured at 100% of steps in
+   * two arenas. A warning that is permanently lit teaches nothing.
+   */
+  it('leaves a kite on its normal launch arc alone, in every arena', () => {
+    for (const arena of ARENAS) {
+      for (const anchorX of [-7, 7]) {
+        // Where `launchState` puts a kite: LAUNCH_ELEVATION on START_LINE_LENGTH.
+        const kite = V.vec2(
+          anchorX + Math.cos(0.96) * 62,
+          Math.sin(0.96) * 62,
+        )
+
+        expect(
+          findCableContacts(arena, makeFighter(kite, anchorX), []),
+          `${arena.id} @ ${anchorX}`,
+        ).toHaveLength(0)
+      }
+    }
   })
 
   it('finds nothing in an arena with no cables', () => {
-    const fighter = makeFighter(V.vec2(20, 60), -20)
+    const fighter = overTheCables()
     expect(findCableContacts(getArena('sawah'), fighter, [])).toHaveLength(0)
   })
 
   it('wears the line and flags it as snagged', () => {
-    const fighter = makeFighter(V.vec2(20, 60), -20)
+    const fighter = overTheCables()
     const contacts = findCableContacts(kampung, fighter, [])
     const out: ClashPoint[] = []
 
@@ -151,7 +184,7 @@ describe('cables', () => {
   })
 
   it('does no damage when the line is not sliding', () => {
-    const fighter = makeFighter(V.vec2(20, 60), -20)
+    const fighter = overTheCables()
     fighter.reelRate = 0
     fighter.velocity = V.vec2(0, 0)
 
@@ -163,7 +196,7 @@ describe('cables', () => {
   })
 
   it('clears the snagged flag when contact ends', () => {
-    const fighter = makeFighter(V.vec2(20, 60), -20)
+    const fighter = overTheCables()
     applyCableWear(fighter, findCableContacts(kampung, fighter, []), 1 / 60, [])
     expect(fighter.snagged).toBe(true)
 
@@ -172,7 +205,7 @@ describe('cables', () => {
   })
 
   it('cuts the line once integrity is exhausted', () => {
-    const fighter = makeFighter(V.vec2(20, 60), -20)
+    const fighter = overTheCables()
     fighter.lineIntegrity = 0.0001
 
     applyCableWear(fighter, findCableContacts(kampung, fighter, []), 1, [])

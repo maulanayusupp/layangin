@@ -375,11 +375,23 @@ export function createAiInput({ profile, random, clearance, bounds }: AiOptions)
         else walk = -walk
       }
 
-      // Hard floor: whatever the plan said, do not haul the kite down into a
-      // hazard. Paying out is still allowed — that is how it climbs away.
+      /**
+       * Hard floor: whatever the plan said, do not fly the kite down into a hazard.
+       *
+       * **Neutral, not "anything but hauling".** This used to clamp to `≤ 0` with a
+       * comment claiming paying out was how the kite climbed away. It is not —
+       * reeling costs elevation in *either* direction, and holding neutral is the
+       * only input that lets a kite settle back onto its equilibrium arc. See the
+       * flight-model traps in CLAUDE.md; this was the same misconception, in the one
+       * place where the consequence is flying into a power line.
+       *
+       * Measured after moving the neighbourhood cables to where a sinking kite finds
+       * them: with the old clamp the AI paid out into them on every match and a
+       * passive player won 6 of 6 for free.
+       */
       const floor = clearance(self.anchor.x, self.position.x)
       if (floor > 0 && self.position.y < floor + 6) {
-        reel = Math.min(reel, 0)
+        reel = 0
       }
 
       /**

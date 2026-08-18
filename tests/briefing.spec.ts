@@ -41,21 +41,24 @@ function brief(player: MatchLoadout, opponentId: Parameters<typeof getOpponent>[
 const keysOf = (points: ReturnType<typeof brief>): string[] => points.map(point => point.key)
 
 describe('the fundamentals are never left out', () => {
-  it('leads with hauling and walking, in that order, for every opponent', () => {
+  it('leads with walking, then hauling, then the yank, for every opponent', () => {
     for (const id of ['bocah-sawah', 'juara-lorong', 'bos-pasar', 'naga-senja'] as const) {
       const keys = keysOf(brief(loadout('pecut'), id))
 
-      // Measured: neutral play wins 0 of 48, hauling and walking wins 29. Nothing
-      // else in the brief is worth a fraction of that, so nothing else goes first.
-      expect(keys[0], id).toBe('haul')
-      expect(keys[1], id).toBe('walk')
+      /**
+       * The order is measured. Isolated against the first three opponents with no
+       * upgrades: walking alone wins 9 of 10 at tier 1, hauling alone wins 0, and
+       * tier 2 needs all three (9 of 10 with the yank, 0 without). An earlier version
+       * led with hauling, from a cumulative table that could not separate the two.
+       */
+      expect(keys.slice(0, 3), id).toEqual(['walk', 'haul', 'yank'])
     }
   })
 
-  it('marks them as the core advice rather than as a matchup detail', () => {
+  it('marks all three as core advice rather than as matchup detail', () => {
     const points = brief(loadout('pecut'), 'bos-pasar')
     expect(points.filter(point => point.kind === 'core').map(point => point.key))
-      .toEqual(['haul', 'walk'])
+      .toEqual(['walk', 'haul', 'yank'])
   })
 })
 

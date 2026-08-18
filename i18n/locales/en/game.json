@@ -259,8 +259,8 @@
       "edgeLabel": "In your favour",
       "riskLabel": "Against you",
       "points": {
-        "haul": "Haul the moment the lines touch. Damage is split by tension share, so the tighter line does the cutting and the slacker one takes it. Holding neutral through a crossing is how most matches are lost.",
-        "walk": "Walk sideways to meet them square. A right-angle crossing bites hardest; a shallow one barely counts. Measured, hauling and walking together are worth more than everything else on this page combined.",
+        "haul": "Haul the moment a good crossing starts. Damage is split by tension share, so the tighter line does the cutting and the slacker one takes it. Holding neutral through a crossing is how most matches are lost.",
+        "walk": "Walk sideways so the lines meet square. A right-angle crossing bites hardest and a shallow one barely counts — this alone wins the first fight, and it is the habit to build before anything else.",
         "weakerLine": "Their line survives about {percent}% more punishment than yours. Do not settle in for a long grind — you lose that trade. Take short, loaded exchanges and break off.",
         "strongerLine": "Your line takes about {percent}% more punishment than theirs. You can afford to stay in a crossing they have to leave.",
         "weakerGelasan": "Their gelasan bites harder than yours. Every second of contact costs you more than it costs them, so make contact count rather than making a lot of it.",
@@ -273,12 +273,14 @@
         "cagey": "They break off when they are losing. A war of attrition favours them, so win the exchanges you get rather than waiting for a long one.",
         "sloppy": "They make real mistakes. Stay close and be ready — the opening will come.",
         "needEdge": "Your gear is level with theirs at best — and they fly better than you. Level is a losing position against this one: you need a real edge in line strength or gelasan, not parity. Upgrade before trying again.",
-        "switchKite": "You own a better airframe for this fight: {kite}. Equip it in the shop."
+        "switchKite": "You own a better airframe for this fight: {kite}. Equip it in the shop.",
+        "yank": "Yank when a loaded, square crossing is still going against you. It spikes tension and slip for about half a second. Not optional: the second opponent on the ladder is beaten nine times in ten with it and never without it, whatever gear you bring."
       }
     },
     "coach": {
-      "haul": "Lines crossed — haul now to be the tauter line",
-      "angle": "Still losing? Walk sideways to cross square"
+      "angle": "Crossing too shallow — walk sideways to meet them square",
+      "haul": "Good crossing — haul now to be the tauter line",
+      "yank": "Still losing? Yank to spike the tension"
     }
   },
   "opponents": {

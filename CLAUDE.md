@@ -135,12 +135,44 @@ exist because of the crowd:
   four-way matches against the top tier because the opponents ignored them. The
   weighting is disclosed on the compliance page.
 
-### Teach the two things that decide a match
+### A snagging cable is either unavoidable or useless
 
-Measured against real per-tier loadouts, a scripted player that holds neutral
-through crossings wins **0 matches in 48**; the same player hauling on contact and
-walking to contest the angle wins **29**. Everything else — yank timing, altitude,
-stamina management — is worth a fraction of that.
+A line runs from the ground to a kite ~50 m up, so it crosses **every** altitude in
+between. Any cable strung across the middle of the field at a moderate height is
+therefore touched on every launch, by both fighters, forever — measured at 100% of
+steps in two arenas, with a `snagged` warning permanently lit, which teaches
+nothing. Do the arithmetic before placing one: a line from `x = ±7` to a kite 50 m
+up crosses 14–20 m of altitude at `x = 3–21`.
+
+The two answers, both now in `data/arenas.ts`:
+
+- **Put it where only a mistake reaches it** — far downwind and low, where a kite
+  that has been paid out too far and allowed to sink ends up. `kampung` does this.
+- **Make it scenery** (`WIRE` rather than `CABLE`) where placement cannot help.
+  `viaduk`'s arches are solid across almost the whole field, so the kite must be
+  above them, so the line must cross the catenary. No height fixes that.
+
+`tests/obstacles.spec.ts` asserts that a kite on its normal launch arc snags in no
+arena. Beware the other half of the trap: moving a cable to where a *sinking* kite
+finds it hands the match to a passive player unless the AI genuinely avoids it.
+
+### Teach the three things that decide a match, in the measured order
+
+Isolating each skill against the first three opponents, no upgrades at all (wins
+out of 10):
+
+```
+                         T1     T2     T3
+walk only               9/10   0/10   1/10
+walk + haul            10/10   0/10   7/10
+walk + haul + yank     10/10   9/10   8/10
+haul + yank, no walk    6/10   0/10   9/10
+```
+
+**Walking first, then hauling, then the yank.** An earlier version led with hauling
+because the table it was drawn from was cumulative and could not separate the two —
+hauling alone wins 0 of 10. And tier 2 is a gate that demands all three: every pair
+fails there, which also means it is a *skill* wall and must not be balanced away.
 
 For a long time nothing in the game said so. The HUD reported who was winning the
 exchange and never what to do about it, and the only tactical writing was three

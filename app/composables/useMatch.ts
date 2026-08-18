@@ -102,8 +102,35 @@ export interface MatchHud {
   coach: CoachCue | null
 }
 
-/** Coaching cues, in the order they are checked. */
-export type CoachCue = 'haul' | 'angle'
+/**
+ * Coaching cues, in the order they are checked.
+ *
+ * The order is the curriculum, and it is measured rather than guessed. Isolating
+ * each skill against the first three opponents, with no upgrades (wins out of 10):
+ *
+ * ```
+ *                          T1     T2     T3
+ * walk only               9/10   0/10   1/10
+ * walk + haul            10/10   0/10   7/10
+ * walk + haul + yank     10/10   9/10   8/10
+ * haul + yank, no walk    6/10   0/10   9/10
+ * ```
+ *
+ * Two things follow. Walking is what wins the first fight, so it is taught first —
+ * an earlier version of this led with hauling, which alone wins 0 of 10. And tier 2
+ * is the gate that demands all three at once: every pair fails there. So the cues
+ * escalate rather than repeating one lesson.
+ */
+export type CoachCue = 'angle' | 'haul' | 'yank'
+
+/**
+ * Crossing bite below which the angle is the problem rather than the tension.
+ *
+ * `bite` is |sin(crossing angle)|, the factor `applyAbrasion` multiplies damage by,
+ * so below this the exchange is barely happening whatever the player does with the
+ * spool — which is precisely when to talk about walking instead of hauling.
+ */
+const SHALLOW_BITE = 0.45
 
 /** Times the player must haul into a crossing before the coaching stops. */
 const COACH_LEARNED_AFTER = 5
@@ -339,19 +366,43 @@ export function useMatch({ canvas, container, hudFooter }: UseMatchOptions) {
     }
 
     /**
-     * The lines are crossed and the player is not pulling. Given a moment first —
-     * a cue that appears the instant contact starts would fire on every glancing
-     * brush and read as noise.
+     * Given a moment first: a cue that appears the instant contact starts would fire
+     * on every glancing brush and read as noise.
      */
-    if (clashing && !hauling && contactFor > 0.4) {
+    if (!clashing || contactFor <= 0.4) {
+      if (coachHold === 0) coachCue = null
+      return
+    }
+
+    /**
+     * The crossing is too shallow to do anything. Walking is the fix and the first
+     * lesson — it is what wins the opening fight on its own.
+     */
+    let bite = 0
+    for (const clash of snapshot.clashes) {
+      if (clash.kind === 'line') bite = Math.max(bite, Math.abs(Math.sin(clash.angle)))
+    }
+
+    if (bite < SHALLOW_BITE) {
+      coachCue = 'angle'
+      coachHold = COACH_HOLD
+      return
+    }
+
+    // A crossing worth having, and the player is not loading their line for it.
+    if (!hauling) {
       coachCue = 'haul'
       coachHold = COACH_HOLD
       return
     }
 
-    // Pulling but still losing the exchange: the angle is the other half.
-    if (clashing && hauling && hud.value.advantage < 0.42 && contactFor > 1.2) {
-      coachCue = 'angle'
+    /**
+     * Square, loaded, and still losing: the yank is what is left. This is the tier-2
+     * situation exactly — measured, that opponent is beaten 9 of 10 with the yank and
+     * 0 of 10 without it, at any gear level.
+     */
+    if (hud.value.advantage < 0.45 && hud.value.snapReady && contactFor > 1.2) {
+      coachCue = 'yank'
       coachHold = COACH_HOLD
       return
     }

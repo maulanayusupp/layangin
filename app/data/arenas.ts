@@ -19,6 +19,18 @@ import type { ArenaDefinition, ArenaId, ArenaObstacle, ObstacleBehaviour } from 
 const SOLID: ObstacleBehaviour = { solid: true, snag: false, windShadow: false }
 const SOLID_SHADOW: ObstacleBehaviour = { solid: true, snag: false, windShadow: true }
 const CABLE: ObstacleBehaviour = { solid: false, snag: true, windShadow: false }
+
+/**
+ * A wire that is drawn but does not cut.
+ *
+ * For places where a snagging wire would be unavoidable rather than a hazard. A
+ * line runs from the ground to a kite 50 m up, so it necessarily crosses every
+ * altitude in between: any cable strung across the middle of the field at a
+ * moderate height is touched on every launch, by both fighters, forever. Measured,
+ * that is exactly what happened — 100% of steps snagged in two arenas — and a
+ * warning that is permanently lit teaches nothing.
+ */
+const WIRE: ObstacleBehaviour = { solid: false, snag: false, windShadow: false }
 const SOFT: ObstacleBehaviour = { solid: true, snag: false, windShadow: false }
 
 /** Power line between two poles. The body box is only used for culling. */
@@ -137,16 +149,26 @@ export const ARENAS: readonly ArenaDefinition[] = [
       { kind: 'building', x: -14, y: 0, width: 12, height: 10, behaviour: SOLID_SHADOW, shade: 0.5 },
       { kind: 'building', x: 16, y: 0, width: 14, height: 12, behaviour: SOLID_SHADOW, shade: 0.35 },
       { kind: 'building', x: 34, y: 0, width: 18, height: 17, behaviour: SOLID_SHADOW, shade: 0.1 },
-      // Poles carrying the cables.
-      { kind: 'pole', x: -20, y: 0, width: 0.6, height: 20, behaviour: SOLID, shade: 0.4 },
-      { kind: 'pole', x: 8, y: 0, width: 0.6, height: 20, behaviour: SOLID, shade: 0.4 },
-      { kind: 'pole', x: 30, y: 0, width: 0.6, height: 20, behaviour: SOLID, shade: 0.4 },
-      // The cables themselves: low enough that a sinking kite drags its line
-      // across them, which shreds it far faster than any opponent.
-      powerline(-20, 19, 8, 17.5),
-      powerline(8, 17.5, 30, 19.5),
-      powerline(-20, 15.5, 8, 14),
-      powerline(8, 14, 30, 15.8),
+      // Poles carrying the cables, along the street at the downwind end.
+      { kind: 'pole', x: 46, y: 0, width: 0.6, height: 22, behaviour: SOLID, shade: 0.4 },
+      { kind: 'pole', x: 64, y: 0, width: 0.6, height: 22, behaviour: SOLID, shade: 0.4 },
+      { kind: 'pole', x: 82, y: 0, width: 0.6, height: 22, behaviour: SOLID, shade: 0.4 },
+      /**
+       * The cables: low enough that a sinking kite drags its line across them,
+       * which shreds it far faster than any opponent — and far enough downwind that
+       * a kite on its proper arc clears them.
+       *
+       * The second half of that sentence is the fix. These used to run from x = −20
+       * to x = 30, and a line from an anchor at x = ±7 up to a kite 50 m high crosses
+       * 14–20 m of altitude at x = 3–21. Every launch snagged, for both fighters,
+       * with nothing the player could do about it. Out here the line only reaches
+       * them below roughly 28° of elevation, which is a kite that has been paid out
+       * too far and allowed to sink.
+       */
+      powerline(46, 19, 64, 17.5),
+      powerline(64, 17.5, 82, 19.5),
+      powerline(46, 15.5, 64, 14),
+      powerline(64, 14, 82, 15.8),
     ],
     props: [
       { kind: 'bush', x: 2, y: 0, scale: 0.7 },
@@ -256,9 +278,20 @@ export const ARENAS: readonly ArenaDefinition[] = [
       { kind: 'arch', x: 18, y: 0, width: 34, height: 18, behaviour: SOLID_SHADOW, shade: 0.35 },
       { kind: 'pole', x: -4, y: 22, width: 0.4, height: 6, behaviour: SOLID, shade: 0.4 },
       { kind: 'pole', x: 34, y: 18, width: 0.4, height: 6, behaviour: SOLID, shade: 0.4 },
-      // Tram catenary along the deck.
-      powerline(-42, 27, -4, 28),
-      powerline(-4, 28, 34, 24),
+      /**
+       * Tram catenary along the deck — drawn, but it does not snag.
+       *
+       * Here an unavoidable wire is unavoidable by construction rather than by
+       * placement: the arches are solid up to 22 m across almost the whole field, so
+       * the kite has to be above them, so the line has to cross 22–28 m somewhere,
+       * so it has to cross the catenary. There is no height or span that fixes it.
+       *
+       * The deck itself is this arena's hazard and always was — "climb over it, or
+       * thread the gap and risk the deck". The wire adds nothing a player can fly
+       * around, so it stays as scenery.
+       */
+      { ...powerline(-42, 27, -4, 28), behaviour: WIRE },
+      { ...powerline(-4, 28, 34, 24), behaviour: WIRE },
       { kind: 'tree', x: 6, y: 0, width: 8, height: 11, behaviour: SOFT, shade: 0.5 },
     ],
     props: [

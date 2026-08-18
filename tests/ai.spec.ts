@@ -163,3 +163,64 @@ describe('the contact response waits for the reaction time', () => {
     expect(Math.max(...reels)).toBeLessThan(0.5)
   })
 })
+
+/**
+ * Hazard avoidance.
+ *
+ * Reeling costs elevation in *either* direction — see the flight-model traps in
+ * CLAUDE.md. So above a power line the only safe input is neutral, and the clamp
+ * that allowed paying out "to climb away" was acting on a misconception. Measured
+ * after moving the neighbourhood cables to where a sinking kite finds them: with the
+ * old clamp the AI paid out into them and a passive player won 7 of 8 for free;
+ * with this, 3 of 8, and in the monument arena 8 of 8 became 2 of 8.
+ */
+describe('the AI does not fly itself into a hazard', () => {
+  /** Reel command for a fighter sitting below the clearance floor. */
+  function reelNearHazard(kiteAltitude: number, floor: number): number {
+    const self = fighter('rival', 7, 30)
+    self.position = { x: 30, y: kiteAltitude }
+    const opponent = fighter('player', -7, 20)
+
+    const ai = createAiInput({
+      profile: profileWith(0.4),
+      random: createRandom(99),
+      clearance: () => floor,
+      bounds: 26,
+    })
+
+    const context: InputContext = {
+      self,
+      opponent,
+      others: [opponent],
+      wind: WIND,
+      contact: false,
+      elapsed: 0,
+      dt: FIXED_TIMESTEP,
+    }
+
+    let reel = 0
+    for (let i = 0; i < 40; i += 1) {
+      context.elapsed += FIXED_TIMESTEP
+      reel = ai.sample(context).reel
+    }
+    return reel
+  }
+
+  it('never pays line out while below the clearance floor', () => {
+    // A 40 m floor with the kite at 20 m: well inside the danger band, and above
+    // RECOVERY_ALTITUDE so the recovery haul is not what is being measured.
+    const reel = reelNearHazard(20, 40)
+
+    // Jitter is added to every command, so this is a bound rather than exactly 0.
+    expect(reel).toBeGreaterThan(-0.2)
+  })
+
+  it('is free to reel when there is no hazard under it', () => {
+    // With no floor the plan owns the spool again, so this must *not* be clamped —
+    // otherwise the fix would have quietly disabled the AI's positioning.
+    const reels = new Set<number>()
+    for (const altitude of [20, 30, 45, 60]) reels.add(reelNearHazard(altitude, 0))
+
+    expect(reels.size).toBeGreaterThan(1)
+  })
+})

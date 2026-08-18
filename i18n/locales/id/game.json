@@ -259,8 +259,8 @@
       "edgeLabel": "Menguntungkan Anda",
       "riskLabel": "Merugikan Anda",
       "points": {
-        "haul": "Tarik begitu benang bersentuhan. Kerusakan dibagi menurut pembagian tegangan, jadi benang yang lebih kencang yang menggerus dan yang lebih kendur yang tergerus. Diam saja saat bersilangan adalah cara paling umum kalah.",
-        "walk": "Jalan menyamping supaya bertemu tegak lurus. Persilangan siku menggerus paling dalam; yang miring nyaris tidak berarti. Terukur, menarik dan berjalan bersama-sama bernilai lebih besar daripada semua isi halaman ini digabung.",
+        "haul": "Tarik begitu persilangan yang bagus terjadi. Kerusakan dibagi menurut pembagian tegangan, jadi benang yang lebih kencang yang menggerus dan yang lebih kendur yang tergerus. Diam saja saat bersilangan adalah cara paling umum kalah.",
+        "walk": "Jalan menyamping supaya kedua benang bertemu tegak lurus. Persilangan siku menggerus paling dalam dan yang miring nyaris tidak berarti — ini saja sudah cukup memenangkan duel pertama, dan inilah kebiasaan yang harus dibangun lebih dulu.",
         "weakerLine": "Benang mereka tahan sekitar {percent}% lebih banyak gerusan daripada milik Anda. Jangan betah berlama-lama beradu — Anda kalah di pertukaran itu. Ambil sentuhan pendek dalam keadaan tegang, lalu menjauh.",
         "strongerLine": "Benang Anda tahan sekitar {percent}% lebih banyak gerusan daripada milik mereka. Anda sanggup bertahan di persilangan yang justru harus mereka tinggalkan.",
         "weakerGelasan": "Gelasan mereka menggigit lebih dalam. Setiap detik bersentuhan lebih mahal bagi Anda daripada bagi mereka, jadi buat sentuhannya berarti, bukan diperbanyak.",
@@ -273,12 +273,14 @@
         "cagey": "Mereka menjauh saat merasa kalah. Perang urat saraf menguntungkan mereka, jadi menangkan pertukaran yang ada alih-alih menunggu yang panjang.",
         "sloppy": "Mereka benar-benar bisa salah. Tetap dekat dan siap — celahnya pasti datang.",
         "needEdge": "Perlengkapan Anda paling banter setara dengan mereka — dan mereka terbang lebih baik dari Anda. Setara itu posisi kalah melawan yang ini: Anda butuh keunggulan nyata di kekuatan benang atau gelasan, bukan seimbang. Tingkatkan dulu sebelum mencoba lagi.",
-        "switchKite": "Anda punya rangka yang lebih cocok untuk duel ini: {kite}. Pasang di toko."
+        "switchKite": "Anda punya rangka yang lebih cocok untuk duel ini: {kite}. Pasang di toko.",
+        "yank": "Sentak kalau persilangan sudah tegak lurus dan tegang tapi tetap merugikan Anda. Sentakan melonjakkan tegangan dan gesekan sekitar setengah detik. Bukan pilihan: lawan kedua di tangga ini menang sembilan dari sepuluh kali dengan sentakan, dan tidak pernah tanpanya, perlengkapan apa pun yang Anda bawa."
       }
     },
     "coach": {
-      "haul": "Benang bersilangan — tarik sekarang supaya lebih tegang",
-      "angle": "Masih kalah? Jalan menyamping agar bersilangan tegak lurus"
+      "angle": "Persilangan terlalu miring — jalan menyamping agar tegak lurus",
+      "haul": "Persilangan bagus — tarik sekarang supaya lebih tegang",
+      "yank": "Masih kalah? Sentak untuk melonjakkan tegangan"
     }
   },
   "opponents": {

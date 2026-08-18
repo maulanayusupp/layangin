@@ -21,10 +21,23 @@ import type { KiteId, KiteStats, MatchLoadout, OpponentDefinition } from './type
  * - Gust and wind decide how close to the red mark a haul puts you.
  * - `aggression` and `caution` are how the AI behaves on contact and when losing.
  *
- * The two fundamentals are always included, and deliberately first: measured
- * against real per-tier loadouts, a scripted player that only holds neutral wins 0
- * of 48, and the same player hauling on contact and walking to contest wins 29.
- * Nothing else in this list is worth as much as those two.
+ * The three fundamentals are always included, and deliberately first and in order.
+ * The order is measured, not assumed — isolating each skill against the first three
+ * opponents with no upgrades at all (wins out of 10):
+ *
+ * ```
+ *                          T1     T2     T3
+ * walk only               9/10   0/10   1/10
+ * walk + haul            10/10   0/10   7/10
+ * walk + haul + yank     10/10   9/10   8/10
+ * haul + yank, no walk    6/10   0/10   9/10
+ * ```
+ *
+ * Walking wins the first fight by itself, so it leads. An earlier version led with
+ * hauling, which alone wins 0 of 10 — the cumulative table it was based on could not
+ * separate the two. And the yank is not optional: tier 2 is beaten 9 of 10 with it
+ * and 0 of 10 without, at any gear level, which also means that wall is a skill gate
+ * and not something to be bought past.
  */
 
 /** A single line of advice. `key` indexes `game.brief.points.*`. */
@@ -126,9 +139,10 @@ export function buildBriefing(input: BriefingInput): BriefingPoint[] {
   const gust = opponent.gustiness * input.gustMultiplier
 
   const points: BriefingPoint[] = [
-    // Always, and always first. These are worth more than everything below.
-    { key: 'haul', kind: 'core' },
+    // Always, always first, and in this order. See the note at the top of the file.
     { key: 'walk', kind: 'core' },
+    { key: 'haul', kind: 'core' },
+    { key: 'yank', kind: 'core' },
   ]
 
   // --- Whose line survives a grind ----------------------------------------

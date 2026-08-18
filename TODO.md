@@ -150,7 +150,35 @@ What is left, in order:
       readable; collision still uses the true size. A zoom control, or drawing at
       true scale with a picture-in-picture inset, would remove the discrepancy.
 
-### Cables in kampung and viaduk are permanent, not avoidable
+### Cables, fixed — and an AI bug found underneath
+
+`kampung`'s run moved from `x −20..30` to `x 46..82`, where the line only reaches it
+below roughly 28° of elevation: a kite paid out too far and allowed to sink, which is
+what the original comment said the hazard was *for*. `viaduk`'s catenary became
+scenery, because its arches are solid across the field and the line must cross 22–28 m
+to clear them — no placement can help.
+
+Moving them exposed a real bug in `input/ai.ts`. The hazard floor clamped the spool to
+`≤ 0` with a comment claiming paying out was how the kite climbed away. It is not —
+reeling costs elevation in either direction — so the AI paid out straight into the
+relocated cables. Now neutral. Passive-player win rates, before and after:
+
+```
+             before   after
+kampung       7/8      3/8
+monumen       8/8      2/8
+kota          8/8      8/8
+```
+
+- [ ] **`kota` still hands a passive player 8 of 8.** Not a regression — it measured
+      the same before this work. The cause is different: two towers with deep wind
+      shadows, and the AI's `clearance` accounts for height but not for dead air, so
+      it drifts into a shadow, loses lift and sinks. Wind-shadow avoidance is the fix.
+      Until then the arena is a free win for anyone who unlocks it.
+- [ ] `kampung` at 3/8 and `monumen` at 2/8 are much better but not zero. Same root:
+      the AI navigates obstacles by height alone.
+
+### Cables in kampung and viaduk are permanent, not avoidable — FIXED, see above
 
 Found within minutes of the replay inspector existing, which is the argument for
 having built it. A player giving **no input at all** flies with their line on a
