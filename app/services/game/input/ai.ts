@@ -131,9 +131,33 @@ export interface AiOptions {
    * outer flyers of a four-way against the edge.
    */
   bounds: number
+  /**
+   * Wind available at a point, 0..1 of the open-air value. Behind a tall building
+   * the air genuinely slows and lift collapses with it, and a kite cannot be
+   * spooled out of dead air — it has to climb out. Without this the AI had no way
+   * to know it was in a wake at all.
+   */
+  windFactor: (position: V.Vec2) => number
 }
 
-export function createAiInput({ profile, random, clearance, bounds }: AiOptions): InputSource {
+/**
+ * Wind fraction below which the AI treats the air as dead and climbs out.
+ *
+ * Measured in the city arena, whose two 52 m towers cast wakes 114 m downwind — and
+ * whose rival anchor sits directly under one of them. A passive player holding
+ * neutral climbs to 57 m, above the wake, and wins 8 of 8; the AI reeled, which costs
+ * elevation in either direction, sank into the wake at 33% wind, lost its lift and
+ * sank further. Eight losses out of eight, all by being cut while stalled.
+ */
+const DEAD_AIR = 0.9
+
+export function createAiInput({
+  profile,
+  random,
+  clearance,
+  bounds,
+  windFactor,
+}: AiOptions): InputSource {
   const command: FighterCommand = { reel: 0, walk: 0, snap: false }
 
   let plan: AiPlan = {
@@ -373,6 +397,18 @@ export function createAiInput({ profile, random, clearance, bounds }: AiOptions)
         // A real mistake: pay line out at the worst moment, or walk the wrong way.
         if (random.next() < 0.5) reel = -Math.abs(reel)
         else walk = -walk
+      }
+
+      /**
+       * In a wake, climb out before doing anything else.
+       *
+       * Holding neutral is the only input that gains elevation — reeling costs it in
+       * either direction — so this overrides the plan's spool entirely rather than
+       * clamping it. The walk is left alone: the plan's positioning is still what
+       * eventually carries the kite clear of the building.
+       */
+      if (windFactor(self.position) < DEAD_AIR) {
+        reel = 0
       }
 
       /**

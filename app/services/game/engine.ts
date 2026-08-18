@@ -200,6 +200,7 @@ export function createMatchEngine({
         random: createRandom(config.seed ^ (0x5bf03635 + slot * 0x9e3779b9)),
         clearance: clearanceFor,
         bounds: walkBound,
+        windFactor: position => windFactorAt(arena, position),
       }),
     )
   })

@@ -200,8 +200,21 @@ export const ARENAS: readonly ArenaDefinition[] = [
     gustMultiplier: 1.2,
     obstacles: [
       // Twin slabs straddling the middle of the field.
-      { kind: 'tower', x: -4, y: 0, width: 9, height: 52, behaviour: SOLID_SHADOW, shade: 0.15 },
-      { kind: 'tower', x: 7, y: 0, width: 9, height: 52, behaviour: SOLID_SHADOW, shade: 0.3 },
+      /**
+       * Forty metres, not fifty-two.
+       *
+       * A wake reaches 2.2× the obstacle's height downwind and rises slightly as it
+       * travels, so a 52 m tower's wake topped out at 56 m — above the 51 m a kite
+       * actually flies at. The shadow was not a pocket to avoid, it was a blanket
+       * over the whole arena, and both anchors sit directly under these two. Measured:
+       * the AI spent 42% of every match in 33% wind, sank to 27 m and lost 8 of 8 to
+       * a player who did nothing but hold neutral and stay above it.
+       *
+       * At 40 m the wake tops out around 44 m: clean air above, a real pocket below,
+       * which is what the arena's brief already claims.
+       */
+      { kind: 'tower', x: -4, y: 0, width: 9, height: 40, behaviour: SOLID_SHADOW, shade: 0.15 },
+      { kind: 'tower', x: 7, y: 0, width: 9, height: 40, behaviour: SOLID_SHADOW, shade: 0.3 },
       { kind: 'building', x: 26, y: 0, width: 30, height: 9, behaviour: SOLID_SHADOW, shade: 0.45 },
       { kind: 'building', x: -30, y: 0, width: 26, height: 8, behaviour: SOLID_SHADOW, shade: 0.5 },
       { kind: 'pole', x: 34, y: 0, width: 0.5, height: 24, behaviour: SOLID, shade: 0.3 },

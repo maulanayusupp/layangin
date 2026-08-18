@@ -170,13 +170,35 @@ monumen       8/8      2/8
 kota          8/8      8/8
 ```
 
-- [ ] **`kota` still hands a passive player 8 of 8.** Not a regression — it measured
-      the same before this work. The cause is different: two towers with deep wind
-      shadows, and the AI's `clearance` accounts for height but not for dead air, so
-      it drifts into a shadow, loses lift and sinks. Wind-shadow avoidance is the fix.
-      Until then the arena is a free win for anyone who unlocks it.
-- [ ] `kampung` at 3/8 and `monumen` at 2/8 are much better but not zero. Same root:
-      the AI navigates obstacles by height alone.
+- [x] **`kota`'s free win is gone**, 8/8 passive to 0/8, and a competent player wins
+      6/8. Two fixes, and the order matters. The AI now gets a `windFactor` probe and
+      holds neutral in dead air — correct, but on its own it only turned the losses
+      into stalemates, because the arena's 52 m towers cast a wake topping out at 56 m
+      against the ~51 m a kite flies at. There was no clean air to climb into. At 40 m
+      the wake tops out near 44 m and the shadow is the pocket the arena's brief always
+      claimed it was.
+
+Arena survey after all of it (passive / competent, wins out of 8):
+
+```
+sawah    0 / 8      kota      0 / 6  (all reach the clock)
+pantai   0 / 0      monumen   2 / 2  (all reach the clock)
+kampung  3 / 8      viaduk    0 / 8
+```
+
+- [ ] **`kota` and `monumen` now always reach the clock.** Better than a free win —
+      the result still follows lives and line condition, and skill still decides it —
+      but a match that never ends in a cut is unsatisfying. Likely the same cause in
+      both: with the shadow avoided, both fighters sit in the clean air above it on
+      near-parallel lines, so the crossing rate collapses. Worth measuring contact
+      rate per arena.
+- [ ] **`pantai` beats a competent player 8 times out of 8** against the *first*
+      opponent. It is the windiest field, so an un-upgraded line sits high on the load
+      meter before anything happens. Arenas unlock on win count rather than on gear, so
+      nothing stops a player taking a bare kite there. Either gate it on upgrades or
+      soften the multiplier.
+- [ ] `kampung` at 3/8 passive and `monumen` at 2/8 competent are still off. The AI
+      navigates obstacles by height and now by wind, but not by both at once.
 
 ### Cables in kampung and viaduk are permanent, not avoidable — FIXED, see above
 

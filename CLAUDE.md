@@ -135,6 +135,24 @@ exist because of the crowd:
   four-way matches against the top tier because the opponents ignored them. The
   weighting is disclosed on the compliance page.
 
+### A wind shadow must be a pocket, not a blanket
+
+A wake reaches `2.2 × height` downwind and rises slightly as it travels, so a tall
+enough obstacle shadows the entire volume a kite can fly in. The city arena's towers
+were 52 m, putting the wake top at 56 m against the ~51 m a kite actually flies at:
+there was no clean air to recover into, which is what the arena's own brief promises.
+Measured, the AI spent 42% of every match in 33% wind, sank to 27 m and lost 8 of 8
+to a player who did nothing but hold neutral above it.
+
+At 40 m the wake tops out near 44 m and the pocket is a pocket. **Check the
+arithmetic against `LAUNCH_ELEVATION × START_LINE_LENGTH` before placing a shadowing
+obstacle** — the same class of error as the cables above.
+
+The AI now gets a `windFactor` probe and holds neutral in dead air, because reeling
+costs elevation in either direction and neutral is the only input that climbs. That
+fix alone was not enough and should not be mistaken for one: in an arena where the
+shadow covers everything it merely turned losses into stalemates.
+
 ### A snagging cable is either unavoidable or useless
 
 A line runs from the ground to a kite ~50 m up, so it crosses **every** altitude in

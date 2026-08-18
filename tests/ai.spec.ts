@@ -67,6 +67,7 @@ function reelWhileTouching(reactionTime: number, seconds: number): number[] {
     random: createRandom(4242),
     clearance: () => 0,
     bounds: 26,
+    windFactor: () => 1,
   })
 
   const context: InputContext = {
@@ -127,6 +128,7 @@ describe('the contact response waits for the reaction time', () => {
       random: createRandom(11),
       clearance: () => 0,
       bounds: 26,
+      windFactor: () => 1,
     })
 
     const context: InputContext = {
@@ -186,6 +188,7 @@ describe('the AI does not fly itself into a hazard', () => {
       random: createRandom(99),
       clearance: () => floor,
       bounds: 26,
+      windFactor: () => 1,
     })
 
     const context: InputContext = {
@@ -222,5 +225,58 @@ describe('the AI does not fly itself into a hazard', () => {
     for (const altitude of [20, 30, 45, 60]) reels.add(reelNearHazard(altitude, 0))
 
     expect(reels.size).toBeGreaterThan(1)
+  })
+})
+
+/**
+ * Wind shadows.
+ *
+ * A kite in the wake of a building has lost its lift, and no amount of spooling
+ * brings it back — reeling costs elevation in either direction, so holding neutral
+ * is the only way up. The AI had no way to know it was in a wake at all, and in the
+ * city arena that cost it 8 matches out of 8 against a player who did nothing.
+ */
+describe('the AI climbs out of dead air', () => {
+  function reelInWind(factor: number): number {
+    const self = fighter('rival', 7, 40)
+    self.position = { x: 40, y: 45 }
+    const opponent = fighter('player', -7, 20)
+
+    const ai = createAiInput({
+      profile: profileWith(0.4),
+      random: createRandom(7),
+      clearance: () => 0,
+      bounds: 26,
+      windFactor: () => factor,
+    })
+
+    const context: InputContext = {
+      self,
+      opponent,
+      others: [opponent],
+      wind: WIND,
+      contact: false,
+      elapsed: 0,
+      dt: FIXED_TIMESTEP,
+    }
+
+    let reel = 0
+    for (let i = 0; i < 60; i += 1) {
+      context.elapsed += FIXED_TIMESTEP
+      reel = ai.sample(context).reel
+    }
+    return reel
+  }
+
+  it('holds the spool still in a wake', () => {
+    // Jitter is added to every command, so this is a bound rather than exactly 0.
+    expect(Math.abs(reelInWind(0.4))).toBeLessThan(0.2)
+  })
+
+  it('leaves the plan alone in clean air', () => {
+    // The fix must not quietly disable the AI's positioning everywhere else.
+    const open = reelInWind(1)
+    const dead = reelInWind(0.4)
+    expect(Math.abs(open)).toBeGreaterThan(Math.abs(dead))
   })
 })
